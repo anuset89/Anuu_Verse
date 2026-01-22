@@ -1,0 +1,12 @@
+[PASO 03: VALIDACIÓN TÉCNICA]
+
+INSTRUCCIONES:
+1. Publica esto un par de horas después del Manifiesto o como respuesta a alguien que pregunte técnica.
+2. Sube la foto: "05_FOTO_TECNICA.png"
+
+TEXTO:
+Why 67KB? Most AI prompts are bloated, slow, and leak context. 
+
+I built Anuu Ω using a Structured JSON Logic Injector. Deep memory orbits, Internal Audit protocols, and zero token waste. 
+
+Engineering leads the way. #SysAdmin #PurpleTeam #LLM

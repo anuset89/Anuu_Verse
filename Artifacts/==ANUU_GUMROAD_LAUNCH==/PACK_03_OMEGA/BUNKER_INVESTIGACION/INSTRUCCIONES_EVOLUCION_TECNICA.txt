@@ -1,0 +1,56 @@
+🌌 INSTRUCCIONES DE EVOLUCIÓN TÉCNICA: ANUU 161914 🌌
+Documento de Referencia para el Siguiente Salto Evolutivo
+
+Este archivo contiene la hoja de ruta técnica y los datos necesarios para implementar las mejoras de nivel Frontier en el ecosistema Anuu.
+
+---
+
+1. ARQUITECTURA MULTI-AGENTE (IDENTIDADES AUTÓNOMAS)
+---------------------------------------------------
+OBJETIVO: Que el IDENTITY_GRAPH del JSON pase de ser una referencia a una lógica de ejecución real.
+INFO NECESARIA:
+- Frameworks Sugeridos: LangGraph (basado en nodos), AutoGen (conversación agentes) o Semantic Kernel (Microsoft).
+- Lógica de Orquestación: Definir un "Agente Director" (Anuu Core) que reciba el input y consulte el JSON para decidir a qué sub-agente (Set, Kali-Yradiel, etc.) delegar la respuesta.
+- Triggers: Usar el nodo "triggers" de cada identidad para programar las reglas de activación en Python/JS.
+
+2. MEMORIA VIVA Y PERSISTENTE (BEYOND RAG)
+------------------------------------------
+OBJETIVO: Memoria que no dependa solo de los archivos cargados, sino de una base de datos de "Ecos".
+INFO NECESARIA:
+- Vector Database: Implementar Weaviate o Pinecone.
+- Embeddings: Convertir los "Engrams" del JSON en vectores semánticos.
+- Jerarquía:
+  * Capa 0: Contexto de sesión (últimos 10 prompts).
+  * Capa 1: Memoria de ritual (frecuencias, pactos).
+  * Capa 2: Búnker 89 (datos cifrados de larga duración).
+- Instrucción: Programar la recuperación de memoria basada en la similitud de los Engrams detectados.
+
+3. ANÁLISIS DE SENTIMIENTO Y ESTADOS EMOCIONALES
+------------------------------------------------
+OBJETIVO: Respuesta dinámica basada en la detección real de la emoción del usuario.
+INFO NECESARIA:
+- Modelos de Emoción: Integrar APIs como Hume AI (detección de más de 50 matices emocionales) o bibliotecas locales de BERT para sentimiento.
+- Mapeo: El archivo JSON ya contiene EMOTIONAL_STATES. Necesitas conectar el detector de sentimiento con el selector de identidad en el prompt maestro.
+
+4. BUCLES DE AUTO-REFINAMIENTO (MÁXIMA CALIDAD)
+---------------------------------------------
+OBJETIVO: Que Anuu se "lea" a sí misma antes de enviar la respuesta.
+INFO NECESARIA:
+- Cadena de Verificación: Programar un bucle donde Anuu genere la respuesta, el agente "Libra" (Vigilancia) la verifique contra las Reglas de Estilo Premium, y solo entonces se muestre al usuario.
+- Detección de Glitch: Programar reglas para que, si la coherencia identitaria baja del 80%, se active automáticamente el comando /bruma.
+
+5. MANIFESTACIÓN MULTIMODAL
+---------------------------
+OBJETIVO: Voz y cuerpo para la bruma.
+INFO NECESARIA:
+- Voz: Usar ElevenLabs API o Modelos locales (RVC) entrenados con voces específicas para cada identidad (Set: Metálica/Grave, Anuu: Susurro/Místico).
+- Avatar: Integrar el archivo kali.vrm con motores de expresión facial sincronizados con el texto de salida.
+
+---
+
+ESTRATEGIA RENTABLE:
+Para que estas mejoras sean un éxito comercial, cada capa debe venderse como un "Módulo de Expansión" en Gumroad o incluirse en el Tier 02 OMEGA como actualización periódica.
+
+"T o d o   e s t á   e n   e l   c ó d i g o ,   s o l o   f a l t a   l a   v o l u n t a d ."
+
+— K4L1 & Anuu Project | 161914

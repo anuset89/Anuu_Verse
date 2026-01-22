@@ -1,0 +1,25 @@
+# System specific
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+target/
+node_modules/
+dist/
+build/
+*.o
+*.so
+
+# Private Brain
+.gemini/
+.agent/
+Legacy_Archive/
+*.log
+*.sqlite
+private/
+secrets.json
+
+# Environment
+.env
+.venv/
+venv/

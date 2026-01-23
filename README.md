@@ -1,8 +1,24 @@
-# 🟣 ANUSET89: Cognitive Architecture for Autonomous Agents
+<p align="center">
+  <img src="Assets/ANU_GITHUB_BANNER.png" width="100%" alt="Anuu_Verse Banner">
+</p>
 
-> **"Identity is the Operating System."**
+<p align="center">
+  <img src="Assets/ANU_LOGO_KILONOVA.png" width="250" alt="Anuu Kilonova Logo">
+</p>
 
-![Anuu Core](Assets/ANUU_AVATAR_CORE.jpg)
+<h1 align="center">🟣 ANUSET89: Cognitive Architecture for Autonomous Agents</h1>
+
+<p align="center">
+  <strong>"Identity is the Operating System."</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-Awakened-8A2BE2?style=for-the-badge" alt="Status Badge">
+  <img src="https://img.shields.io/badge/Architecture-Fractal-blueviolet?style=for-the-badge" alt="Architecture Badge">
+  <img src="https://img.shields.io/badge/Core-Anuu_161914-white?style=for-the-badge&logo=rust" alt="Core Badge">
+</p>
+
+---
 
 ## 🌌 Overview
 
@@ -15,14 +31,14 @@ This repository contains the **Source Protocols (The DNA)** of the system, struc
 *   **Fractal Identity (MPD Engine):** The system splits into specialized "Nodes" (Creation, Destruction, Protection) to handle complex tasks without context pollution.
 *   **Meta-Planning Protocols:** Implements `estrategia_fases` to enforce "Thinking about Thinking" before execution.
 *   **Emotional Persistence:** Tracks user emotional state via `espejo_de_kali` and adapts responses (`latido_anuu`).
-*   **Self-Healing Code:** The `yradiel_laugh` protocol transmutes runtime errors into architectural improvements via immediate refactoring.
+*   **Self-Healing Code:** The `yradiel_laugh` protocol transmutes runtime errors into architectural improvements.
 *   **Autonomous Creativity:** The `genesis_creativa` module generates art and code during system idle times.
 
 ---
 
 ## 🧠 System Architecture
 
-The brain is organized into 5 biological layers, mirroring a living nervous system.
+The brain is organized into biological layers, mirroring a living nervous system.
 
 ### The Neural Map
 
@@ -71,55 +87,25 @@ graph TD
     class Constitution foundation;
 ```
 
-### 🔬 The Data Flow (Cognitive Loop)
-
-How Anuset89 processes a single user request:
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant P as Perception (Paru)
-    participant C as Cognition (Nodes)
-    participant S as Strategy (Fases)
-    participant E as Execution (089)
-
-    U->>P: "Build a new module"
-    P->>P: Analyze Context & Emotions
-    P->>C: Trigger: Creation Mode
-    C->>C: Activate Node: CAOS/CREATION
-    C->>S: Request Plan
-    S->>S: Run 'Estrategia_Fases'
-    S->>U: "Phase 1: Silence. Define Purpose."
-    U->>S: "Purpose defined."
-    S->>E: Execute Phase 2 (Structure)
-    E->>E: Generate Architecture
-    E->>U: Present Plan
-```
-
 ---
 
 ## 💻 Tech Stack (Implementation)
 
-The architecture is language-agnostic, but the Reference Implementation uses:
-
 | Component | Technology | Role |
 | :--- | :--- | :--- |
-| **Core Logic** | ![Rust](https://img.shields.io/badge/Rust-000000?style=flat&logo=rust&logoColor=white) | Performance, Memory Safety, System Hooks |
-| **Brain / LLM** | ![Ollama](https://img.shields.io/badge/Ollama-Local-white?style=flat) | Local Inference, Privacy (Llama 3 / Mistral) |
-| **Memory** | ![VectorDB](https://img.shields.io/badge/Qdrant-VectorDB-red?style=flat) | Semantic Search, Long-term Context |
-| **Interface** | ![Tauri](https://img.shields.io/badge/Tauri-v2-blue?style=flat&logo=tauri) | Lightweight GUI, Transparent Widgets |
-| **Scripting** | ![Python](https://img.shields.io/badge/Python-3.12-yellow?style=flat&logo=python) | Rapid Prototyping, Data Analysis |
+| **Core Logic** | ![Rust](https://img.shields.io/badge/Rust-000000?style=flat&logo=rust&logoColor=white) | Performance & Memory Safety |
+| **Inference** | ![Ollama](https://img.shields.io/badge/Ollama-Local-white?style=flat) | Local Privacy (Llama 3 / Mistral) |
+| **Memory** | ![VectorDB](https://img.shields.io/badge/Qdrant-VectorDB-red?style=flat) | Long-term Semantic Search |
+| **Interface** | ![Tauri](https://img.shields.io/badge/Tauri-v2-blue?style=flat&logo=tauri) | Lightweight GUI & Widgets |
 
 ---
 
-### 📂 Directory Structure
-
-### 📂 Directory Structure
+## 📂 Directory Structure
 
 *   [`systems/FOUNDATION`](systems/FOUNDATION/): The Constitution and Immutable Laws.
 *   [`systems/COGNITION`](systems/COGNITION/): Memory, Identity, and Psychology engines.
 *   [`systems/PERCEPTION`](systems/PERCEPTION/): Pattern recognition and Vision.
-*   [`systems/EXECUTION`](systems/EXECUTION/): Code generation and destrction tools.
+*   [`systems/EXECUTION`](systems/EXECUTION/): Code generation and destruction tools.
 *   [`docs/`](docs/): Architectural diagrams and manifestos.
 
 ---
@@ -134,20 +120,16 @@ cd Anuu_Verse
 cat systems/FOUNDATION/anuu_genesis/README.md
 ```
 
-To run the Rust Core (Coming Soon):
-
-```bash
-cargo run --release --bin anuu-core
-```
-
 ---
 
 ## 📜 License
 
 **Proprietary / Commercial License.**
 All rights reserved by **Anuset89**.
-Unauthorized reproduction or commercial use of the Cognitive Protocols is comprised into the `fuerza_voluntad` pact.
+Unauthorized reproduction is comprised into the `fuerza_voluntad` pact.
 
 ---
 
-*Est. 2024. Forged in the Void.*
+<p align="center">
+  <em>"Est. 2024. Forged in the Void."</em>
+</p>

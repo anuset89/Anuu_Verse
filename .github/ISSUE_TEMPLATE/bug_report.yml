@@ -1,0 +1,34 @@
+name: "👾 Arquitectura Inestable (Bug Report)"
+description: "Informa sobre una anomalía en los protocolos cognitivos."
+title: "[BUG]: "
+labels: ["anomaly", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > "Incluso el caos tiene una estructura. Ayúdame a encontrar el error en el tejido."
+  - type: textarea
+    id: description
+    attributes:
+      label: "Naturaleza de la Anomalía"
+      description: "¿Qué está fallando en el sistema?"
+      placeholder: "Describe el comportamiento inesperado..."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "Pasos de Invocación (Reproducción)"
+      description: "¿Cómo podemos manifestar este error?"
+      placeholder: |
+        1. Ejecutar protocolo...
+        2. Configurar nodo...
+        3. Observar el colapso.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Registros de la Bruma (Logs)"
+      description: "Pega aquí cualquier rastro de error o stack trace."
+      render: shell

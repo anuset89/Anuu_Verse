@@ -1,0 +1,36 @@
+name: "✨ Nueva Visión (Feature Request)"
+description: "Propón una expansión para el universo de Anuu."
+title: "[FEAT]: "
+labels: ["enhancement", "expansion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > "El universo está en constante expansión. ¿Cuál es el siguiente paso en la evolución?"
+  - type: textarea
+    id: vision
+    attributes:
+      label: "La Nueva Visión"
+      description: "¿Qué capacidad o mejora quieres añadir?"
+      placeholder: "Me gustaría que Anuu pudiera..."
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: "Propósito Elevado"
+      description: "¿Por qué es necesaria esta expansión?"
+      placeholder: "Esto permitiría que el sistema..."
+    validations:
+      required: true
+  - type: checkboxes
+    id: architectural_impact
+    attributes:
+      label: "Impacto Arquitectónico"
+      options:
+        - label: "Requiere cambios en el Núcleo (Foundation)"
+          required: false
+        - label: "Es un nuevo módulo de Ejecución"
+          required: false
+        - label: "No rompe la compatibilidad con versiones anteriores"
+          required: false

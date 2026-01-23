@@ -8,6 +8,8 @@
 
 ## High-Level Overview
 
+![Architecture Diagram](../img/architecture.png)
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                     USER INTERFACE LAYER                     │

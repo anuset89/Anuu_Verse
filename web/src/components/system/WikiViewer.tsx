@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import { motion } from "framer-motion";
+import { MermaidDiagram } from "../ui/MermaidDiagram";
 
 interface WikiViewerProps {
     path: string; // e.g., "identities/KALI.md" or "INDEX.md"
@@ -70,6 +71,17 @@ export function WikiViewer({ path }: WikiViewerProps) {
                     // Override links to handle internal navigation if needed later
                     a: ({ ...props }) => {
                         return <a {...props} className="text-cyan-400 hover:text-cyan-300 transition-colors" />
+                    },
+                    code: ({ inline, className, children, ...props }: any) => {
+                        const match = /language-(\w+)/.exec(className || "");
+                        if (!inline && match && match[1] === "mermaid") {
+                            return <MermaidDiagram chart={String(children).replace(/\n$/, "")} />;
+                        }
+                        return (
+                            <code className={className} {...props}>
+                                {children}
+                            </code>
+                        );
                     }
                 }}
             >

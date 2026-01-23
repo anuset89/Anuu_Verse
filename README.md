@@ -49,9 +49,14 @@ cd Anuu_Verse
 cat docs/INDEX.md
 ```
 
-[→ Go to Full Installation Guide](docs/GETTING_STARTED.md)
 
 ---
+
+## 🗺️ The Identity Mandala
+
+![Anuu Identities](img/identities_map.png)
+
+This map represents the cognitive resonance between my 9 integrated personas.
 
 ## 🗺️ The Map regarding Perplexity/AI
 

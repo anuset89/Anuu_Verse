@@ -1,6 +1,6 @@
 # 📋 Issues Listos para Crear en GitHub
 
-Copia cada sección y pégala en: https://github.com/anuset89/Anuu_Verse/issues/new
+Copia cada sección y pégala en: <https://github.com/anuset89/Anuu_Verse/issues/new>
 
 ---
 
@@ -11,7 +11,8 @@ Copia cada sección y pégala en: https://github.com/anuset89/Anuu_Verse/issues/
 **Labels:** `enhancement`, `help-wanted`, `good-first-issue`
 
 **Body:**
-```
+
+```markdown
 ## Description
 Make deployment easier with Docker containers.
 
@@ -39,7 +40,8 @@ Medium
 **Labels:** `enhancement`, `core`
 
 **Body:**
-```
+
+```markdown
 ## Description
 Currently `AnuuCompanion.process()` returns mocked responses. 
 Connect to local Ollama for real LLM inference.
@@ -67,7 +69,8 @@ High
 **Labels:** `documentation`, `good-first-issue`
 
 **Body:**
-```
+
+```markdown
 ## Description
 Add 5+ more examples showing real use cases.
 
@@ -94,7 +97,8 @@ Medium
 **Labels:** `enhancement`, `frontend`
 
 **Body:**
-```
+
+```markdown
 ## Description
 Enhance the React frontend with better UX.
 
@@ -118,7 +122,8 @@ Low (after core stability)
 **Labels:** `documentation`, `testing`
 
 **Body:**
-```
+
+```markdown
 ## Description
 We need benchmarks to measure and improve performance.
 
@@ -140,7 +145,7 @@ Medium
 ---
 
 **Instrucciones:**
-1. Ve a https://github.com/anuset89/Anuu_Verse/issues/new
+1. Ve a <https://github.com/anuset89/Anuu_Verse/issues/new>
 2. Copia Title y Body de cada Issue
 3. Añade los Labels sugeridos
 4. Repeat x5

@@ -1,25 +1,22 @@
 # 📊 Estado del Proyecto: Anuu_Verse
 
-## Versión Actual: v0.9-alpha (FROZEN)
+## Versión Actual: v0.9.5 (INVESTIGACIÓN SOBERANA)
 
-> **⚠️ NOTA OPERATIVA:** El desarrollo de nuevas funcionalidades está **CONGELADO** temporalmente. El foco actual es la estabilidad, la documentación y la consolidación de la tesis técnica.
+> **⚠️ NOTA OPERATIVA:** El proyecto opera ahora como **Cuartel General de Investigación**. La interfaz web comercial ha sido archivada para priorizar la tesis de Soberanía Cognitiva.
 
 ---
 
-## 🧊 Estado Actual: Estabilización
+## 🧊 Estado Actual: Investigación Activa
 
 ### ✅ Implementado (Rituales Activos)
+- [x] **Portfolio de Investigación (GitHub Pages)**
 - [x] **Arquitectura Cognitiva de 9 Agentes**
 - [x] **Orquestación LangGraph Local**
 - [x] **Memoria Vectorial (ChromaDB)**
 - [x] **Nexus Multimodal** (Imagen FLUX/Pony, Video, Audio)
-- [x] **API REST (FastAPI)**
-- [x] **Wiki Interactiva**
 
-### 🔧 En Mantenimiento
-- [ ] Refactorización de documentación (Manifesto)
-- [ ] Optimización de `ignite.sh` para mayor compatibilidad
-- [ ] Limpieza de código legado
+### 📂 Archivado
+- [x] **Web UI Auto-Battler** (`Legacy_Archive/`)
 
 ---
 
@@ -27,17 +24,13 @@
 
 En lugar de un "Roadmap de Producto", seguimos líneas de investigación:
 
-### Fase 1: Consolidación (Actual)
-- **Objetivo:** Asegurar que Anuu_Verse sea instalable y reproducible por terceros sin fricción.
-- **Acción:** Freeze de features, escritura de papers/ensayos, búsqueda de residencias.
+### Fase 1: Soberanía Digital (Completada)
+- **Objetivo:** Establecer una identidad digital soberana y profesional.
+- **Acción:** Despliegue del Portfolio, archiving de distracciones comerciales.
 
-### Fase 2: Profundización Cognitiva
+### Fase 2: Profundización Cognitiva (Actual)
 - **Objetivo:** Mejorar la "teoría de la mente" de los agentes locales.
-- **Acción:** Experimentos con *finetuning* local de modelos pequeños (7B/8B) específicos para las 9 identidades.
-
-### Fase 3: Comunidad y Soberanía
-- **Objetivo:** Facilitar la federación de nodos Anuu (P2P).
-- **Acción:** Investigación sobre protocolos de comunicación segura entre instancias locales (sin servidor central).
+- **Acción:** Experimentos con *finetuning* local.
 
 ---
 
@@ -45,10 +38,10 @@ En lugar de un "Roadmap de Producto", seguimos líneas de investigación:
 
 | Sistema | Estado | Notas |
 |:-------:|:------:|-------|
+| **Portfolio** | 🟢 Vivo | Desplegado en `docs/`. |
 | **Core API** | 🟢 Estable | Funcional para interacción local. |
-| **Memoria** | 🟢 Estable | ChromaDB persistente operando correctamente. |
-| **UI Web** | 🟡 Beta | Funcional, pero requiere pulido estético (no prioridad). |
-| **Documentación** | 🟡 En Revisión | Reescribiendo para alinearse con la tesis. |
+| **Web UI** | �️ Archivada | Movida a `Legacy_Archive/`. |
+| **Documentación** | � Alineada | Refleja la tesis de investigación. |
 
 ---
 

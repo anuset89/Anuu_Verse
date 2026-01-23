@@ -14,8 +14,10 @@ export function WikiViewer({ path }: WikiViewerProps) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
-    // Normalize path to ensure it points to the public docs folder
-    const docUrl = `/Anuu_Verse/docs/${path.replace(/^\//, "")}`;
+    // Normalize path to handle both docs/ and root-level files
+    const docUrl = path.startsWith('../')
+        ? `/Anuu_Verse/${path.replace('../', '')}`
+        : `/Anuu_Verse/docs/${path.replace(/^\//, "")}`;
 
     useEffect(() => {
         // Loading state is reset when path changes

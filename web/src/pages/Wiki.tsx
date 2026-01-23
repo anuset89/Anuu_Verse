@@ -8,11 +8,30 @@ function cn(...classes: (string | undefined | null | false)[]) {
 }
 
 const WIKI_STRUCTURE = [
-    { name: "MAP (Start)", path: "INDEX.md", icon: Terminal },
+    { name: "🗺️ Start Here", path: "INDEX.md", icon: Terminal },
     { name: "Getting Started", path: "GETTING_STARTED.md", icon: FileText },
-    { name: "Strategy & $$", path: "STRATEGY.md", icon: FileText },
-    { name: "Roadmap", path: "ROADMAP.md", icon: FileText },
     { name: "Philosophy", path: "PHILOSOPHY.md", icon: FileText },
+    {
+        name: "Strategy & Business",
+        path: "business",
+        type: "folder",
+        children: [
+            { name: "Roadmap", path: "ROADMAP.md" },
+            { name: "Strategy & $$", path: "STRATEGY.md" },
+            { name: "Monetization Plan", path: "../MONETIZATION_PLAN.md" },
+            { name: "Launch Checklist", path: "../LAUNCH_CHECKLIST.md" },
+        ]
+    },
+    {
+        name: "Development",
+        path: "dev",
+        type: "folder",
+        children: [
+            { name: "Journey (Process Log)", path: "JOURNEY.md" },
+            { name: "Changelog", path: "../CHANGELOG.md" },
+            { name: "Status", path: "../STATUS.md" },
+        ]
+    },
     {
         name: "Identities",
         path: "identities",

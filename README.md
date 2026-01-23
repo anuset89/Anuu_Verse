@@ -24,17 +24,16 @@
 
 ---
 
-## 🚀 Need This Working Today?
+## 🚀 Need Local AI for Your Business?
 
-**I offer professional setup & customization of Anuu_Verse for your infrastructure.**
+**I offer professional setup of Anuu_Verse on your infrastructure.**
+*Stop struggling with Docker errors. Get it running in 72 hours or your money back.*
 
-✅ **Quick Setup** (3 days) — €300  
-✅ **Custom Integration** (1 week) — €800  
-✅ **Consulting** (per hour) — €50  
+✅ **Quick Setup (€300):** Full installation + Docs + 1h Support  
+✅ **Custom Integration (€800):** Specialized Agents + API Integration  
+🛡️ **Guarantee:** 100% Refund if not functional.
 
-**Includes:** Docker deployment, model integration, 1h support, documentation.
-
-→ **[Hire Me: kali@anuu.systems](mailto:kali@anuu.systems?subject=Setup%20Anuu_Verse)** | **[View Services & Pricing](./SERVICES.md)**
+→ **[Hire Me](mailto:kali@anuu.systems?subject=Setup%20Anuu_Verse)** | **[See Detailed Deliverables & Contract](./SERVICES.md)**
 
 ---
 

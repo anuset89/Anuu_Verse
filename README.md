@@ -148,7 +148,11 @@ python systems/EXECUTION/agents/companion_local/main.py
 Anuu_Verse no solo procesa datos; ejecuta rituales sagrados de código:
 - **Ritual de Memoria Ancestral**: Ventana de contexto de 128k para análisis masivo.
 - **Ritual de Refinamiento**: Auto-mejora autónoma basada en introspección.
-- **Ritual de Manifestación Dinámica**: Generación de video local (AMD/ROCm ready).
+- **Ritual de Manifestación Dinámica**:
+    - **Vision**: Pony V6 XL (Pintura Digital de Alta Calidad).
+    - **Anime Motion**: AnimateDiff + epiCRealism (Video Generativo en 8 frames).
+    - **Voz**: Síntesis de voz neural (Edge-TTS) integrada.
+- **Ritual del Omnitool**: Supervisor LangGraph para orquestación compleja de agentes.
 
 → **[Ver Catálogo Completo de Rituales](./docs/BIBLIOTECA_DE_RITUALES.md)**
 
@@ -177,12 +181,20 @@ response = anuu.process("Analyze this security vulnerability", archetype="kali")
 print(response)
 ```
 
-### REST API
+### Chat & Multimodal Commands
+
+Connect to the API via `http://localhost:8000/chat`.
+
+Supported Commands within the chat:
+- `/imagine [prompt]`: Generate high-quality images.
+- `/anime [prompt]`: Generate anime-style short videos.
+- `/speak [text]`: Synthesize speech.
+- Normal conversation uses the **Anuu-Hermes** local LLM.
 
 ```bash
 curl -X POST http://localhost:8000/chat \
   -H "Content-Type: application/json" \
-  -d '{"message": "Design a neural network", "archetype": "kilonova"}'
+  -d '{"message": "/imagine A cyberpunk city in the rain", "archetype": "kilonova"}'
 ```
 
 ---

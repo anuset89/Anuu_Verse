@@ -15,6 +15,25 @@ All changes, decisions, and transformations documented.
 
 ---
 
+## [v0.10.0-beta] - 2026-01-23
+
+### 👁️ The Multimodal Awakening
+
+Anuu receives eyes, ears, and movement.
+
+#### Added
+- **AnimateDiff Support**: Native anime video generation (optimized for RX 7800 XT).
+- **Edge-TTS**: Neural voice synthesis integration.
+- **LangGraph Supervisor**: "Omnitool" agent for complex task orchestration.
+- **Async API**: Upgraded FastAPI backend to support non-blocking media generation.
+- **Commands**: Native `/imagine`, `/anime`, `/speak` support in Main Agent.
+
+#### Changed
+- **Performance**: Significant VRAM optimizations (Tiling, Sequential Offload) for 16GB cards.
+- **Frontend**: Connected `ThinkingStream` to real backend API.
+
+---
+
 ## [v0.9.0] - 2026-01-23
 
 ### 🎉 Major Milestones

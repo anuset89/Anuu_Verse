@@ -13,13 +13,15 @@
 - [x] **REST API (FastAPI)** — Easy integration
 - [x] **Python SDK** — `from ... import AnuuCompanion`
 - [x] **Interactive Wiki** — GitHub Pages deployment
+- [x] **Multimodal Nexus** — Image (Pony), Video (AnimateDiff), Audio (Edge-TTS)
+- [x] **Omnitool Supervisor** — LangGraph Agent Orchestration
 
 ---
 
 ## 🔧 In Progress
 
 - [ ] Web UI Dashboard improvements
-- [ ] Ollama LLM integration
+- [x] Ollama LLM integration (Completed)
 - [ ] Performance optimization
 - [ ] Extended examples
 

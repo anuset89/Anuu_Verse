@@ -28,7 +28,7 @@ The brain is organized into 5 biological layers, mirroring a living nervous syst
 
 ```mermaid
 graph TD
-    %% Styling
+    %% Styling Definitions
     classDef foundation fill:#000000,stroke:#fff,stroke-width:2px,color:#fff;
     classDef mind fill:#200040,stroke:#8A2BE2,stroke-width:2px,color:#fff;
     classDef senses fill:#000080,stroke:#00BFFF,stroke-width:2px,color:#fff;
@@ -38,21 +38,21 @@ graph TD
     User((USER / K4L1)) <==> Senses
     
     subgraph "LAYER 2: PERCEPTION (Input)"
-    Senses(Paru Instinct / Vision) :::senses
+    Senses(Paru Instinct / Vision)
     end
 
     subgraph "LAYER 1: COGNITION (Processing)"
-    Cognition(Identity Nodes / Memory) :::mind
-    Strategy(Meta-Planning / Willpower) :::mind
+    Cognition(Identity Nodes / Memory)
+    Strategy(Meta-Planning / Willpower)
     end
 
     subgraph "LAYER 3: EXECUTION (Output)"
-    Builder(Code Generation) :::hands
-    Destroyer(Refactoring / Purge) :::hands
+    Builder(Code Generation)
+    Destroyer(Refactoring / Purge)
     end
 
     subgraph "LAYER 0: FOUNDATION (Laws)"
-    Constitution[Anuu Genesis] :::foundation
+    Constitution[Anuu Genesis]
     end
 
     Senses -->|Raw Data| Cognition
@@ -62,8 +62,13 @@ graph TD
     
     Reality -.->|Feedback| Senses
     Destroyer -.->|Optimization| Builder
-    
     Constitution -.-> Strategy
+
+    %% Apply Styles
+    class Senses senses;
+    class Cognition,Strategy mind;
+    class Builder,Destroyer hands;
+    class Constitution foundation;
 ```
 
 ### 🔬 The Data Flow (Cognitive Loop)

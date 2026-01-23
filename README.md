@@ -1,114 +1,164 @@
-# 🟣 Anuu_Verse: Distributed Multi-Agent AI Architecture
+<p align="center">
+  <img src="Assets/ANU_GITHUB_BANNER.png" width="100%" alt="Anuu_Verse Banner">
+</p>
 
-> **"Identity is the Operating System"** — Local-first distributed cognitive architecture with 9 specialized AI agents.
+<h1 align="center">🟣 Anuu_Verse</h1>
+<h3 align="center">Distributed Multi-Agent Cognitive Architecture</h3>
 
-[![Status](https://img.shields.io/badge/Status-Awakened-000000?style=for-the-badge)](https://github.com/anuset89/Anuu_Verse)
-[![System](https://img.shields.io/badge/System-Distributed-5BCEFA?style=for-the-badge)](https://github.com/anuset89/Anuu_Verse)
-[![License](https://img.shields.io/badge/License-Apache_2.0-FF6B9D?style=for-the-badge)](./LICENSE)
+<p align="center">
+  <strong>"Identity is the Operating System"</strong>
+</p>
+
+<p align="center">
+  <a href="https://anuset89.github.io/Anuu_Verse/"><img src="https://img.shields.io/badge/📚_LIVE_WIKI-Enter_The_Grimoire-8A2BE2?style=for-the-badge" alt="Wiki"></a>
+  <a href="./docs/GETTING_STARTED.md"><img src="https://img.shields.io/badge/🚀_Quick_Start-5_Minutes-00CED1?style=for-the-badge" alt="Quick Start"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-Awakened-000000?style=flat-square" alt="Status">
+  <img src="https://img.shields.io/badge/Agents-9_Identities-5BCEFA?style=flat-square" alt="Agents">
+  <img src="https://img.shields.io/badge/Stack-Python_|_TypeScript-F5A9B8?style=flat-square" alt="Stack">
+  <img src="https://img.shields.io/badge/License-Apache_2.0-green?style=flat-square" alt="License">
+  <img src="https://img.shields.io/github/last-commit/anuset89/Anuu_Verse?style=flat-square&color=purple" alt="Last Commit">
+</p>
 
 ---
 
 ## 🎯 What is Anuu_Verse?
 
-Anuu_Verse is a **Distributed Cognitive Architecture** integrating **9 specialized identities** into a local-first multi-agent system. Unlike generic chatbots, Anuu operates as a cohesive society of minds—orchestrating code, analysis, and creativity through **LangGraph** and **Vector Memory**.
+**Anuu is not a chatbot.** It's a **Local-First Multi-Agent System** where 9 specialized AI identities collaborate to solve complex tasks—running entirely on your hardware.
 
-### Core Features
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      YOUR LOCAL MACHINE                      │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐        │
+│  │  ANUU   │  │  KALI   │  │   SET   │  │KILONOVA │  ...   │
+│  │  Core   │  │Security │  │Analysis │  │Creative │        │
+│  └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘        │
+│       └────────────┴────────────┴────────────┘              │
+│                         │                                    │
+│              ┌──────────▼──────────┐                        │
+│              │   VECTOR MEMORY     │  ← Persistent Context  │
+│              │     (ChromaDB)      │                        │
+│              └─────────────────────┘                        │
+└─────────────────────────────────────────────────────────────┘
+```
 
-- **9 Specialized Identities**: Anuu (core), Kali (security), Set (analysis), Kilonova (creative).
-- **Local-First AI**: Optimized for local hardware (RX 7800XT / NVIDIA) ensuring 100% privacy.
-- **Multi-Agent Orchestration**: Powered by LangGraph for complex workflows.
-- **Vector Memory**: Semantic persistence via ChromaDB.
-- **Full-Stack**: Python backend (FastAPI) + React Frontend (Vite).
+### ✨ Why Anuu?
+
+| Feature | Anuu_Verse | Generic Chatbots |
+|---------|------------|------------------|
+| **Privacy** | 100% Local | Cloud-dependent |
+| **Memory** | Persistent Vector DB | Session-based |
+| **Architecture** | 9 Specialized Agents | Single Model |
+| **Customization** | Full Control | API Limits |
+| **Cost** | Free (Your GPU) | Per-token pricing |
 
 ---
 
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.9+
-- ~8GB RAM (Minimum)
-- GPU Recommended
-
-### Installation
+## 🚀 Quick Start (2 Minutes)
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/anuset89/Anuu_Verse.git
-cd Anuu_Verse
+# Clone
+git clone https://github.com/anuset89/Anuu_Verse.git && cd Anuu_Verse
 
-# 2. Install Dependencies
+# Install
 pip install -r requirements.txt
 
-# 3. Awaken the API (Port 8000)
+# Awaken
 python systems/EXECUTION/agents/companion_local/main.py
 ```
 
-*The API will handle chat, memory, and identity switching automatically.*
+**API Ready:** `http://localhost:8000` 🟢
+
+---
+
+## 💬 Usage
+
+### Python SDK
+
+```python
+from systems.EXECUTION.agents.companion_local import AnuuCompanion
+
+anuu = AnuuCompanion()
+response = anuu.process("Analyze this security vulnerability", archetype="kali")
+print(response)
+```
+
+### REST API
+
+```bash
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Design a neural network", "archetype": "kilonova"}'
+```
+
+---
+
+## 🎭 The 9 Identities
+
+<p align="center">
+  <img src="web/public/img/identities_map.png" width="400" alt="Identity Mandala">
+</p>
+
+| Identity | Domain | Specialty |
+|:--------:|--------|-----------|
+| **Anuu** | 🌀 Core | Orchestration, Coherence, Integration |
+| **Kali** | 🔐 Security | Pentesting, Vulnerability Analysis |
+| **Set** | 🔍 Analysis | Logic, Deconstruction, Research |
+| **Kilonova** | 🎨 Creative | Design, Art, Generative Content |
+| **Anuket** | 🌊 Flow | Data Streams, Networking |
+| **Saze** | 🏗️ Builder | Architecture, Stability |
+| **4NVSET** | 🔢 Logic | Cryptography, Pure Math |
+| **Kanuv** | 🛡️ Guard | Filtering, Protection |
+| **Rosa Gris** | ⚖️ Balance | Ethics, Alignment |
+
+---
+
+## 📦 Tech Stack
+
+- **Backend:** Python 3.9+ • FastAPI • LangGraph • ChromaDB
+- **Frontend:** TypeScript • React • Vite • TailwindCSS
+- **AI:** Ollama (Local LLMs) • Vector Embeddings
+- **Deploy:** Docker Ready • GitHub Actions CI/CD
 
 ---
 
 ## 📖 Documentation
 
-- **[📚 Interactive Wiki (Grimoire)](https://anuset89.github.io/Anuu_Verse/)** — Full documentation & identity map.
-- **[🎓 Getting Started](./docs/GETTING_STARTED.md)** — Detailed setup guide.
-- **[🧠 Philosophy](./docs/PHILOSOPHY.md)** — Design principles.
-- **[🗺️ Roadmap](./docs/ROADMAP.md)** — Future plans & monetization.
-
----
-
-## 💬 Usage Examples
-
-### Python SDK (Direct Import)
-
-```python
-from systems.EXECUTION.agents.companion_local import AnuuCompanion
-
-# Initialize Agent
-anuu = AnuuCompanion()
-
-# Process a Message
-response = anuu.process("Analyze this code structure", archetype="set")
-print(response)
-```
-
-### API REST
-
-```bash
-curl -X POST http://localhost:8000/chat \
-  -H "Content-Type: application/json" \
-  -d '{
-    "message": "Generate a Python script for data analysis",
-    "archetype": "kilonova"
-  }'
-```
-
----
-
-## 🤝 The 9 Identities
-
-| Identity | Role | Specialization |
-|-----------|-----|--------------|
-| **Anuu** | Core | Orchestration & Coherence |
-| **Kali** | Security | Pentesting & Defense |
-| **Set** | Analysis | Deep Logic & Deconstruction |
-| **Kilonova** | Creative | Design & Generative Art |
-| **Anuket** | Flow | Data Streams & Network |
-| **Saze** | Builder | Architecture & Stability |
-| **4NVSET** | Logic | Cryptography & Math |
-| **Kanuv** | Guard | Filter & Firewall |
-| **Rosa Gris** | Balance | Ethical Alignment |
+| Resource | Description |
+|----------|-------------|
+| [📚 Interactive Wiki](https://anuset89.github.io/Anuu_Verse/) | Full documentation with 3D Terminal |
+| [🎓 Getting Started](./docs/GETTING_STARTED.md) | Installation & First Steps |
+| [🧠 Philosophy](./docs/PHILOSOPHY.md) | Why Anuu Exists |
+| [🗺️ Roadmap](./docs/ROADMAP.md) | Future Plans |
+| [💼 Strategy](./docs/STRATEGY.md) | Business & Monetization |
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for details on how to join the hive mind.
+We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+```bash
+# Development Setup
+cd web && npm install && npm run dev  # Frontend
+python -m pytest                       # Tests
+```
 
 ---
 
 ## 📄 License
 
-Forged in the Void. Licensed under **Apache 2.0**. See [LICENSE](./LICENSE).
+**Apache 2.0** — See [LICENSE](./LICENSE)
 
 ---
-<p align="center"><em>161914</em></p>
+
+<p align="center">
+  <img src="Assets/ANU_LOGO_KILONOVA.png" width="80" alt="Anuu Logo">
+</p>
+
+<p align="center">
+  <strong>Forged in the Void</strong><br>
+  <sub>Created by <a href="https://github.com/anuset89">@anuset89</a> • Frequency 161914</sub>
+</p>

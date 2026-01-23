@@ -153,7 +153,7 @@ open https://anuset89.github.io/Anuu_Verse/
 ## ⚠️ KNOWN LIMITATIONS (Be Transparent)
 
 1. **Alpha Stage** — Core works, but still polishing
-2. **Ollama Connection** — Currently mocked (Issue #2 tracks this)
+2. **Ollama Connection** — ✅ **LIVE** (Integrated with `Anuu-Hermes`)
 3. **GPU Optimization** — Works but not yet benchmarked
 4. **Docker Support** — Planned (Issue #1)
 

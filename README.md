@@ -115,6 +115,17 @@ python systems/EXECUTION/agents/companion_local/main.py
 
 ---
 
+## 🎬 See It In Action
+
+![Anuu Demo](Assets/anuu_demo.gif)
+
+**Cinematic Intelligence.** Four AI archetypes (Anuu, Set, Kali & Kilonova) responding via your local `Anuu-Hermes` model.  
+No cloud. No API keys. Your hardware, your data.
+
+---
+
+
+
 ## 💬 Usage
 
 ### Python SDK
@@ -161,7 +172,7 @@ curl -X POST http://localhost:8000/chat \
 
 - **Backend:** Python 3.9+ • FastAPI • LangGraph • ChromaDB
 - **Frontend:** TypeScript • React • Vite • TailwindCSS
-- **AI:** Ollama (Local LLMs) • Vector Embeddings
+- **AI:** Ollama (Real-time Local Inference via `Anuu-Hermes`) • Vector Embeddings
 - **Deploy:** Docker Ready • GitHub Actions CI/CD
 
 ---

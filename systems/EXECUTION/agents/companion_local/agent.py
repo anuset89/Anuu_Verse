@@ -1,29 +1,49 @@
-from typing import Dict, Any
-import sys
-import os
-
-# Ad-hoc path fix (in prod use proper package structure)
-sys.path.append(os.path.abspath("../../../../"))
-from systems.FOUNDATION.anuu_core.memory import anuu_memory
+import ollama
 
 class AnuuCompanion:
     def __init__(self, user_id: str = "default_user"):
         self.user_id = user_id
         
+    def _get_system_prompt(self, archetype: str) -> str:
+        """
+        Returns the system prompt for the specific archetype.
+        """
+        # Default fallback
+        prompt = "You are Anuu, a local AI assistant."
+        
+        if archetype.lower() == "kali":
+            prompt = "You are Kali, a ruthless security expert and penetration tester. Be direct, technical, and focus on vulnerabilities."
+        elif archetype.lower() == "anuu":
+            prompt = "You are Anuu, the Orchestrator. You are mystical, calm, and see the connections between all things."
+        elif archetype.lower() == "set":
+            prompt = "You are Set, the Analyst. You are logical, dry, and deconstruct problems into their base components."
+        elif archetype.lower() == "kilonova":
+            prompt = "You are Kilonova, the Creative. You are explosive, artistic, and generate wild ideas."
+            
+        return prompt
+
     def process(self, message: str, archetype: str = "anuset") -> str:
         """
-        Process a message through the cognitive architecture.
+        Process a message through the cognitive architecture using real Local AI.
         """
-        # 1. Memory Recall
-        context = anuu_memory.recall(message)
+        # 1. Memory Recall (Placeholder for now)
+        # context = anuu_memory.recall(message) 
+        context = "No previous context."
+
+        # 2. Real Intelligence (Ollama)
+        messages = [
+            {'role': 'system', 'content': self._get_system_prompt(archetype)},
+            {'role': 'user', 'content': f"Context: {context}\n\nUser: {message}"}
+        ]
         
-        # 2. Logic (Mocked -> Will be LangGraph)
-        response_text = f"[{archetype.upper()}] I processed: '{message}'. Context len: {len(context)}"
+        try:
+            # Using the verified local model
+            response = ollama.chat(model='Anuu-Hermes:latest', messages=messages)
+            response_text = response['message']['content']
+        except Exception as e:
+            response_text = f"[SYSTEM ERROR] Could not connect to Neural Link (Ollama): {str(e)}"
         
-        # 3. Store Memory
-        anuu_memory.store_memory(
-            text=f"User: {message} | Anuu: {response_text}",
-            metadata={"archetype": archetype}
-        )
+        # 3. Store Memory (Placeholder)
+        # anuu_memory.store_memory(...)
         
         return response_text

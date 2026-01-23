@@ -134,6 +134,16 @@ curl -X POST http://localhost:8000/chat \
 | [🗺️ Roadmap](./docs/ROADMAP.md) | Future Plans |
 | [💼 Strategy](./docs/STRATEGY.md) | Business & Monetization |
 
+### 🛠️ Development Process (Open Journey)
+
+| Resource | Description |
+|----------|-------------|
+| [📖 Development Journey](./docs/JOURNEY.md) | **Transparent process log** |
+| [📝 Changelog](./CHANGELOG.md) | Version history & decisions |
+| [💰 Monetization Plan](./MONETIZATION_PLAN.md) | 90-day revenue roadmap |
+| [📊 Status](./STATUS.md) | Current project status |
+| [🚀 Launch Checklist](./LAUNCH_CHECKLIST.md) | Pre-launch verification |
+
 ---
 
 ## 🤝 Contributing

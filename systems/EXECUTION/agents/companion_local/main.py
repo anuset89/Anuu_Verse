@@ -8,9 +8,10 @@ from typing import List, Optional
 import sys
 import os
 
-# Ad-hoc path fix to import anuu_core (in prod use proper package structure)
-sys.path.append(os.path.abspath("../../../../"))
-from systems.FOUNDATION.anuu_core.memory import anuu_memory
+# Add project root to path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
 from .agent import AnuuCompanion
 

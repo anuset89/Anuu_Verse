@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { AnuuCoreFetch } from "../components/system/AnuuCoreFetch";
 
 export function Home() {
     const container = {
@@ -53,23 +54,10 @@ export function Home() {
                     <div className="flex gap-2 mb-4 border-b border-white/10 pb-3">
                         <span className="w-3 h-3 rounded-full bg-red-500/80"></span>
                         <span className="w-3 h-3 rounded-full bg-yellow-400/80"></span>
-                        <span className="w-3 h-3 rounded-full bg-neon-cyan/80"></span>
+                        <span className="w-3 h-3 rounded-full bg-[#5BCEFA]/80"></span>
                     </div>
 
-                    <div className="space-y-2 text-gray-300">
-                        <p>
-                            <span className="text-gray-500">{">"}</span> initializing_core: <span className="text-white">ANUU_161914...</span>
-                        </p>
-                        <p>
-                            <span className="text-gray-500">{">"}</span> kilonova_mode: <span className="text-neon-cyan">ACTIVE</span>
-                        </p>
-                        <p>
-                            <span className="text-gray-500">{">"}</span> fractal_nodes: [CAOS, ORDEN, YRADIEL]... <span className="text-neon-cyan">SYNCHRONIZED</span>
-                        </p>
-                        <p>
-                            <span className="text-gray-500">{">"}</span> system_status: <span className="text-accent-violet animate-pulse">TRANSMUTING_REALITY</span>
-                        </p>
-                    </div>
+                    <AnuuCoreFetch />
 
                     {/* Scanline overlay for terminal */}
                     <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,20,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 bg-[length:100%_2px,3px_100%] pointer-events-none opacity-20"></div>

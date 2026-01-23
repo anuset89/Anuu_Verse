@@ -33,7 +33,7 @@
 ✅ **Integración Personalizada (€800):** Agentes Especializados + Integración API  
 🛡️ **Garantía:** Reembolso del 100% si no es funcional.
 
-→ **[Contrátame](mailto:kali@anuu.systems?subject=Setup%20Anuu_Verse)** | **[Ver Entregables Detallados y Contrato](./SERVICES.md)**
+→ **[Contrátame](mailto:YradielRTS@protonmail.com?subject=Setup%20Anuu_Verse)** | **[Ver Entregables Detallados y Contrato](./SERVICES.md)**
 
 ---
 

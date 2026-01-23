@@ -152,7 +152,7 @@ Requirements:
 - 8GB RAM minimum
 - Basic terminal knowledge
 
-Support: kali@anuu.systems
+Support: YradielRTS@protonmail.com
 License: Personal use (commercial license available)
 
 Price: €39 (one-time)

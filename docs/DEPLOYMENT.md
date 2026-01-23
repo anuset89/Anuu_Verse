@@ -124,4 +124,4 @@ Setting up production infrastructure can be complex.
 - ✅ **Quick Setup (€300):** I install and configure everything for you properly.
 - ✅ **Support:** Debugging and optimization.
 
-→ **[Hire me for Setup](mailto:kali@anuu.systems?subject=Setup%20HeIp)**
+→ **[Hire me for Setup](mailto:YradielRTS@protonmail.com?subject=Setup%20HeIp)**

@@ -35,7 +35,7 @@ Analiza: https://github.com/anuset89/Anuu_Verse
 - Revisa la sección "Need This Working Today?".
 - ¿El precio (€300) te parece barato, caro o sospechoso?
 - ¿Entiendes qué es "Quick Setup"? ¿Qué obtengo físicamente?
-- ¿Te da confianza el correo `kali@anuu.systems`?
+- ¿Te da confianza el correo `YradielRTS@protonmail.com`?
 
 #### 3. LA CREDIBILIDAD TÉCNICA
 - Navega a `docs/DEPLOYMENT.md` y `docs/DEVELOPER_GUIDE.md`.

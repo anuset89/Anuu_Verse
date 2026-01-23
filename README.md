@@ -114,7 +114,7 @@ Este proyecto es mantenido por una desarrolladora independiente como parte de un
 2.  **Micro-Acompañamiento:** Ofrezco sesiones consultivas de "Arquitectura Cognitiva" para ayudarte a diseñar *tu propio* sistema de IA local. No vendo el software, vendo el "saber hacer" para que tú seas soberano.
 3.  **Difusión Crítica:** Habla de Anuu no como un producto, sino como una posibilidad.
 
-💌 **Contacto:** [kali@anuu.systems](mailto:kali@anuu.systems)
+💌 **Contacto:** [YradielRTS@protonmail.com](mailto:YradielRTS@protonmail.com)
 
 ---
 

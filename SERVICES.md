@@ -68,7 +68,7 @@
 
 ## 📧 Ready to Start?
 
-**Step 1:** Send an email to [kali@anuu.systems](mailto:kali@anuu.systems?subject=Setup%20Request)
+**Step 1:** Send an email to [YradielRTS@protonmail.com](mailto:YradielRTS@protonmail.com?subject=Setup%20Request)
 **Step 2:** Include your hardware specs (RAM/CPU/GPU).
 **Step 3:** I'll reply with a Payment Link and SSH Key within 24 hours.
 

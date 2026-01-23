@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="./README_ES.md"><img src="https://img.shields.io/badge/🇪🇸_Español-Leer_en_Español-yellow?style=for-the-badge" alt="Leer en Español"></a>
   <a href="https://anuset89.github.io/Anuu_Verse/"><img src="https://img.shields.io/badge/📚_LIVE_WIKI-Enter_The_Grimoire-8A2BE2?style=for-the-badge" alt="Wiki"></a>
   <a href="./docs/GETTING_STARTED.md"><img src="https://img.shields.io/badge/🚀_Quick_Start-5_Minutes-00CED1?style=for-the-badge" alt="Quick Start"></a>
 </p>
@@ -157,15 +158,15 @@ Anuu_Verse runs locally on your hardware. Performance depends entirely on your G
 
 ---
 
-## 🚀 Despliegue de Élite (One-Click)
+## 🚀 Elite Deployment (One-Click)
 
-**¿No quieres tocar la terminal?** Usa **Pinokio**.
-Anuu_Verse está optimizado para despliegue automático en Windows y Linux, con detección inteligente de hardware **AMD (ROCm)** y **NVIDIA**.
+**Don't want to touch the terminal?** Use **Pinokio**.
+Anuu_Verse is optimized for automatic deployment on Windows and Linux, with intelligent **AMD (ROCm)** and **NVIDIA** hardware detection.
 
-1. [Descarga Pinokio](https://pinokio.computer/)
-2. Pega la URL de este repositorio.
-3. Haz clic en **Install**.
-4. ¡Despierta al Nexo!
+1. [Download Pinokio](https://pinokio.computer/)
+2. Paste the URL of this repository.
+3. Click **Install**.
+4. Awaken the Nexus!
 
 ---
 

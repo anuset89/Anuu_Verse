@@ -15,7 +15,19 @@ if project_root not in sys.path:
 
 from systems.EXECUTION.agents.companion_local.agent import AnuuCompanion
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(title="Anuu Companion API", version="0.1.0")
+
+# Enable CORS for the Visual Altar (React UI)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 agent = AnuuCompanion()
 
 class ChatRequest(BaseModel):
@@ -38,7 +50,7 @@ async def chat_endpoint(request: ChatRequest):
     Main interaction point via API.
     """
     
-    response_text = agent.process(request.message, request.archetype)
+    response_text = await agent.process(request.message, request.archetype)
 
     return ChatResponse(
         response=response_text,

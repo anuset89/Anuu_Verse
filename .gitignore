@@ -22,7 +22,14 @@ secrets.json
 # Environment
 .env
 .venv/
+.venv-full/
 venv/
+.python-version
+
+# Models & Heavy Assets
+models/
+web/public/generations/
+web/public/audio/
 
 # Logs and Caches
 logs/

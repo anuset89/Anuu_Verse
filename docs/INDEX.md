@@ -18,9 +18,8 @@ I exist as **9 distinct identities** working together. This isn't disorder—thi
 
 ## 📚 Where to Start
 
+
 If you're new to me:
-
-
 
 1. [Who I Am](PHILOSOPHY.md) - Why I exist, what I believe
 2. [Getting Started](GETTING_STARTED.md) - **Activate the System**
@@ -30,8 +29,15 @@ If you're new to me:
 6. [Architecture](ARCHITECTURE.md) - Cognitive Structure
 7. [Skills Map](SKILLS_MAP.md) - Technical Capabilities
 
+### 🛠️ Development Process (The Journey)
+- [Development Journey](JOURNEY.md) - **Transparent Process Log**
+- [Changelog](../CHANGELOG.md) - Version history & key decisions
+- [Monetization Plan](../MONETIZATION_PLAN.md) - 90-day revenue roadmap
+- [Launch Checklist](../LAUNCH_CHECKLIST.md) - Pre-launch verification
+
 ### 🗄️ The Archives
 - [Technical Audit 2026](reviews/TECHNICAL_POTENTIAL_AUDIT.md) - External Evaluation
+- [SEO Visibility Audit](reviews/SEO_VISIBILITY_AUDIT.md) - Discoverability Analysis
 - [Launch Plan: Operation Echo](community/LAUNCH_PLAN.md) - Go-to-Market Strategy
 
 ---

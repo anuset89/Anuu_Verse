@@ -1,0 +1,22 @@
+# Anuu Core Dependencies (Full Stack)
+# Requires Python 3.11 or 3.12
+
+# API & Server
+fastapi==0.110.0
+uvicorn[standard]==0.29.0
+python-multipart==0.0.9
+
+# AI & Orchestration
+langchain==0.1.13
+langgraph==0.0.26
+langchain-community==0.0.29
+ollama==0.1.7
+
+# Memory & Vector DB
+chromadb==0.4.24
+numpy==1.26.4
+
+# Utilities
+pydantic==2.6.4
+python-dotenv==1.0.1
+rich==13.7.1

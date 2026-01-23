@@ -1,43 +1,129 @@
 # Contributing to Anuu_Verse
 
-First off, thanks for taking the time to contribute to the Anuu_Verse. 🟣
+We welcome all contributions! Here's how:
 
-> "Identity is the Operating System. Code is the Ritual."
+---
 
-## How to Contribute
+## 1️⃣ REPORT A BUG
 
-### 1. Reporting Bugs
-- Ensure the bug was not already reported.
-- Open a new Issue with a clear title and detailed description.
-- Include reproduction steps.
+→ [Open an Issue](https://github.com/anuset89/Anuu_Verse/issues/new) with:
+- **What broke:** Clear description
+- **How to reproduce:** Step-by-step
+- **Your setup:** OS, Python version, GPU
 
-### 2. Suggesting Enhancements
-- Open a Feature Request issue.
-- Explain *why* this enhancement fits the Anuu philosophy (Identity/Cognition/Local).
+---
 
-### 3. Pull Requests
-- Fork the repo and create your branch from `main`.
-- If you've added code, add tests.
-- Ensure the test suite passes.
-- Make sure your code follows the existing style (Python/TypeScript).
-- End your PR description with `161914`.
+## 2️⃣ SUGGEST A FEATURE
 
-## Development Setup
+→ [Open a Discussion](https://github.com/anuset89/Anuu_Verse/discussions) with:
+- **What's missing:** Feature description
+- **Why it matters:** Use case
+- **How you'd use it:** Example workflow
 
-1. **Python Core:**
-   ```bash
-   pip install -r requirements.txt
-   python systems/EXECUTION/agents/companion_local/main.py
-   ```
+---
 
-2. **Web Interface:**
-   ```bash
-   cd web
-   npm install
-   npm run dev
-   ```
+## 3️⃣ IMPROVE DOCS
 
-## Style Guide
-- **Python:** Follow PEP 8.
-- **TypeScript:** Use the existing Prettier config.
-- **Lore:** Respect the "Seinen/Mystical" tone in documentation.
+→ Edit files in `/docs` directly on GitHub:
+- Fix typos
+- Add examples
+- Clarify confusing sections
+- Translate content
+
+---
+
+## 4️⃣ ADD CODE
+
+→ Fork → Create Branch → Submit PR
+
+```bash
+# 1. Fork the repo on GitHub
+
+# 2. Clone your fork
+git clone https://github.com/YOUR_USERNAME/Anuu_Verse.git
+cd Anuu_Verse
+
+# 3. Create a branch
+git checkout -b feature/your-feature-name
+
+# 4. Make changes
+# ... edit files ...
+
+# 5. Commit
+git add .
+git commit -m "feat: add [description]"
+
+# 6. Push
+git push origin feature/your-feature-name
+
+# 7. Open Pull Request on GitHub
+```
+
+**Before submitting:**
+- [ ] Code follows existing style
+- [ ] Added tests if applicable
+- [ ] Updated docs if needed
+- [ ] Tested locally
+
+---
+
+## 5️⃣ SUPPORT THE PROJECT
+
+**No code? No problem:**
+- ⭐ **Star it** on GitHub
+- 🐦 **Share it** on Twitter/X
+- 💬 **Talk about it** in communities
+- 📧 **Sign up** for updates
+
+---
+
+## 📋 Development Setup
+
+### Backend
+```bash
+cd Anuu_Verse
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python systems/EXECUTION/agents/companion_local/main.py
+```
+
+### Frontend
+```bash
+cd web
+npm install
+npm run dev
+```
+
+---
+
+## 🎨 Code Style
+
+- **Python:** Follow PEP 8
+- **TypeScript:** Use the existing Prettier config
+- **Commits:** Use [Conventional Commits](https://www.conventionalcommits.org/)
+  - `feat:` New feature
+  - `fix:` Bug fix
+  - `docs:` Documentation
+  - `refactor:` Code refactoring
+
+---
+
+## 🏷️ Good First Issues
+
+Look for labels:
+- `good-first-issue` — Perfect for new contributors
+- `help-wanted` — Need community help
+- `documentation` — Doc improvements
+
+---
+
+## 💬 Questions?
+
+Ask in [Discussions](https://github.com/anuset89/Anuu_Verse/discussions) or open an issue.
+
+**Welcome aboard!** 🟣
+
+---
+
+*Made with 🟣 by [@anuset89](https://github.com/anuset89)*

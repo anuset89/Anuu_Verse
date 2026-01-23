@@ -1,5 +1,6 @@
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import type { AnuuCore, AgentsRegistry, Identity, Agent } from '../types/anuu';
 
 interface SystemContextType {

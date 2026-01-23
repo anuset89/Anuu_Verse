@@ -1,8 +1,8 @@
 
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stars, Environment } from '@react-three/drei';
+import { OrbitControls, Stars } from '@react-three/drei';
 import { IdentityNode } from './IdentityNode';
-import { Identity } from '../../types/anuu';
+import type { Identity } from '../../types/anuu';
 import { Suspense } from 'react';
 
 interface NeuralSceneProps {

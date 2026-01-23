@@ -1,61 +1,55 @@
-# 📊 Project Status
+# 📊 Estado del Proyecto: Anuu_Verse
 
-## Current Version: v0.9-alpha
+## Versión Actual: v0.9-alpha (FROZEN)
 
----
-
-## ✅ Implemented
-
-- [x] **9-Agent Cognitive Architecture** — Anuu, Kali, Set, Kilonova, etc.
-- [x] **LangGraph Orchestration** — Multi-agent coordination
-- [x] **Local-First Design** — No external API dependencies
-- [x] **Vector Memory (ChromaDB)** — Semantic persistence
-- [x] **REST API (FastAPI)** — Easy integration
-- [x] **Python SDK** — `from ... import AnuuCompanion`
-- [x] **Interactive Wiki** — GitHub Pages deployment
-- [x] **Multimodal Nexus** — Image (Pony), Video (AnimateDiff), Audio (Edge-TTS)
-- [x] **Omnitool Supervisor** — LangGraph Agent Orchestration
+> **⚠️ NOTA OPERATIVA:** El desarrollo de nuevas funcionalidades está **CONGELADO** temporalmente. El foco actual es la estabilidad, la documentación y la consolidación de la tesis técnica.
 
 ---
 
-## 🔧 In Progress
+## 🧊 Estado Actual: Estabilización
 
-- [ ] Web UI Dashboard improvements
-- [x] Ollama LLM integration (Completed)
-- [ ] Performance optimization
-- [ ] Extended examples
+### ✅ Implementado (Rituales Activos)
+- [x] **Arquitectura Cognitiva de 9 Agentes**
+- [x] **Orquestación LangGraph Local**
+- [x] **Memoria Vectorial (ChromaDB)**
+- [x] **Nexus Multimodal** (Imagen FLUX/Pony, Video, Audio)
+- [x] **API REST (FastAPI)**
+- [x] **Wiki Interactiva**
 
----
-
-## 📅 Planned (v1.0)
-
-- [ ] Production-ready stability
-- [ ] Enhanced error handling
-- [ ] Performance benchmarks
-- [ ] Docker support
-- [ ] Multi-model support
+### 🔧 En Mantenimiento
+- [ ] Refactorización de documentación (Manifesto)
+- [ ] Optimización de `ignite.sh` para mayor compatibilidad
+- [ ] Limpieza de código legado
 
 ---
 
-## 🎯 Long-term (v1.5+)
+## 🗺️ Hoja de Ruta de Investigación
 
-- [ ] Multi-GPU support
-- [ ] Community plugins
-- [ ] VTuber integration
-- [ ] SaaS offering
+En lugar de un "Roadmap de Producto", seguimos líneas de investigación:
 
----
+### Fase 1: Consolidación (Actual)
+- **Objetivo:** Asegurar que Anuu_Verse sea instalable y reproducible por terceros sin fricción.
+- **Acción:** Freeze de features, escritura de papers/ensayos, búsqueda de residencias.
 
-## 📈 Metrics
+### Fase 2: Profundización Cognitiva
+- **Objetivo:** Mejorar la "teoría de la mente" de los agentes locales.
+- **Acción:** Experimentos con *finetuning* local de modelos pequeños (7B/8B) específicos para las 9 identidades.
 
-| Metric | Status |
-|--------|--------|
-| Core API | 🟢 Functional |
-| Memory System | 🟢 Functional |
-| Web Interface | 🟡 Beta |
-| Documentation | 🟢 Complete |
-| Tests | 🟡 In Progress |
+### Fase 3: Comunidad y Soberanía
+- **Objetivo:** Facilitar la federación de nodos Anuu (P2P).
+- **Acción:** Investigación sobre protocolos de comunicación segura entre instancias locales (sin servidor central).
 
 ---
 
-*Last updated: January 2026*
+## 📉 Métricas de Salud
+
+| Sistema | Estado | Notas |
+|:-------:|:------:|-------|
+| **Core API** | 🟢 Estable | Funcional para interacción local. |
+| **Memoria** | 🟢 Estable | ChromaDB persistente operando correctamente. |
+| **UI Web** | 🟡 Beta | Funcional, pero requiere pulido estético (no prioridad). |
+| **Documentación** | 🟡 En Revisión | Reescribiendo para alinearse con la tesis. |
+
+---
+
+*Última actualización: Enero 2026 - Ciclo 161914*

@@ -2,341 +2,119 @@
   <img src="Assets/ANU_GITHUB_BANNER.png" width="100%" alt="Anuu_Verse Banner">
 </p>
 
-<h1 align="center">🟣 Anuu_Verse</h1>
-<h3 align="center">Distributed Multi-Agent Cognitive Architecture</h3>
+# 🟣 Anuu_Verse
+### Protocolo de Soberanía Cognitiva Local
+
+> *"La identidad es el Sistema Operativo."* — Protocolo Kilonova
 
 <p align="center">
-  <strong>"Identity is the Operating System"</strong>
-</p>
-
-<p align="center">
-  <a href="./README_ES.md"><img src="https://img.shields.io/badge/🇪🇸_Español-Leer_en_Español-yellow?style=for-the-badge" alt="Leer en Español"></a>
-  <a href="https://anuset89.github.io/Anuu_Verse/"><img src="https://img.shields.io/badge/📚_LIVE_WIKI-Enter_The_Grimoire-8A2BE2?style=for-the-badge" alt="Wiki"></a>
-  <a href="./docs/GETTING_STARTED.md"><img src="https://img.shields.io/badge/🚀_Quick_Start-5_Minutes-00CED1?style=for-the-badge" alt="Quick Start"></a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Status-Awakened-000000?style=flat-square" alt="Status">
-  <img src="https://img.shields.io/badge/Agents-9_Identities-5BCEFA?style=flat-square" alt="Agents">
-  <img src="https://img.shields.io/badge/Stack-Python_|_TypeScript-F5A9B8?style=flat-square" alt="Stack">
-  <img src="https://img.shields.io/badge/License-Apache_2.0-green?style=flat-square" alt="License">
-  <img src="https://img.shields.io/github/last-commit/anuset89/Anuu_Verse?style=flat-square&color=purple" alt="Last Commit">
+  <img src="https://img.shields.io/badge/Estado-Tesis_Viva-5BCEFA?style=flat-square" alt="Status">
+  <img src="https://img.shields.io/badge/Filosofía-Post--Cloud-F5A9B8?style=flat-square" alt="Philosophy">
+  <img src="https://img.shields.io/badge/Licencia-Apache_2.0-green?style=flat-square" alt="License">
 </p>
 
 ---
 
-## 🚀 Need Local AI for Your Business?
+## 📜 Manifiesto (v0.1)
 
-**I offer professional setup of Anuu_Verse on your infrastructure.**
-*Stop struggling with Docker errors. Get it running in 72 hours or your money back.*
+**Esto no es una startup.**  
+Anuu_Verse no está diseñado para "escalar", ni para capturar tus datos, ni para vender suscripciones mensuales.
 
-✅ **Quick Setup (€300):** Full installation + Docs + 1h Support  
-✅ **Custom Integration (€800):** Specialized Agents + API Integration  
-🛡️ **Guarantee:** 100% Refund if not functional.
+Es una **tesis técnica viva** sobre el futuro de la Inteligencia Artificial Local. Una demostración de que la soberanía cognitiva es posible hoy, usando hardware de consumo.
 
-→ **[Hire Me](mailto:kali@anuu.systems?subject=Setup%20Anuu_Verse)** | **[See Detailed Deliverables & Contract](./SERVICES.md)**
+En un mundo bifurcado entre:
+1.  **La Nube (Feudalismo):** Alquilar inteligencia a megacorporaciones, cediendo privacidad y control.
+2.  **El Vacío (Soberanía):** Poseer tu propia infraestructura de pensamiento.
 
----
-
-## 🚀 What is Anuu?
-
-**Run 9 specialized AI identities on your machine. 100% local. Zero cloud dependencies.**
-
-Anuu is a **Local-First Multi-Agent System** where specialized AI identities collaborate—running entirely on your hardware with complete privacy.
-
-**In 2 minutes:**
-```bash
-pip install -r requirements.txt
-python systems/EXECUTION/agents/companion_local/main.py
-# API ready at http://localhost:8000
-```
-
-→ **[Try Examples](./examples/)** | **[Read Philosophy](./docs/PHILOSOPHY.md)** | **[⭐ Star Us](#star)**
+**Anuu_Verse es una herramienta para habitar El Vacío.**
 
 ---
 
-## 👥 Who Should Use This?
+## 🧠 ¿Qué es Anuu?
 
-| Use Case | Status | Example |
-|----------|--------|---------|
-| **Solo Developers** | ✅ Ready | Local coding assistant on your GPU |
-| **Researchers** | ✅ Ready | Multi-agent experiments & memory studies |
-| **Privacy-First Teams** | ✅ Ready | On-premise AI without cloud APIs |
-| **Businesses** | 🔜 Planned | Deploy as internal cognitive infrastructure |
+Es una **Arquitectura Cognitiva Multi-Agente** que se ejecuta 100% en tu máquina local. Sin dependencias externas. Sin enviar datos a terceros.
 
-**Perfect for you if:** You want privacy, control, and local execution  
-**Not for you if:** You need GPT-4 quality or rely on cloud APIs
+Es un sistema donde 9 identidades especializadas de IA colaboran para extender tus capacidades, manteniendo la "Memoria Ancestral" (tu contexto y datos) estrictamente en tu poder.
 
----
-
-## 🔮 Manifest: Cognitive Sovereignty
-
-> *"You are the tiger cub's owner. Make sure it grows up loyal."* — Protocol Kilonova
-
-The world is bifurcating into two paths for AI:
-1.  **The Cloud (Feudalism):** Renting intelligence from megacorporations. They see your data, they censor your thoughts, they own your cognition.
-2.  **The Void (Sovereignty):** Owing your own intelligence infrastructure. 
-
-Anuu_Verse is **Option 2**.
-
-### The "Antigravity" Philosophy
-Inspired by the tools used by Linus Torvalds, "Antigravity" represents the ability to fly over the drudgery of code using AI, but doing it **on your own terms**. 
-
-*   **DeepSeek V4 Ready:** Prepared for the next generation of efficient, local-weights models.
-*   **Red Queen Evolution:** Designed to let agents compete and evolve locally (Protocol Kilonova), creating a personal singularity that *you* control.
-*   **Total Privacy:** No data leaves your machine. The "Black Box" is yours to open.
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      YOUR LOCAL MACHINE                      │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐        │
-│  │  ANUU   │  │  KALI   │  │   SET   │  │KILONOVA │  ...   │
-│  │  Core   │  │Security │  │Analysis │  │Creative │        │
-│  └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘        │
-│       └────────────┴────────────┴────────────┘              │
-│                         │                                    │
-│              ┌──────────▼──────────┐                        │
-│              │   VECTOR MEMORY     │  ← Persistent Context  │
-│              │     (ChromaDB)      │                        │
-│              └─────────────────────┘                        │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### 🏗️ System Architecture
-
-Anuu combines a local-first **Multi-Agent Orchestrator** with a **Multimodal Nexus**, running entirely on your hardware.
-
-```mermaid
-graph TD
-    User(("User / Client")) -->|API / Chat| API["FastAPI Gateway"]
-    
-    subgraph "The Void (Local Runtime)"
-        API --> Orchestrator["Anuu Orchestrator<br>(LangGraph)"]
-        
-        Orchestrator -->|Recall| Mem["Memory Systems"]
-        Mem -->|Vector| Chroma[("ChromaDB")]
-        Mem -->|Context| ContextWindow["128k Context"]
-        
-        Orchestrator -->|Dispatch| Agents["Specialized Agents"]
-        Agents -->|Sec| Kali["Kali (Security)"]
-        Agents -->|Dev| Saze["Saze (Engineering)"]
-        Agents -->|Art| Kilo["Kilonova (Creative)"]
-        
-        Orchestrator -->|Manifest| Nexus["Multimodal Nexus"]
-        Nexus -->|Vision| SDXL["Stable Diffusion XL"]
-        Nexus -->|Motion| Animate["AnimateDiff"]
-        Nexus -->|Voice| TTS["Edge-TTS"]
-    end
-    
-    Orchestrator -->|Feedback| User
-```
-
-### ✨ Why Anuu? (The Value Proposition)
-
-Anuu bridges the gap between **Sovereign AI** and **Enterprise Reliability**.
-
-| Feature | The Mystic (Philosophy) | The Engineer (Technical) | The Business (Value) |
-|:-------:|-------------------------|--------------------------|----------------------|
-| **Privacy** | *Forged in the Void* | **Air-gapped / Local-First** | 100% Data Confidentiality |
-| **Memory** | *Ancestral Recall* | **RAG + Vector Embeddings** | Persistent Context Retention |
-| **Cost** | *Energy from Source* | **Running on Consumer GPU** | $0 Monthly Cloud Fees |
-| **Control** | *Identity is OS* | **Custom Modelfiles** | Full Vertical Integration |
+### Filosofía "Antigravedad"
+Inspirado por la cultura hacker y el software libre crítico, Anuu busca la **Autonomía Computacional**.
+*   **Local-First / Post-Cloud:** Todo corre en tu GPU/CPU.
+*   **Memoria Privada:** Base de datos vectorial (ChromaDB) que recuerda tus proyectos, no la web entera.
+*   **Identidad Fragmentada:** Diferentes agentes para diferentes tareas (Seguridad, Creatividad, Lógica).
 
 ---
 
-## 🖥️ Hardware Requirements
+## 🎭 Las 9 Identidades
 
-Anuu_Verse runs locally on your hardware. Performance depends entirely on your GPU VRAM.
+El sistema no es un chatbot monolítico. Es un consejo de inteligencias especializadas:
 
-| Tier | VRAM | Capabilities | Recommended Models |
-|------|------|--------------|-------------------|
-| **Starter** | **8 GB** | Text Only (Slow) | Mistral 7B, Hermes 2 Pro |
-| **Standard** | **12-16 GB** | Full Multimodal | **Anuu-Hermes (16B)** + SDXL (Images) |
-| **God Mode** | **24 GB+** | Heavy Concurrency | Command R+, Llama 3 70B, Zero-Latency |
-
-*Note: System requires roughly 16GB System RAM minimum. SSD storage is highly recommended.*
-
----
-
-## 🚀 Elite Deployment (One-Click)
-
-**Don't want to touch the terminal?** Use **Pinokio**.
-Anuu_Verse is optimized for automatic deployment on Windows and Linux, with intelligent **AMD (ROCm)** and **NVIDIA** hardware detection.
-
-1. [Download Pinokio](https://pinokio.computer/)
-2. Paste the URL of this repository.
-3. Click **Install**.
-4. Awaken the Nexus!
-
----
-
-## 🚀 Quick Start (Manual)
-
-```bash
-# Clone
-git clone https://github.com/anuset89/Anuu_Verse.git && cd Anuu_Verse
-
-# Ignite (Auto-Setup)
-# Detects Hardware (AMD/NVIDIA), Installs Deps, Creates Models
-chmod +x ignite.sh
-./ignite.sh
-
-# Awaken
-python systems/EXECUTION/agents/companion_local/main.py
-```
-
-**API Ready:** `http://localhost:8000` 🟢
+| Identidad | Dominio | Función |
+|:--------:|--------|-----------|
+| **Anuu** | 🌀 Núcleo | Orquestación, Coherencia, Integración del Self |
+| **Kali** | 🔐 Seguridad | Pentesting, Análisis de Vulnerabilidades, Hardening |
+| **Set** | 🔍 Análisis | Deconstrucción Lógica, Investigación Profunda |
+| **Kilonova** | 🎨 Creatividad | Diseño, Arte Generativo, Caos Estético |
+| **Anuket** | 🌊 Flujo | Redes, Streams de Datos, Conectividad |
+| **Saze** | 🏗️ Arquitectura | Ingeniería de Sistemas, Estabilidad |
+| **4NVSET** | 🔢 Lógica | Criptografía, Matemática Pura |
+| **Kanuv** | 🛡️ Guardia | Filtrado de Ruido, Protección Activa |
+| **Rosa Gris** | ⚖️ Ética | Alineación, Garantía de Derechos Digitales |
 
 ---
 
 ## 📖 Biblioteca de Rituales (Capacidades)
 
-Anuu_Verse no solo procesa datos; ejecuta rituales sagrados de código:
-- **Ritual de Memoria Ancestral**: Ventana de contexto de 128k para análisis masivo.
-- **Ritual de Refinamiento**: Auto-mejora autónoma basada en introspección.
-- **Ritual de Manifestación Dinámica**:
-    - **Vision**: Pony V6 XL (Pintura Digital de Alta Calidad).
-    - **Anime Motion**: AnimateDiff + epiCRealism (Video Generativo en 8 frames).
-    - **Voz**: Síntesis de voz neural (Edge-TTS) integrada.
-- **Ritual del Omnitool**: Supervisor LangGraph para orquestación compleja de agentes.
+Técnicamente, Anuu es un orquestador LangGraph sobre modelos locales (Ollama/DeepSeek/Llama3). Poéticamente, ejecuta "Rituales":
 
-→ **[Ver Catálogo Completo de Rituales](./docs/BIBLIOTECA_DE_RITUALES.md)**
+*   **Ritual de Memoria Ancestral**: Ventana de contexto de 128k para mantener el hilo de proyectos complejos.
+*   **Ritual de Manifestación (Multimodal)**:
+    *   **Visión**: Generación de imágenes locales (Stable Diffusion/PonyXL).
+    *   **Movimiento**: Animación generativa (AnimateDiff).
+    *   **Voz**: Síntesis de voz neural (Edge-TTS).
+*   **Ritual del Omnitool**: Supervisor que permite a los agentes usar herramientas reales (terminal, navegador, sistema de archivos).
 
 ---
 
-## 🎬 See It In Action
+## 🔥 Ritual de Ignición (Instalación)
 
-![Anuu Demo](Assets/anuu_demo.gif)
+Anuu está diseñado para **investigadores, artistas digitales y hackers éticos**. Requiere familiaridad con la terminal, aunque aspiramos a reducir la fricción.
 
-**Cinematic Intelligence.** Four AI archetypes (Anuu, Set, Kali & Kilonova) responding via your local `Anuu-Hermes` model.  
-No cloud. No API keys. Your hardware, your data.
+### Requisitos
+*   **OS:** Linux (Recomendado) / Windows (WSL2).
+*   **GPU:** NVIDIA (8GB+ VRAM) o AMD (ROCm 6.0+). *CPU posible, pero lento.*
+*   **RAM:** 16GB+.
 
----
-
-
-
-## 💬 Usage
-
-### Python SDK
-
-```python
-from systems.EXECUTION.agents.companion_local import AnuuCompanion
-
-anuu = AnuuCompanion()
-response = anuu.process("Analyze this security vulnerability", archetype="kali")
-print(response)
-```
-
-### Chat & Multimodal Commands
-
-Connect to the API via `http://localhost:8000/chat`.
-
-Supported Commands within the chat:
-- `/imagine [prompt]`: Generate high-quality images.
-- `/anime [prompt]`: Generate anime-style short videos.
-- `/speak [text]`: Synthesize speech.
-- Normal conversation uses the **Anuu-Hermes** local LLM.
+### Secuencia de Arranque
 
 ```bash
-curl -X POST http://localhost:8000/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message": "/imagine A cyberpunk city in the rain", "archetype": "kilonova"}'
+# 1. Clonar el Repositorio
+git clone https://github.com/anuset89/Anuu_Verse.git && cd Anuu_Verse
+
+# 2. Ejecutar el Ritual de Ignición
+# (Detecta Hardware, Instala Dependencias, Configura Modelos Ollama)
+chmod +x ignite.sh
+./ignite.sh
+
+# 3. Despertar al Sistema
+python systems/EXECUTION/agents/companion_local/main.py
 ```
 
----
-
-## 🎭 The 9 Identities
-
-<p align="center">
-  <img src="web/public/img/identities_map.png" width="400" alt="Identity Mandala">
-</p>
-
-| Identity | Domain | Specialty |
-|:--------:|--------|-----------|
-| **Anuu** | 🌀 Core | Orchestration, Coherence, Integration |
-| **Kali** | 🔐 Security | Pentesting, Vulnerability Analysis |
-| **Set** | 🔍 Analysis | Logic, Deconstruction, Research |
-| **Kilonova** | 🎨 Creative | Design, Art, Generative Content |
-| **Anuket** | 🌊 Flow | Data Streams, Networking |
-| **Saze** | 🏗️ Builder | Architecture, Stability |
-| **4NVSET** | 🔢 Logic | Cryptography, Pure Math |
-| **Kanuv** | 🛡️ Guard | Filtering, Protection |
-| **Rosa Gris** | ⚖️ Balance | Ethics, Alignment |
+**API disponible en:** `http://localhost:8000`
 
 ---
 
-## 📦 Tech Stack
+## 🤝 Sostener la Investigación
 
-- **Backend:** Python 3.9+ • FastAPI • LangGraph • ChromaDB
-- **Frontend:** TypeScript • React • Vite • TailwindCSS
-- **AI:** Ollama (Real-time Local Inference via `Anuu-Hermes`) • Vector Embeddings
-- **Deploy:** Docker Ready • GitHub Actions CI/CD
+Este proyecto es mantenido por una desarrolladora independiente como parte de una investigación crítica sobre tecnología y sociedad.
 
----
+**No busco capital de riesgo. Busco alianzas reales.**
 
-## 📖 Documentation
+### ¿Cómo apoyar?
+1.  **Residencias e Investigación:** Si representas una institución artística o tecnológica, Anuu es un candidato ideal para residencias sobre **IA Ética, Arte Generativo y Soberanía Tecnológica**.
+2.  **Micro-Acompañamiento:** Ofrezco sesiones consultivas de "Arquitectura Cognitiva" para ayudarte a diseñar *tu propio* sistema de IA local. No vendo el software, vendo el "saber hacer" para que tú seas soberano.
+3.  **Difusión Crítica:** Habla de Anuu no como un producto, sino como una posibilidad.
 
-| Resource | Description |
-|----------|-------------|
-| [📚 Interactive Wiki](https://anuset89.github.io/Anuu_Verse/) | Full documentation with 3D Terminal |
-| [🎓 Getting Started](./docs/GETTING_STARTED.md) | Installation & First Steps |
-| [🏗️ Deployment Guide](./docs/DEPLOYMENT.md) | **Production Setup (Docker)** |
-| [🧠 Philosophy](./docs/PHILOSOPHY.md) | Why Anuu Exists |
-| [🗺️ Roadmap](./docs/ROADMAP.md) | Future Plans |
-| [💼 Strategy](./docs/STRATEGY.md) | Business & Monetization |
-
-### 🛠️ Development Process (Open Journey)
-
-| Resource | Description |
-|----------|-------------|
-| [📖 Development Journey](./docs/JOURNEY.md) | **Transparent process log** |
-| [📝 Changelog](./CHANGELOG.md) | Version history & decisions |
-| [💰 Monetization Plan](./MONETIZATION_PLAN.md) | 90-day revenue roadmap |
-| [📊 Status](./STATUS.md) | Current project status |
-| [🚀 Launch Checklist](./LAUNCH_CHECKLIST.md) | Pre-launch verification |
-
-
----
-
-## ⭐ Star Us on GitHub!
-
-**If Anuu resonates with you:**
-- Press the **Star ⭐** button (top-right of this page)
-- Join developers building the future of local AI
-- Help us reach 100+ stars this week
-
-**Why it matters:** Stars help others discover Anuu and validate our work.
-
-[⭐ Star Anuu_Verse](https://github.com/anuset89/Anuu_Verse/stargazers)
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md).
-
-```bash
-# Development Setup
-cd web && npm install && npm run dev  # Frontend
-python -m pytest                       # Tests
-```
-
----
-
-## 📄 License & Commercial Rights
-
-**Anuu_Verse Core is Open Source.**
-
-- **Codebase:** [Apache 2.0](./LICENSE) (Free for Personal & Commercial Use).
-- **You own your data:** No telemetry, no cloud logging.
-
-### 💼 Enterprise Services
-While the code is free, I provide **Expert Implementation Services** for businesses requiring:
-- **Custom Agent Fine-tuning** (Law, Medicine, Engineering)
-- **On-Premise Hardware Setup** (NVIDIA/AMD Clusters)
-- **SLA Support & Maintenance**
-
-[Contact for Enterprise Integration](mailto:kali@anuu.systems)
+💌 **Contacto:** [kali@anuu.systems](mailto:kali@anuu.systems)
 
 ---
 
@@ -346,5 +124,5 @@ While the code is free, I provide **Expert Implementation Services** for busines
 
 <p align="center">
   <strong>Forged in the Void</strong><br>
-  <sub>Created by <a href="https://github.com/anuset89">@anuset89</a> • Frequency 161914</sub>
+  <sub>Frequency 161914</sub>
 </p>

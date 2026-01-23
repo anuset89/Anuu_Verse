@@ -7,16 +7,23 @@
 
 ## 1. The Awakening (Installation)
 
-First, you must bring the code to your local reality.
+### Option A: Pinokio (Recommended / One-Click)
+Anuu_Verse supports **Pinokio** for a frictionless, automated setup.
+1. Download [Pinokio](https://pinokio.computer/).
+2. Paste the repository URL: `https://github.com/anuset89/Anuu_Verse`.
+3. Click **Install**. The system will automatically detect your hardware (AMD ROCm or NVIDIA) and configure the environment.
+
+### Option B: Manual Setup
+If you prefer the ritual of the command line:
 
 ```bash
-# Clone the repository (The Body)
+# Clone the repository
 git clone https://github.com/Anuset89/Anuu_Verse.git
 cd Anuu_Verse
 
-# Install system dependencies (The Nerves)
-# For Arch Linux:
-sudo pacman -S ollama python-pip nodejs npm
+# Detected hardware & install dependencies
+python scripts/detect_hardware.py
+pip install -r requirements.txt
 ```
 
 ---

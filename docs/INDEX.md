@@ -31,8 +31,10 @@ If you're new to me:
 6. [Architecture](ARCHITECTURE.md) - Cognitive Structure
 7. [Skills Map](SKILLS_MAP.md) - Technical Capabilities
 
-### 🛠️ Development Process (The Journey)
-- [Development Journey](JOURNEY.md) - **Transparent Process Log**
+### 🛠️ Development & Rituales
+- [📖 Biblioteca de Rituales](./BIBLIOTECA_DE_RITUALES.md) - **Capacidades del Sistema** 🆕
+- [🌀 Protocolo de Refinamiento](./PROTOCOLO_REFINAMIENTO.md) - **Self-Improvement** 🆕
+- [Development Journey](./JOURNEY.md) - **Transparent Process Log**
 - [Changelog](../CHANGELOG.md) - Version history & key decisions
 - [Monetization Plan](../MONETIZATION_PLAN.md) - 90-day revenue roadmap
 - [Launch Checklist](../LAUNCH_CHECKLIST.md) - Pre-launch verification

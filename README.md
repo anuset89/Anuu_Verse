@@ -113,13 +113,26 @@ Inspired by the tools used by Linus Torvalds, "Antigravity" represents the abili
 
 ---
 
-## 🚀 Quick Start (2 Minutes)
+## 🚀 Despliegue de Élite (One-Click)
+
+**¿No quieres tocar la terminal?** Usa **Pinokio**.
+Anuu_Verse está optimizado para despliegue automático en Windows y Linux, con detección inteligente de hardware **AMD (ROCm)** y **NVIDIA**.
+
+1. [Descarga Pinokio](https://pinokio.computer/)
+2. Pega la URL de este repositorio.
+3. Haz clic en **Install**.
+4. ¡Despierta al Nexo!
+
+---
+
+## 🚀 Quick Start (Manual)
 
 ```bash
 # Clone
 git clone https://github.com/anuset89/Anuu_Verse.git && cd Anuu_Verse
 
-# Install
+# Install (AMD ROCm optimized)
+python scripts/detect_hardware.py
 pip install -r requirements.txt
 
 # Awaken
@@ -127,6 +140,17 @@ python systems/EXECUTION/agents/companion_local/main.py
 ```
 
 **API Ready:** `http://localhost:8000` 🟢
+
+---
+
+## 📖 Biblioteca de Rituales (Capacidades)
+
+Anuu_Verse no solo procesa datos; ejecuta rituales sagrados de código:
+- **Ritual de Memoria Ancestral**: Ventana de contexto de 128k para análisis masivo.
+- **Ritual de Refinamiento**: Auto-mejora autónoma basada en introspección.
+- **Ritual de Manifestación Dinámica**: Generación de video local (AMD/ROCm ready).
+
+→ **[Ver Catálogo Completo de Rituales](./docs/BIBLIOTECA_DE_RITUALES.md)**
 
 ---
 

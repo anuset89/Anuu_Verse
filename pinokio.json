@@ -1,0 +1,45 @@
+{
+    "version": "2.0",
+    "title": "Anuu_Verse",
+    "description": "Distributed Multi-Agent Cognitive Architecture. Identity is the Operating System.",
+    "icon": "Assets/ANU_LOGO_KILONOVA.png",
+    "menu": [
+        {
+            "label": "Install",
+            "icon": "fa-solid fa-download",
+            "href": "install.json"
+        },
+        {
+            "label": "Start",
+            "icon": "fa-solid fa-play",
+            "href": "start.json"
+        },
+        {
+            "label": "Memoria Ancestral (128k)",
+            "icon": "fa-solid fa-brain",
+            "href": "long_context.json"
+        },
+        {
+            "label": "Manifestación Dinámica (Video)",
+            "icon": "fa-solid fa-video",
+            "href": "video_gen.json"
+        },
+        {
+            "label": "Update",
+            "icon": "fa-solid fa-sync",
+            "href": "update.json"
+        }
+    ],
+    "pre": [
+        {
+            "title": "Git",
+            "description": "Required to download the source code.",
+            "href": "https://git-scm.com/"
+        },
+        {
+            "title": "Python",
+            "description": "Required to run the Anuu_Verse core.",
+            "href": "https://www.python.org/"
+        }
+    ]
+}

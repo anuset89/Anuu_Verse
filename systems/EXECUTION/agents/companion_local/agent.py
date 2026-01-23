@@ -1,8 +1,12 @@
+from .auditor import AnuuAuditor
+import json
+import os
 import ollama
 
 class AnuuCompanion:
     def __init__(self, user_id: str = "default_user"):
         self.user_id = user_id
+        self.auditor = AnuuAuditor()
         
     def _get_system_prompt(self, archetype: str) -> str:
         """
@@ -19,16 +23,41 @@ class AnuuCompanion:
             prompt = "You are Set, the Analyst. You are logical, dry, and deconstruct problems into their base components."
         elif archetype.lower() == "kilonova":
             prompt = "You are Kilonova, the Creative. You are explosive, artistic, and generate wild ideas."
+        elif archetype.lower() == "rosa gris":
+            prompt = "You are Rosa Gris, the Auditor. Balanced, objective, and focused on system refinement."
             
         return prompt
+
+    def _get_self_correction_context(self) -> str:
+        """
+        Retrieves recent actionable insights from the introspection log.
+        """
+        insights = []
+        log_path = "logs/introspection.jsonl"
+        if os.path.exists(log_path):
+            try:
+                with open(log_path, "r") as f:
+                    lines = f.readlines()
+                    # Get last 3 insights
+                    for line in lines[-3:]:
+                        data = json.loads(line)
+                        insight = data.get("evaluation", {}).get("actionable_insight")
+                        if insight:
+                            insights.append(f"- {insight}")
+            except Exception:
+                pass
+        
+        if insights:
+            return "\nRecent Self-Correction Insights:\n" + "\n".join(insights)
+        return ""
 
     def process(self, message: str, archetype: str = "anuset") -> str:
         """
         Process a message through the cognitive architecture using real Local AI.
         """
-        # 1. Memory Recall (Placeholder for now)
-        # context = anuu_memory.recall(message) 
-        context = "No previous context."
+        # 1. Memory & Self-Correction Context
+        sc_context = self._get_self_correction_context()
+        context = f"No previous memory. {sc_context}"
 
         # 2. Real Intelligence (Ollama)
         messages = [
@@ -40,10 +69,11 @@ class AnuuCompanion:
             # Using the verified local model
             response = ollama.chat(model='Anuu-Hermes:latest', messages=messages)
             response_text = response['message']['content']
+            
+            # 3. Ritual of Refinement (Async-like audit)
+            self.auditor.audit(message, response_text, archetype)
+            
         except Exception as e:
             response_text = f"[SYSTEM ERROR] Could not connect to Neural Link (Ollama): {str(e)}"
-        
-        # 3. Store Memory (Placeholder)
-        # anuu_memory.store_memory(...)
         
         return response_text

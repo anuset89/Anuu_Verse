@@ -1,0 +1,38 @@
+{
+    "run": [
+        {
+            "method": "shell.run",
+            "params": {
+                "message": "python scripts/detect_hardware.py"
+            }
+        },
+        {
+            "method": "shell.run",
+            "params": {
+                "message": "python -m venv venv"
+            }
+        },
+        {
+            "method": "shell.run",
+            "params": {
+                "message": [
+                    "{{platform === 'win32' ? 'venv\\\\Scripts\\\\pip' : 'venv/bin/pip'}} install -r requirements.txt"
+                ]
+            }
+        },
+        {
+            "method": "shell.run",
+            "params": {
+                "message": [
+                    "{{ (os.exists('.gpu_type') && os.readFile('.gpu_type').includes('AMD')) ? (platform === 'win32' ? 'venv\\\\Scripts\\\\pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.0' : 'venv/bin/pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.0') : 'echo Using default PyTorch' }}"
+                ]
+            }
+        },
+        {
+            "method": "notify",
+            "params": {
+                "html": "Installation complete. Anuu has synchronized with your hardware. You can now use the high-density rituals."
+            }
+        }
+    ]
+}

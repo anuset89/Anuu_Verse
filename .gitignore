@@ -23,3 +23,9 @@ secrets.json
 .env
 .venv/
 venv/
+
+# Logs and Caches
+logs/
+**/__pycache__/
+*.vtt
+Assets/*.cast

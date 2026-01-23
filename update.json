@@ -1,0 +1,24 @@
+{
+    "run": [
+        {
+            "method": "shell.run",
+            "params": {
+                "message": "git pull"
+            }
+        },
+        {
+            "method": "shell.run",
+            "params": {
+                "message": [
+                    "{{platform === 'win32' ? 'venv\\\\Scripts\\\\pip' : 'venv/bin/pip'}} install -r requirements.txt --upgrade"
+                ]
+            }
+        },
+        {
+            "method": "notify",
+            "params": {
+                "html": "Update complete."
+            }
+        }
+    ]
+}

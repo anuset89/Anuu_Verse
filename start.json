@@ -1,0 +1,25 @@
+{
+    "daemon": true,
+    "run": [
+        {
+            "method": "shell.run",
+            "params": {
+                "message": [
+                    "{{platform === 'win32' ? 'venv\\\\Scripts\\\\python' : 'venv/bin/python'}} systems/EXECUTION/agents/companion_local/main.py"
+                ],
+                "on": [
+                    {
+                        "event": "/http:\\/\\/localhost:[0-9]+/",
+                        "done": true
+                    }
+                ]
+            }
+        },
+        {
+            "method": "browser.open",
+            "params": {
+                "uri": "http://localhost:8000"
+            }
+        }
+    ]
+}

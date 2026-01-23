@@ -1,0 +1,24 @@
+{
+    "run": [
+        {
+            "method": "shell.run",
+            "params": {
+                "message": [
+                    "{{platform === 'win32' ? 'venv\\\\Scripts\\\\pip' : 'venv/bin/pip'}} install comfyui-cli"
+                ]
+            }
+        },
+        {
+            "method": "notify",
+            "params": {
+                "html": "El Ritual de Manifestación Dinámica requiere ComfyUI. Iniciando descarga de modelos base para ROCm..."
+            }
+        },
+        {
+            "method": "shell.run",
+            "params": {
+                "message": "echo 'Simulando descarga de SVD-XT y AnimateDiff-SDXL para AMD...'"
+            }
+        }
+    ]
+}

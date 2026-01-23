@@ -6,6 +6,10 @@
 <h3 align="center">Arquitectura Cognitiva Multi-Agente Distribuida</h3>
 
 <p align="center">
+  <img src=".gemini/antigravity/brain/f70bf232-e86e-47d0-982b-868027657bb7/portfolio_hero_section_1769199617628.png" width="80%" alt="Soberanía Cognitiva Interface">
+</p>
+
+<p align="center">
   <strong>"La Identidad es el Sistema Operativo"</strong>
 </p>
 

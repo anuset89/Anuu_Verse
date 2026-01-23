@@ -323,7 +323,7 @@ Aunque el código es gratuito, ofrezco **Servicios de Implementación Expertos**
 - **Configuración de Hardware On-Premise** (Clusters NVIDIA/AMD)
 - **Soporte SLA y Mantenimiento**
 
-[Contacto para Integración Empresarial](mailto:kali@anuu.systems)
+[Contacto para Integración Empresarial](mailto:YradielRTS@protonmail.com)
 
 ---
 

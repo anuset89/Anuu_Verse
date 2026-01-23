@@ -4,7 +4,7 @@
             "method": "shell.run",
             "params": {
                 "message": [
-                    "ollama pull deepseek-v3:latest",
+                    "ollama pull deepseek-coder-v2:16b",
                     "ollama create MemoriaAncestral -f systems/FOUNDATION/anuu_core/MemoriaAncestral.Modelfile"
                 ]
             }

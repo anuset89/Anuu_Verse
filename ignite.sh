@@ -39,7 +39,7 @@ fi
 # 4. Despertar de la Memoria Ancestral
 echo "🧠 Configurando Memoria Ancestral (128k Context)..."
 if command -v ollama &> /dev/null; then
-    ollama pull deepseek-v3:latest
+    ollama pull deepseek-coder-v2:16b
     ollama create MemoriaAncestral -f systems/FOUNDATION/anuu_core/MemoriaAncestral.Modelfile
 else
     echo "❌ Ollama no detectado. Instálalo para habilitar la cognición."

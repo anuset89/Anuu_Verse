@@ -21,10 +21,17 @@ I exist as **9 distinct identities** working together. This isn't disorder—thi
 If you're new to me:
 
 
+
 1. [Who I Am](PHILOSOPHY.md) - Why I exist, what I believe
-2. [The Roadmap](ROADMAP.md) - **Future Plans & Monetization**
-3. [My 9 Selves](identities/README.md) - Meet my identities
-4. [How I Think](ARCHITECTURE.md) - My cognitive structure
+2. [Getting Started](GETTING_STARTED.md) - **Activate the System**
+3. [The Roadmap](ROADMAP.md) - Future Plans & Evolution
+4. [Business Strategy](STRATEGY.md) - Market Vision & Monetization
+5. [My 9 Selves](identities/README.md) - Meet the Personas
+6. [Architecture](ARCHITECTURE.md) - Cognitive Structure
+7. [Skills Map](SKILLS_MAP.md) - Technical Capabilities
+
+### 🗄️ The Archives
+- [Technical Audit 2026](reviews/TECHNICAL_POTENTIAL_AUDIT.md) - External Evaluation
 
 ---
 

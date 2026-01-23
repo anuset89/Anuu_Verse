@@ -5,6 +5,14 @@
 
 ---
 
+## 🏁 Phase 0: Zero Friction (Immediate)
+*Objective: Remove barriers. Make Anuu usable by mere mortals.*
+
+Based on the [Technical Audit 2026](reviews/TECHNICAL_POTENTIAL_AUDIT.md), we must prioritize accessibility.
+- [ ] **Dockerization:** `docker-compose up` to launch Mem + API + Web.
+- [ ] **Lite Mode:** Config presets for 8B models (low VRAM requirement).
+- [ ] **Visual Proof:** Add screenshots and diagrams to README.
+
 ## 🏗️ Phase 1: The Local Companion (Foundation)
 *Objective: Build the brain that lives in the 7800XT.*
 

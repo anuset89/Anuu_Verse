@@ -22,6 +22,19 @@
   <img src="https://img.shields.io/github/last-commit/anuset89/Anuu_Verse?style=flat-square&color=purple" alt="Last Commit">
 </p>
 
+---
+
+## 🚀 Need This Working Today?
+
+**I offer professional setup & customization of Anuu_Verse for your infrastructure.**
+
+✅ **Quick Setup** (3 days) — €300  
+✅ **Custom Integration** (1 week) — €800  
+✅ **Consulting** (per hour) — €50  
+
+**Includes:** Docker deployment, model integration, 1h support, documentation.
+
+→ **[Hire Me: kali@anuu.systems](mailto:kali@anuu.systems?subject=Setup%20Anuu_Verse)** | **[View Services & Pricing](./SERVICES.md)**
 
 ---
 

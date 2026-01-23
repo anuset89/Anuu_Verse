@@ -2,7 +2,7 @@
 
 ## Versión Actual: v0.9.5 (INVESTIGACIÓN SOBERANA)
 
-> **⚠️ NOTA OPERATIVA:** El proyecto opera ahora como **Cuartel General de Investigación**. La interfaz web comercial ha sido archivada para priorizar la tesis de Soberanía Cognitiva.
+
 
 ---
 

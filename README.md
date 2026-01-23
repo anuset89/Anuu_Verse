@@ -10,9 +10,7 @@
 <p align="center">
 ## 🌌 **Estado: INVESTIGACIÓN SOBERANA (Fase 4)**
 
-> **[Aviso de Operadora]**: La interfaz web "Auto-Battler" ha sido archivada (`Legacy_Archive/AutoBattler_v1/`) para centrar toda la capacidad de cómputo en la investigación de **Identidad Post-Nube** y **Soberanía Cognitiva**.
->
-> Este repositorio actúa ahora como el **Cuartel General Digital (Digital HQ)** de las operaciones de investigación bajo la identidad **KALI**.
+
 
 Visita el **Portfolio de Investigación** en vivo: [anuu-verse.anuu.systems](https://anuset89.github.io/Anuu_Verse/) (Desplegado desde `docs/`)
 

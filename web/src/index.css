@@ -1,0 +1,33 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=Syncopate:wght@400;700&family=Space+Mono&display=swap');
+
+@layer base {
+  body {
+    @apply bg-black text-white font-body overflow-x-hidden min-h-screen text-base leading-relaxed;
+    background: radial-gradient(circle at center, #200040 0%, #000000 70%, #000020 100%);
+  }
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  @apply bg-glass-bg border-glass-border backdrop-blur-md rounded-xl shadow-2xl border;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-deep-space;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-nebula-purple rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-accent-violet;
+}

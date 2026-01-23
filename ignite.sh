@@ -15,6 +15,11 @@ GPU_TYPE=$(cat .gpu_type 2>/dev/null || echo "CPU")
 
 if [ "$GPU_TYPE" == "AMD" ]; then
     echo -e "✅ \e[1;32mAMD GPU Detectada.\e[0m Sincronizando con stack ROCm..."
+    # Force GPU usage for RDNA3 (RX 7800 XT = gfx1100)
+    export HSA_OVERRIDE_GFX_VERSION=11.0.0
+    export ROCR_VISIBLE_DEVICES=0
+    export HIP_VISIBLE_DEVICES=0
+    echo "   → Variables de GPU forzadas: HSA_OVERRIDE_GFX_VERSION=11.0.0"
 else
     echo -e "⚠️ \e[1;33mGPU no detectada o no soportada.\e[0m Usando CPU (Cámara de Lento Proceso)..."
 fi

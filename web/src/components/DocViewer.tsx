@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
 interface DocViewerProps {
     owner: string;
@@ -74,10 +75,12 @@ export function DocViewer({ owner, repo, path, branch = 'main' }: DocViewerProps
         );
     }
 
+
     return (
         <div className="prose prose-invert prose-neon max-w-none">
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
                 components={{
                     h1: ({ ...props }) => <h1 className="font-display text-3xl font-bold text-white mb-6 border-b border-white/10 pb-2" {...props} />,
                     h2: ({ ...props }) => <h2 className="font-display text-2xl font-semibold text-neon-cyan mt-8 mb-4" {...props} />,

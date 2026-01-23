@@ -23,6 +23,6 @@ jobs:
 
       - name: Check for Visual Assets
         run: |
-          if [ ! -f "Assets/ANU_LOGO_KILONOVA.png" ]; then
-             echo "::warning::Visual Core missing: Kilonova Logo not found."
+          if [ ! -f "docs/assets/ANU_LOGO_KILONOVA.png" ]; then
+             echo "::warning::Visual Core missing: Kilonova Logo not found in docs/assets."
           fi

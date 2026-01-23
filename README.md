@@ -8,10 +8,17 @@
 > *"La identidad es el Sistema Operativo."* — Protocolo Kilonova
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Estado-Tesis_Viva-5BCEFA?style=flat-square" alt="Status">
-  <img src="https://img.shields.io/badge/Filosofía-Post--Cloud-F5A9B8?style=flat-square" alt="Philosophy">
-  <img src="https://img.shields.io/badge/Licencia-Apache_2.0-green?style=flat-square" alt="License">
-</p>
+## 🌌 **Estado: INVESTIGACIÓN SOBERANA (Fase 4)**
+
+> **[Aviso de Operadora]**: La interfaz web "Auto-Battler" ha sido archivada (`Legacy_Archive/AutoBattler_v1/`) para centrar toda la capacidad de cómputo en la investigación de **Identidad Post-Nube** y **Soberanía Cognitiva**.
+>
+> Este repositorio actúa ahora como el **Cuartel General Digital (Digital HQ)** de las operaciones de investigación bajo la identidad **KALI**.
+
+Visita el **Portfolio de Investigación** en vivo: [anuu-verse.anuu.systems](https://anuset89.github.io/Anuu_Verse/) (Desplegado desde `docs/`)
+
+---
+
+Bienvenido al núcleo de **Anuu 161914**. Este no es un producto comercial; es una arquitectura de defensa identidad y un sistema de orquestación de IA local.
 
 ---
 

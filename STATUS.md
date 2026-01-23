@@ -40,8 +40,8 @@ En lugar de un "Roadmap de Producto", seguimos líneas de investigación:
 |:-------:|:------:|-------|
 | **Portfolio** | 🟢 Vivo | Desplegado en `docs/`. |
 | **Core API** | 🟢 Estable | Funcional para interacción local. |
-| **Web UI** | �️ Archivada | Movida a `Legacy_Archive/`. |
-| **Documentación** | � Alineada | Refleja la tesis de investigación. |
+| **Web UI** | 🗃️ Archivada | Movida a `Legacy_Archive/`. |
+| **Documentación** | 🟢 Alineada | Refleja la tesis de investigación. |
 
 ---
 

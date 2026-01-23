@@ -22,6 +22,7 @@ python-dotenv==1.0.1
 rich==13.7.1
 
 # Multimodal Nexus (The Senses)
+torch>=2.0.0
 diffusers==0.27.2
 transformers==4.39.3
 accelerate==0.28.0

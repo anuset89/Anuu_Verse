@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+import { Mermaid } from './ui/Mermaid';
 
 interface DocViewerProps {
     owner: string;
@@ -85,7 +86,20 @@ export function DocViewer({ owner, repo, path, branch = 'main' }: DocViewerProps
                     h1: ({ ...props }) => <h1 className="font-display text-3xl font-bold text-white mb-6 border-b border-white/10 pb-2" {...props} />,
                     h2: ({ ...props }) => <h2 className="font-display text-2xl font-semibold text-neon-cyan mt-8 mb-4" {...props} />,
                     h3: ({ ...props }) => <h3 className="font-display text-xl text-accent-violet mt-6 mb-3" {...props} />,
-                    code: ({ ...props }) => <code className="bg-[#0a0a1a] text-neon-cyan px-1 py-0.5 rounded font-mono text-sm" {...props} />,
+                    code: ({ node, className, children, ...props }) => {
+                        const match = /language-(\w+)/.exec(className || '');
+                        const isMermaid = match && match[1] === 'mermaid';
+
+                        if (isMermaid) {
+                            return <Mermaid chart={String(children).replace(/\n$/, '')} />;
+                        }
+
+                        return (
+                            <code className={className ? className : "bg-[#0a0a1a] text-neon-cyan px-1 py-0.5 rounded font-mono text-sm"} {...props}>
+                                {children}
+                            </code>
+                        );
+                    },
                     pre: ({ ...props }) => <pre className="bg-[#0a0a1a] border border-white/10 p-4 rounded-lg overflow-x-auto my-4" {...props} />,
                     a: ({ href, ...props }) => <a href={href ? resolveUrl(href) : '#'} className="text-neon-cyan hover:text-white underline decoration-dotted underline-offset-4 transition-colors" {...props} />,
                     ul: ({ ...props }) => <ul className="list-disc list-inside space-y-2 text-gray-300 my-4" {...props} />,

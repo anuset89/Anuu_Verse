@@ -13,7 +13,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from .agent import AnuuCompanion
+from systems.EXECUTION.agents.companion_local.agent import AnuuCompanion
 
 app = FastAPI(title="Anuu Companion API", version="0.1.0")
 agent = AnuuCompanion()

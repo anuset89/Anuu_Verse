@@ -24,6 +24,14 @@ else
     echo -e "⚠️ \e[1;33mGPU no detectada o no soportada.\e[0m Usando CPU (Cámara de Lento Proceso)..."
 fi
 
+# 1.5. Verificación de Sentidos (FFmpeg)
+if ! command -v ffmpeg &> /dev/null; then
+    echo -e "⚠️ \e[1;33mFFmpeg no detectado.\e[0m Las capacidades de video/audio estarán limitadas."
+    echo "   → Instálalo con: sudo apt install ffmpeg"
+else
+    echo -e "✅ \e[1;32mFFmpeg detectado.\e[0m Nexus multimodal listo."
+fi
+
 # 2. Forja del Entorno (Venv)
 if [ ! -d ".venv" ]; then
     echo "🛠️ Creando cámara de aislamiento (.venv)..."
@@ -33,7 +41,7 @@ fi
 source .venv/bin/activate
 
 # 3. Transmutación de Dependencias
-echo "📦 Instalando nervios y sinapsis (dependencias)..."
+echo "📦 Instalando nervios y sinapsis (dependencias completas)..."
 pip install -r requirements.txt
 
 if [ "$GPU_TYPE" == "AMD" ]; then
@@ -42,10 +50,16 @@ if [ "$GPU_TYPE" == "AMD" ]; then
 fi
 
 # 4. Despertar de la Memoria Ancestral
-echo "🧠 Configurando Memoria Ancestral (128k Context)..."
+echo "🧠 Configurando Modelos Cognitivos..."
 if command -v ollama &> /dev/null; then
+    echo "   → Descargando base: deepseek-coder-v2:16b..."
     ollama pull deepseek-coder-v2:16b
+    
+    echo "   → Creando 'MemoriaAncestral' (128k Context)..."
     ollama create MemoriaAncestral -f systems/FOUNDATION/anuu_core/MemoriaAncestral.Modelfile
+    
+    echo "   → Creando 'Anuu-Hermes' (Standard Speed)..."
+    ollama create Anuu-Hermes -f systems/FOUNDATION/anuu_core/AnuuHermes.Modelfile
 else
     echo "❌ Ollama no detectado. Instálalo para habilitar la cognición."
 fi

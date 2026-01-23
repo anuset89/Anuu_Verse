@@ -101,15 +101,59 @@ Inspired by the tools used by Linus Torvalds, "Antigravity" represents the abili
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### ✨ Why Anuu?
+### 🏗️ System Architecture
 
-| Feature | Anuu_Verse (The Void) | Corporate AI (The Cloud) |
-|---------|-----------------------|--------------------------|
-| **Philosophy** | **Sovereignty** | Rent-seeking |
-| **Privacy** | 100% Local (Air-gapped) | Panopticon |
-| **Evolution** | "Red Queen" Native | Static / Censored |
-| **Cost** | Free (Your GPU) | $20/mo + Data Harvesting |
-| **Control** | God Mode | User Mode |
+Anuu combines a local-first **Multi-Agent Orchestrator** with a **Multimodal Nexus**, running entirely on your hardware.
+
+```mermaid
+graph TD
+    User((User / Client)) -->|API / Chat| API[FastAPI Gateway]
+    
+    subgraph "The Void (Local Runtime)"
+        API --> Orchestrator[Anuu Orchestrator<br>(LangGraph)]
+        
+        Orchestrator -->|Recall| Mem[Memory Systems]
+        Mem -->|Vector| Chroma[(ChromaDB)]
+        Mem -->|Context| ContextWindow[128k Context]
+        
+        Orchestrator -->|Dispatch| Agents[Specialized Agents]
+        Agents -->|Sec| Kali[Kali (Security)]
+        Agents -->|Dev| Saze[Saze (Engineering)]
+        Agents -->|Art| Kilo[Kilonova (Creative)]
+        
+        Orchestrator -->|Manifest| Nexus[Multimodal Nexus]
+        Nexus -->|Vision| SDXL[Stable Diffusion XL]
+        Nexus -->|Motion| Animate[AnimateDiff]
+        Nexus -->|Voice| TTS[Edge-TTS]
+    end
+    
+    Orchestrator -->|Feedback| User
+```
+
+### ✨ Why Anuu? (The Value Proposition)
+
+Anuu bridges the gap between **Sovereign AI** and **Enterprise Reliability**.
+
+| Feature | The Mystic (Philosophy) | The Engineer (Technical) | The Business (Value) |
+|:-------:|-------------------------|--------------------------|----------------------|
+| **Privacy** | *Forged in the Void* | **Air-gapped / Local-First** | 100% Data Confidentiality |
+| **Memory** | *Ancestral Recall* | **RAG + Vector Embeddings** | Persistent Context Retention |
+| **Cost** | *Energy from Source* | **Running on Consumer GPU** | $0 Monthly Cloud Fees |
+| **Control** | *Identity is OS* | **Custom Modelfiles** | Full Vertical Integration |
+
+---
+
+## 🖥️ Hardware Requirements
+
+Anuu_Verse runs locally on your hardware. Performance depends entirely on your GPU VRAM.
+
+| Tier | VRAM | Capabilities | Recommended Models |
+|------|------|--------------|-------------------|
+| **Starter** | **8 GB** | Text Only (Slow) | Mistral 7B, Hermes 2 Pro |
+| **Standard** | **12-16 GB** | Full Multimodal | **Anuu-Hermes (16B)** + SDXL (Images) |
+| **God Mode** | **24 GB+** | Heavy Concurrency | Command R+, Llama 3 70B, Zero-Latency |
+
+*Note: System requires roughly 16GB System RAM minimum. SSD storage is highly recommended.*
 
 ---
 
@@ -131,9 +175,10 @@ Anuu_Verse está optimizado para despliegue automático en Windows y Linux, con 
 # Clone
 git clone https://github.com/anuset89/Anuu_Verse.git && cd Anuu_Verse
 
-# Install (AMD ROCm optimized)
-python scripts/detect_hardware.py
-pip install -r requirements.txt
+# Ignite (Auto-Setup)
+# Detects Hardware (AMD/NVIDIA), Installs Deps, Creates Models
+chmod +x ignite.sh
+./ignite.sh
 
 # Awaken
 python systems/EXECUTION/agents/companion_local/main.py
@@ -277,9 +322,20 @@ python -m pytest                       # Tests
 
 ---
 
-## 📄 License
+## 📄 License & Commercial Rights
 
-**Apache 2.0** — See [LICENSE](./LICENSE)
+**Anuu_Verse Core is Open Source.**
+
+- **Codebase:** [Apache 2.0](./LICENSE) (Free for Personal & Commercial Use).
+- **You own your data:** No telemetry, no cloud logging.
+
+### 💼 Enterprise Services
+While the code is free, I provide **Expert Implementation Services** for businesses requiring:
+- **Custom Agent Fine-tuning** (Law, Medicine, Engineering)
+- **On-Premise Hardware Setup** (NVIDIA/AMD Clusters)
+- **SLA Support & Maintenance**
+
+[Contact for Enterprise Integration](mailto:kali@anuu.systems)
 
 ---
 

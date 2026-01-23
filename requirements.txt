@@ -1,27 +1,25 @@
-# Anuu Core Dependencies
-# The Nervous System
+# Anuu Core Dependencies (Python 3.14 Compatible)
+# The Nervous System - Minimal Edition
 
 # API & Server
-fastapi==0.110.0
-uvicorn[standard]==0.29.0
-python-multipart==0.0.9
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9
 
-# AI & Orchestration
-langchain==0.1.13
-langgraph==0.0.26
-langchain-community==0.0.29
-ollama==0.1.7
-
-# Memory & Vector DB
-chromadb==0.4.24
-numpy==1.26.4
+# AI & Orchestration (Core)
+ollama>=0.1.7
 
 # Utilities
-pydantic==2.6.4
-python-dotenv==1.0.1
-rich==13.7.1  # For beautiful terminal output
-# mcp>=1.0.0  # Model Context Protocol (optional, uncomment if needed)
+pydantic>=2.6.4
+python-dotenv>=1.0.1
+rich>=13.7.1
 
-# Optional: Voice (Future Phase 2)
-# edge-tts
-# sounddevice
+# ------------------------------------------------
+# OPTIONAL (Require Python 3.11/3.12):
+# Uncomment if using a compatible Python version
+# ------------------------------------------------
+# langchain>=0.1.13
+# langgraph>=0.0.26
+# langchain-community>=0.0.29
+# chromadb>=0.4.24
+# numpy>=1.26.4

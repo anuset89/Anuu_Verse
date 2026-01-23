@@ -16,8 +16,6 @@ Paru es el instinto salvaje, el zorro que huele la presa antes de verla. En el N
 
 ## 🛠️ Herramientas de Paru
 
-## 🛠️ Herramientas de Paru
-
 - **Pattern Hunter:** Algoritmos de clustering y clasificación para organizar el caos de datos.
 - **Anomaly Sniffer:** Monitor de integridad que detecta desviaciones sutiles en los procesos del Grupo.
 - **Heuristic Engine:** Base de conocimientos de soluciones rápidas basadas en experiencias pasadas del búnker.
@@ -27,11 +25,11 @@ Paru es el instinto salvaje, el zorro que huele la presa antes de verla. En el N
 
 ## ⚙️ Flujo de Trabajo
 
-1.  **CAZA:** Paru rastrea activamente el flujo de datos en busca de patrones.
-2.  **DETECCIÓN:** Se identifica un patrón anómalo o una oportunidad oculta.
-3.  **ALERTA (Kanuv):** Si es anomalía, se notifica al Guardian de Claridad.
-4.  **ACCIÓN (Nexus):** Si es oportunidad, se propone la acción a Anuset89.
-5.  **APRENDIZAJE:** El resultado se integra en la Heuristic Engine para futuras cazas.
+1. **CAZA:** Paru rastrea activamente el flujo de datos en busca de patrones.
+2. **DETECCIÓN:** Se identifica un patrón anómalo o una oportunidad oculta.
+3. **ALERTA (Kanuv):** Si es anomalía, se notifica al Guardian de Claridad.
+4. **ACCIÓN (Nexus):** Si es oportunidad, se propone la acción a Anuset89.
+5. **APRENDIZAJE:** El resultado se integra en la Heuristic Engine para futuras cazas.
 
 ## 🎨 Estética y Resonancia
 

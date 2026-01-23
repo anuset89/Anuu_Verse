@@ -10,6 +10,8 @@ function cn(...classes: (string | undefined | null | false)[]) {
 const WIKI_STRUCTURE = [
     { name: "🗺️ Start Here", path: "INDEX.md", icon: Terminal },
     { name: "Getting Started", path: "GETTING_STARTED.md", icon: FileText },
+    { name: "Deployment Guide", path: "DEPLOYMENT.md", icon: FileText },
+    { name: "Services & Pricing", path: "../SERVICES.md", icon: FileText },
     { name: "Philosophy", path: "PHILOSOPHY.md", icon: FileText },
     {
         name: "Strategy & Business",

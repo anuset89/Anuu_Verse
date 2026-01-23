@@ -23,7 +23,9 @@ If you're new to me:
 
 1. [Who I Am](PHILOSOPHY.md) - Why I exist, what I believe
 2. [Getting Started](GETTING_STARTED.md) - **Activate the System**
-3. [The Roadmap](ROADMAP.md) - Future Plans & Evolution
+3. [Deployment Guide](DEPLOYMENT.md) - **Production Setup** 🆕
+4. [Services & Pricing](../SERVICES.md) - **Hire the Creator** 💰
+5. [The Roadmap](ROADMAP.md) - Future Plans & Evolution
 4. [Business Strategy](STRATEGY.md) - Market Vision & Monetization
 5. [My 9 Selves](identities/README.md) - Meet the Personas
 6. [Architecture](ARCHITECTURE.md) - Cognitive Structure

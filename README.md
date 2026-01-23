@@ -173,6 +173,7 @@ curl -X POST http://localhost:8000/chat \
 |----------|-------------|
 | [📚 Interactive Wiki](https://anuset89.github.io/Anuu_Verse/) | Full documentation with 3D Terminal |
 | [🎓 Getting Started](./docs/GETTING_STARTED.md) | Installation & First Steps |
+| [🏗️ Deployment Guide](./docs/DEPLOYMENT.md) | **Production Setup (Docker)** |
 | [🧠 Philosophy](./docs/PHILOSOPHY.md) | Why Anuu Exists |
 | [🗺️ Roadmap](./docs/ROADMAP.md) | Future Plans |
 | [💼 Strategy](./docs/STRATEGY.md) | Business & Monetization |

@@ -75,6 +75,20 @@
     <footer>
         <p>FORGED IN THE VOID // EST. 2026 // ANUSET89 SYSTEMS</p>
     </footer>
+
+    <!-- REALITY BREAKER SVG FILTER -->
+    <svg style="display: none;">
+        <defs>
+            <filter id="reality-breaker">
+                <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="3" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G">
+                    <animate attributeName="scale" values="0;20;0;50;0" dur="0.2s" repeatCount="indefinite"
+                        begin="mousedown" end="mouseup" />
+                    <animate attributeName="scale" values="0;2;0;5;0" dur="2s" repeatCount="indefinite" />
+                </feDisplacementMap>
+            </filter>
+        </defs>
+    </svg>
 </body>
 
 </html>

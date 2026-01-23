@@ -3,8 +3,6 @@ Anuu Memory Core (161914)
 The hippocampus of the system. Handles short-term context and long-term vector recall.
 """
 import chromadb
-from chromadb.config import Settings
-import os
 from typing import List, Dict, Any
 from datetime import datetime
 
@@ -45,7 +43,7 @@ class MemoryCore:
         memories = results['documents'][0] if results['documents'] else []
         return memories
 
-    def w wipe_short_term(self):
+    def wipe_short_term(self):
         """Clears the immediate context buffer (not implemented in vector DB yet)."""
         pass
 

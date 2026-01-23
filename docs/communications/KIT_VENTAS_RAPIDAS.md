@@ -18,7 +18,7 @@ Este documento contiene los scripts listos para copiar y pegar.
 >
 > Soy Kali — creadora de Anuu_Verse (IA local y soberana). Tengo plaza limitada esta semana.
 >
-> 📩 kali@tuemail.es | DM abierto
+> 📩 YradielRTS@protonmail.com | DM abierto
 >
 > #IALocal #SoberaniaDigital #Madrid
 

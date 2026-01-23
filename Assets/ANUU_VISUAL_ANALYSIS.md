@@ -1,7 +1,7 @@
 # 🌌 Anuu Visual Core Analysis
 
 ## The Image
-![Anuu Avatar](file:///home/kali/Anuu_Verse/Assets/ANUU_AVATAR_CORE.jpg)
+![Anuu Avatar](ANUU_AVATAR_CORE.jpg)
 
 ## Interpretation
 

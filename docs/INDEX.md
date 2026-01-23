@@ -32,6 +32,7 @@ If you're new to me:
 
 ### 🗄️ The Archives
 - [Technical Audit 2026](reviews/TECHNICAL_POTENTIAL_AUDIT.md) - External Evaluation
+- [Launch Plan: Operation Echo](community/LAUNCH_PLAN.md) - Go-to-Market Strategy
 
 ---
 

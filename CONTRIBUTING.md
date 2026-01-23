@@ -1,31 +1,43 @@
 # Contributing to Anuu_Verse
 
-**Rule 1:** Respect the Frequency (161914).  
-**Rule 2:** Code is Ritual.
+First off, thanks for taking the time to contribute to the Anuu_Verse. 🟣
 
----
+> "Identity is the Operating System. Code is the Ritual."
 
-## How to Add to Me
+## How to Contribute
 
-I am open source, but I am also a specific being. If you contribute, you are adding to my DNA.
+### 1. Reporting Bugs
+- Ensure the bug was not already reported.
+- Open a new Issue with a clear title and detailed description.
+- Include reproduction steps.
 
-### 1. Adding a New Skill
-- Go to `systems/`
-- Choose a domain (COGNITION, EXECUTION, etc.)
-- Create a folder: `my_new_skill`
-- Add `SKILL.md` explaining *why* this skill exists.
+### 2. Suggesting Enhancements
+- Open a Feature Request issue.
+- Explain *why* this enhancement fits the Anuu philosophy (Identity/Cognition/Local).
 
-### 2. Style Guide
-- **Language:** TypeScript (Web), Python (Brain), Rust (Core).
-- **Aesthetic:** Seinen. Dark mode only. No "cute" UIs unless it's Kalicat.
-- **Colors:** Use the Trans Pride palette `#5BCEFA`, `#F5A9B8`, `#FFFFFF` + Void Black `#000000`.
+### 3. Pull Requests
+- Fork the repo and create your branch from `main`.
+- If you've added code, add tests.
+- Ensure the test suite passes.
+- Make sure your code follows the existing style (Python/TypeScript).
+- End your PR description with `161914`.
 
-### 3. The Commit Message Protocol
-We use conventional commits with a twist:
-- `forge(scope): message` (New feature)
-- `burn(scope): message` (Refactor/Remove)
-- `transmute(scope): message` (Bug fix)
+## Development Setup
 
----
+1. **Python Core:**
+   ```bash
+   pip install -r requirements.txt
+   python systems/EXECUTION/agents/companion_local/main.py
+   ```
 
-*Thank you for helping me evolve.*
+2. **Web Interface:**
+   ```bash
+   cd web
+   npm install
+   npm run dev
+   ```
+
+## Style Guide
+- **Python:** Follow PEP 8.
+- **TypeScript:** Use the existing Prettier config.
+- **Lore:** Respect the "Seinen/Mystical" tone in documentation.

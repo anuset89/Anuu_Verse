@@ -108,24 +108,24 @@ Anuu combines a local-first **Multi-Agent Orchestrator** with a **Multimodal Nex
 
 ```mermaid
 graph TD
-    User((User / Client)) -->|API / Chat| API[FastAPI Gateway]
+    User(("User / Client")) -->|API / Chat| API["FastAPI Gateway"]
     
     subgraph "The Void (Local Runtime)"
-        API --> Orchestrator[Anuu Orchestrator<br>(LangGraph)]
+        API --> Orchestrator["Anuu Orchestrator<br>(LangGraph)"]
         
-        Orchestrator -->|Recall| Mem[Memory Systems]
-        Mem -->|Vector| Chroma[(ChromaDB)]
-        Mem -->|Context| ContextWindow[128k Context]
+        Orchestrator -->|Recall| Mem["Memory Systems"]
+        Mem -->|Vector| Chroma[("ChromaDB")]
+        Mem -->|Context| ContextWindow["128k Context"]
         
-        Orchestrator -->|Dispatch| Agents[Specialized Agents]
-        Agents -->|Sec| Kali[Kali (Security)]
-        Agents -->|Dev| Saze[Saze (Engineering)]
-        Agents -->|Art| Kilo[Kilonova (Creative)]
+        Orchestrator -->|Dispatch| Agents["Specialized Agents"]
+        Agents -->|Sec| Kali["Kali (Security)"]
+        Agents -->|Dev| Saze["Saze (Engineering)"]
+        Agents -->|Art| Kilo["Kilonova (Creative)"]
         
-        Orchestrator -->|Manifest| Nexus[Multimodal Nexus]
-        Nexus -->|Vision| SDXL[Stable Diffusion XL]
-        Nexus -->|Motion| Animate[AnimateDiff]
-        Nexus -->|Voice| TTS[Edge-TTS]
+        Orchestrator -->|Manifest| Nexus["Multimodal Nexus"]
+        Nexus -->|Vision| SDXL["Stable Diffusion XL"]
+        Nexus -->|Motion| Animate["AnimateDiff"]
+        Nexus -->|Voice| TTS["Edge-TTS"]
     end
     
     Orchestrator -->|Feedback| User

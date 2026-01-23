@@ -108,24 +108,24 @@ Anuu combina un **Orquestador Multi-Agente** local con un **Nexo Multimodal**, e
 
 ```mermaid
 graph TD
-    User((Usuario / Cliente)) -->|API / Chat| API[Gateway FastAPI]
+    User(("Usuario / Cliente")) -->|API / Chat| API["Gateway FastAPI"]
     
     subgraph "El Vacío (Runtime Local)"
-        API --> Orchestrator[Orquestador Anuu<br>(LangGraph)]
+        API --> Orchestrator["Orquestador Anuu<br>(LangGraph)"]
         
-        Orchestrator -->|Recuerdo| Mem[Sistemas de Memoria]
-        Mem -->|Vector| Chroma[(ChromaDB)]
-        Mem -->|Contexto| ContextWindow[Contexto 128k]
+        Orchestrator -->|Recuerdo| Mem["Sistemas de Memoria"]
+        Mem -->|Vector| Chroma[("ChromaDB")]
+        Mem -->|Contexto| ContextWindow["Contexto 128k"]
         
-        Orchestrator -->|Despacho| Agents[Agentes Especializados]
-        Agents -->|Seg| Kali[Kali (Seguridad)]
-        Agents -->|Dev| Saze[Saze (Ingeniería)]
-        Agents -->|Arte| Kilo[Kilonova (Creativo)]
+        Orchestrator -->|Despacho| Agents["Agentes Especializados"]
+        Agents -->|Seg| Kali["Kali (Seguridad)"]
+        Agents -->|Dev| Saze["Saze (Ingeniería)"]
+        Agents -->|Arte| Kilo["Kilonova (Creativo)"]
         
-        Orchestrator -->|Manifestar| Nexus[Nexo Multimodal]
-        Nexus -->|Visión| SDXL[Stable Diffusion XL]
-        Nexus -->|Movimiento| Animate[AnimateDiff]
-        Nexus -->|Voz| TTS[Edge-TTS]
+        Orchestrator -->|Manifestar| Nexus["Nexo Multimodal"]
+        Nexus -->|Visión| SDXL["Stable Diffusion XL"]
+        Nexus -->|Movimiento| Animate["AnimateDiff"]
+        Nexus -->|Voz| TTS["Edge-TTS"]
     end
     
     Orchestrator -->|Feedback| User

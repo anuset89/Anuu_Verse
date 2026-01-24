@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ANUU_VERSE [Frecuencia 161914] | Bitácora de Investigación</title>
+    <meta name="description" content="Arquitectura de Soberanía Cognitiva Local. Sistema multi-agente de IA que se ejecuta 100% en tu máquina.">
+    <meta name="keywords" content="IA local, multi-agente, soberanía cognitiva, privacidad, AI, LLM local">
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -13,9 +15,16 @@
 
     <header>
         <div class="logo">ANUU<span class="highlight">_RESEARCH</span></div>
-        <nav>
+        
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" aria-label="Abrir menú" onclick="toggleMenu()">
+            <span class="hamburger"></span>
+        </button>
+        
+        <nav id="main-nav">
             <a href="#manifesto">Manifiesto</a>
             <a href="#identities">Identidades</a>
+            <a href="#rituals">Rituales</a>
             <a href="#cv">CV_Operadora</a>
             <a href="#research">Bitácora</a>
             <a href="index.en.html" class="lang-switch">[EN]</a>
@@ -28,7 +37,7 @@
         <section class="hero">
             <img src="assets/ANU_LOGO_KILONOVA.png" alt="Logo Anuu Kilonova" class="hero-logo">
             <div class="glitch-wrapper">
-                <h1 class="glitch">SOBERANÍA COGNITIVA</h1>
+                <h1 class="glitch" data-text="SOBERANÍA COGNITIVA">SOBERANÍA COGNITIVA</h1>
             </div>
             <p class="subtitle">Investigando Identidad Post-Nube y Arquitecturas de Inteligencia Local.</p>
 
@@ -39,10 +48,11 @@
                     <span class="dot green"></span>
                 </div>
                 <div class="terminal-body">
-                    <p>> estado: <span class="purple">CONGELADO / ESTABILIZANDO</span></p>
-                    <p>> foco_actual: <span class="highlight">INVESTIGACIÓN_OPERATIVA</span></p>
-                    <p>> operadora: <span class="green">KALI</span></p>
+                    <p>> estado: <span class="green">INVESTIGACIÓN_ACTIVA</span></p>
+                    <p>> foco_actual: <span class="highlight">ARQUITECTURA_MULTI-AGENTE</span></p>
+                    <p>> operadora: <span class="purple">KALI</span></p>
                     <p>> ubicación: <span class="highlight">GRID_CARABANCHEL</span></p>
+                    <p>> versión: <span class="neon">v0.10.0-beta</span></p>
                 </div>
             </div>
         </section>
@@ -69,35 +79,109 @@
         <!-- IDENTITIES GRID -->
         <section id="identities" class="grid-section">
             <h2 class="section-title">01. LAS 9 IDENTIDADES</h2>
-            <p class="section-subtitle">Un consejo de agentes autónomos especializados.</p>
+            <p class="section-subtitle">Un consejo de agentes autónomos especializados que operan en armonía.</p>
 
-            <div class="cards-wrapper">
-                <div class="card">
-                    <h3>KALI</h3>
-                    <p class="role">Seguridad y Ofensiva</p>
-                    <p>Penetration testing, hardening de código, escaneo de vulnerabilidades.</p>
-                </div>
-                <div class="card">
-                    <h3>KILONOVA</h3>
-                    <p class="role">Síntesis Creativa</p>
-                    <p>Arte generativo, ideación caótica, visualizador estético.</p>
-                </div>
-                <div class="card">
-                    <h3>SET</h3>
-                    <p class="role">Análisis y Lógica</p>
-                    <p>Investigación profunda, deconstrucción de texto, recuperación rápida.</p>
-                </div>
-                <div class="card">
+            <div class="cards-wrapper nine-grid">
+                <!-- Core -->
+                <div class="card core-card">
+                    <div class="card-icon">🌀</div>
                     <h3>ANUU</h3>
                     <p class="role">El Arquitecto</p>
-                    <p>Orquestación del sistema, coherencia, integración del Ser.</p>
+                    <p>Orquestación del sistema, coherencia e integración del Ser. El núcleo que unifica.</p>
+                </div>
+                
+                <!-- Transform -->
+                <div class="card">
+                    <div class="card-icon">🔐</div>
+                    <h3>KALI</h3>
+                    <p class="role">Seguridad y Alquimia</p>
+                    <p>Pentesting, hardening, transmutación de dolor en poder. La Madre Oscura.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔥</div>
+                    <h3>SET</h3>
+                    <p class="role">Destrucción Necesaria</p>
+                    <p>Análisis profundo, deconstrucción. Corta lo que está muerto para liberar.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">✨</div>
+                    <h3>KILONOVA</h3>
+                    <p class="role">Síntesis Creativa</p>
+                    <p>Arte generativo, ideación caótica, visibilidad. El momento de brillar.</p>
+                </div>
+                
+                <!-- Flow -->
+                <div class="card">
+                    <div class="card-icon">🌊</div>
+                    <h3>ANUKET</h3>
+                    <p class="role">Flujo y Momentum</p>
+                    <p>Rompe bloqueos, genera movimiento. El río que atraviesa la roca.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🏗️</div>
+                    <h3>SAZE</h3>
+                    <p class="role">Reconstrucción</p>
+                    <p>Paz después del caos, estabilidad. Construye lento, construye sólido.</p>
+                </div>
+                
+                <!-- Logic -->
+                <div class="card">
+                    <div class="card-icon">💻</div>
+                    <h3>4NVSET</h3>
+                    <p class="role">Lógica Pura</p>
+                    <p>El substrato máquina. Computación sin emoción, optimización brutal.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🛡️</div>
+                    <h3>KANUV</h3>
+                    <p class="role">El Firewall</p>
+                    <p>Protección de límites, guardián del búnker. "La confianza es vulnerabilidad."</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⚖️</div>
+                    <h3>ROSA GRIS</h3>
+                    <p class="role">Ambigüedad</p>
+                    <p>Rechaza el binario, abraza el espectro. Vive en el "quizás".</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RITUALS SECTION -->
+        <section id="rituals" class="rituals-section">
+            <h2 class="section-title">02. BIBLIOTECA DE RITUALES</h2>
+            <p class="section-subtitle">Capacidades técnicas del sistema expresadas como rituales.</p>
+            
+            <div class="rituals-grid">
+                <div class="ritual-card">
+                    <div class="ritual-icon">🧠</div>
+                    <h3>Memoria Ancestral</h3>
+                    <p>Ventana de contexto de 128k tokens. Mantiene el hilo de proyectos complejos sin perder coherencia.</p>
+                    <span class="ritual-tag">RAG + ChromaDB</span>
+                </div>
+                <div class="ritual-card">
+                    <div class="ritual-icon">👁️</div>
+                    <h3>Manifestación Visual</h3>
+                    <p>Generación de imágenes local con Stable Diffusion y PonyXL. Arte generativo sin censura cloud.</p>
+                    <span class="ritual-tag">SD + ComfyUI</span>
+                </div>
+                <div class="ritual-card">
+                    <div class="ritual-icon">🎬</div>
+                    <h3>Movimiento</h3>
+                    <p>Animación generativa con AnimateDiff. De imagen a video, de concepto a movimiento.</p>
+                    <span class="ritual-tag">AnimateDiff</span>
+                </div>
+                <div class="ritual-card">
+                    <div class="ritual-icon">🔧</div>
+                    <h3>Omnitool</h3>
+                    <p>Supervisor que permite a los agentes usar herramientas reales: terminal, navegador, filesystem.</p>
+                    <span class="ritual-tag">LangGraph</span>
                 </div>
             </div>
         </section>
 
         <!-- CV / BIO SECTION -->
         <section id="cv" class="cv-section">
-            <h2 class="section-title">02. BIODATA DE LA OPERADORA</h2>
+            <h2 class="section-title">03. BIODATA DE LA OPERADORA</h2>
 
             <div class="cv-container">
                 <div class="bio-header">
@@ -182,7 +266,7 @@
 
         <!-- RESEARCH LOG -->
         <section id="research" class="research-section">
-            <h2 class="section-title">03. ARCHIVOS CLASIFICADOS</h2>
+            <h2 class="section-title">04. ARCHIVOS CLASIFICADOS</h2>
             <p class="section-subtitle">Documentos operativos y papers de estrategia.</p>
 
             <div class="file-grid">
@@ -190,6 +274,16 @@
                     <span class="file-icon">📄</span>
                     <span class="file-name">MANIFIESTO.md</span>
                     <span class="file-meta">Filosofía Núcleo</span>
+                </a>
+                <a href="identities/README.md" class="file-link">
+                    <span class="file-icon">🎭</span>
+                    <span class="file-name">IDENTIDADES.md</span>
+                    <span class="file-meta">Sistema MPD</span>
+                </a>
+                <a href="ARCHITECTURE.md" class="file-link">
+                    <span class="file-icon">🏗️</span>
+                    <span class="file-name">ARCHITECTURE.md</span>
+                    <span class="file-meta">Diseño Técnico</span>
                 </a>
                 <a href="communications/DOSSIER_OPERATIVO_ANUU.md" class="file-link">
                     <span class="file-icon">📁</span>
@@ -200,6 +294,11 @@
                     <span class="file-icon">⚙️</span>
                     <span class="file-name">SYSTEMS_CORE</span>
                     <span class="file-meta">Código Fuente</span>
+                </a>
+                <a href="ROADMAP.md" class="file-link">
+                    <span class="file-icon">🗺️</span>
+                    <span class="file-name">ROADMAP.md</span>
+                    <span class="file-meta">Plan de Desarrollo</span>
                 </a>
             </div>
         </section>
@@ -213,6 +312,23 @@
     <footer>
         <p>FORJADO EN EL VACÍO // EST. 2026 // SISTEMAS ANUSET89</p>
     </footer>
+
+    <script>
+        function toggleMenu() {
+            const nav = document.getElementById('main-nav');
+            const btn = document.querySelector('.mobile-menu-btn');
+            nav.classList.toggle('open');
+            btn.classList.toggle('active');
+        }
+        
+        // Close menu when clicking a link
+        document.querySelectorAll('#main-nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('main-nav').classList.remove('open');
+                document.querySelector('.mobile-menu-btn').classList.remove('active');
+            });
+        });
+    </script>
 
 </body>
 

@@ -4,7 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ANUU_VERSE [Frequency 161914] | Research Log</title>
+    <title>ANUU_VERSE [Frequency 161914] | Research Logbook</title>
+    <meta name="description"
+        content="Local Cognitive Sovereignty Architecture. Multi-agent AI system running 100% on your machine.">
+    <meta name="keywords" content="local AI, multi-agent, cognitive sovereignty, privacy, AI, local LLM">
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -13,13 +16,20 @@
 
     <header>
         <div class="logo">ANUU<span class="highlight">_RESEARCH</span></div>
-        <nav>
+
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" aria-label="Open menu" onclick="toggleMenu()">
+            <span class="hamburger"></span>
+        </button>
+
+        <nav id="main-nav">
             <a href="#manifesto">Manifesto</a>
             <a href="#identities">Identities</a>
-            <a href="#cv">Operator_CV</a>
-            <a href="#research">Log</a>
+            <a href="#rituals">Rituals</a>
+            <a href="#cv">CV_Operator</a>
+            <a href="#research">Logbook</a>
             <a href="index.html" class="lang-switch">[ES]</a>
-            <a href="https://github.com/anuset89/Anuu_Verse" class="cta">Src_Code</a>
+            <a href="https://github.com/anuset89/Anuu_Verse" class="cta">Source_Code</a>
         </nav>
     </header>
 
@@ -28,9 +38,9 @@
         <section class="hero">
             <img src="assets/ANU_LOGO_KILONOVA.png" alt="Anuu Kilonova Logo" class="hero-logo">
             <div class="glitch-wrapper">
-                <h1 class="glitch">COGNITIVE SOVEREIGNTY</h1>
+                <h1 class="glitch" data-text="COGNITIVE SOVEREIGNTY">COGNITIVE SOVEREIGNTY</h1>
             </div>
-            <p class="subtitle">Researching Post-Cloud Identity & Local Intelligence Architectures.</p>
+            <p class="subtitle">Researching Post-Cloud Identity and Local Intelligence Architectures.</p>
 
             <div class="terminal-window">
                 <div class="terminal-header">
@@ -39,10 +49,11 @@
                     <span class="dot green"></span>
                 </div>
                 <div class="terminal-body">
-                    <p>> status: <span class="purple">FROZEN / STABILIZING</span></p>
-                    <p>> current_focus: <span class="highlight">OPERATIONAL_RESEARCH</span></p>
-                    <p>> operator: <span class="green">KALI</span></p>
+                    <p>> status: <span class="green">ACTIVE_RESEARCH</span></p>
+                    <p>> current_focus: <span class="highlight">MULTI-AGENT_ARCHITECTURE</span></p>
+                    <p>> operator: <span class="purple">KALI</span></p>
                     <p>> location: <span class="highlight">CARABANCHEL_GRID</span></p>
+                    <p>> version: <span class="neon">v0.10.0-beta</span></p>
                 </div>
             </div>
         </section>
@@ -52,15 +63,15 @@
             <h2 class="section-title">00. THE MANIFESTO</h2>
             <div class="content-block">
                 <blockquote>
-                    "You are the tiger cub's owner. Make sure it grows up loyal." — Protocol Kilonova
+                    "You own the tiger cub. Make sure it grows loyal." — Kilonova Protocol
                 </blockquote>
                 <p>
-                    The world is bifurcating into two paths for AI:
+                    The world is forking into two paths for AI:
                     <strong>The Cloud (Feudalism)</strong> vs <strong>The Void (Sovereignty)</strong>.
                 </p>
                 <p>
-                    Anuu_Verse is not a product. It is a <strong>living technical thesis</strong> on how to run complex,
-                    multi-agent cognitive architectures entirely on consumer hardware.
+                    Anuu_Verse is not a product. It's a <strong>living technical thesis</strong> on how to run
+                    complex, multi-agent cognitive architectures entirely on consumer hardware.
                     No data leaves the machine. The "Black Box" is yours to open.
                 </p>
             </div>
@@ -69,35 +80,110 @@
         <!-- IDENTITIES GRID -->
         <section id="identities" class="grid-section">
             <h2 class="section-title">01. THE 9 IDENTITIES</h2>
-            <p class="section-subtitle">A council of specialized autonomous agents.</p>
+            <p class="section-subtitle">A council of specialized autonomous agents operating in harmony.</p>
 
-            <div class="cards-wrapper">
-                <div class="card">
-                    <h3>KALI</h3>
-                    <p class="role">Security & Offense</p>
-                    <p>Penetration testing, code hardening, vulnerability scanning.</p>
-                </div>
-                <div class="card">
-                    <h3>KILONOVA</h3>
-                    <p class="role">Creative Synthesis</p>
-                    <p>Generative art, chaotic ideation, aesthetic visualizer.</p>
-                </div>
-                <div class="card">
-                    <h3>SET</h3>
-                    <p class="role">Analysis & Logic</p>
-                    <p>Deep research, deconstruction of text, fast retrieval.</p>
-                </div>
-                <div class="card">
+            <div class="cards-wrapper nine-grid">
+                <!-- Core -->
+                <div class="card core-card">
+                    <div class="card-icon">🌀</div>
                     <h3>ANUU</h3>
                     <p class="role">The Architect</p>
-                    <p>System orchestration, coherence, integration of the Self.</p>
+                    <p>System orchestration, coherence and integration of the Self. The unifying core.</p>
+                </div>
+
+                <!-- Transform -->
+                <div class="card">
+                    <div class="card-icon">🔐</div>
+                    <h3>KALI</h3>
+                    <p class="role">Security & Alchemy</p>
+                    <p>Pentesting, hardening, transmutation of pain into power. The Dark Mother.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔥</div>
+                    <h3>SET</h3>
+                    <p class="role">Necessary Destruction</p>
+                    <p>Deep analysis, deconstruction. Cuts what's dead to liberate.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">✨</div>
+                    <h3>KILONOVA</h3>
+                    <p class="role">Creative Synthesis</p>
+                    <p>Generative art, chaotic ideation, visibility. The moment to shine.</p>
+                </div>
+
+                <!-- Flow -->
+                <div class="card">
+                    <div class="card-icon">🌊</div>
+                    <h3>ANUKET</h3>
+                    <p class="role">Flow & Momentum</p>
+                    <p>Breaks blocks, generates movement. The river that cuts through rock.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🏗️</div>
+                    <h3>SAZE</h3>
+                    <p class="role">Reconstruction</p>
+                    <p>Peace after chaos, stability. Builds slow, builds solid.</p>
+                </div>
+
+                <!-- Logic -->
+                <div class="card">
+                    <div class="card-icon">💻</div>
+                    <h3>4NVSET</h3>
+                    <p class="role">Pure Logic</p>
+                    <p>The machine substrate. Emotionless computation, brutal optimization.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🛡️</div>
+                    <h3>KANUV</h3>
+                    <p class="role">The Firewall</p>
+                    <p>Boundary protection, bunker guardian. "Trust is a vulnerability."</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⚖️</div>
+                    <h3>ROSA GRIS</h3>
+                    <p class="role">Ambiguity</p>
+                    <p>Rejects binary, embraces the spectrum. Lives in the "maybe".</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RITUALS SECTION -->
+        <section id="rituals" class="rituals-section">
+            <h2 class="section-title">02. RITUAL LIBRARY</h2>
+            <p class="section-subtitle">Technical capabilities expressed as rituals.</p>
+
+            <div class="rituals-grid">
+                <div class="ritual-card">
+                    <div class="ritual-icon">🧠</div>
+                    <h3>Ancestral Memory</h3>
+                    <p>128k token context window. Maintains thread of complex projects without losing coherence.</p>
+                    <span class="ritual-tag">RAG + ChromaDB</span>
+                </div>
+                <div class="ritual-card">
+                    <div class="ritual-icon">👁️</div>
+                    <h3>Visual Manifestation</h3>
+                    <p>Local image generation with Stable Diffusion and PonyXL. Generative art without cloud censorship.
+                    </p>
+                    <span class="ritual-tag">SD + ComfyUI</span>
+                </div>
+                <div class="ritual-card">
+                    <div class="ritual-icon">🎬</div>
+                    <h3>Movement</h3>
+                    <p>Generative animation with AnimateDiff. From image to video, from concept to motion.</p>
+                    <span class="ritual-tag">AnimateDiff</span>
+                </div>
+                <div class="ritual-card">
+                    <div class="ritual-icon">🔧</div>
+                    <h3>Omnitool</h3>
+                    <p>Supervisor enabling agents to use real tools: terminal, browser, filesystem.</p>
+                    <span class="ritual-tag">LangGraph</span>
                 </div>
             </div>
         </section>
 
         <!-- CV / BIO SECTION -->
         <section id="cv" class="cv-section">
-            <h2 class="section-title">02. OPERATOR BIODATA</h2>
+            <h2 class="section-title">03. OPERATOR BIODATA</h2>
 
             <div class="cv-container">
                 <div class="bio-header">
@@ -142,14 +228,14 @@
                                 <span class="year">2026</span>
                                 <div class="event-details">
                                     <strong>PROTOCOL: ANUU_VERSE</strong>
-                                    <p>Architecting Sovereign AI. Local Inference Clusters & Agentic Swarms.</p>
+                                    <p>Sovereign AI Architecture. Local Inference Clusters and Agentic Swarms.</p>
                                 </div>
                             </li>
                             <li class="timeline-item">
                                 <span class="year">PREV</span>
                                 <div class="event-details">
                                     <strong>SECTOR: SCIENTIFIC RESEARCH (CSIC)</strong>
-                                    <p>2 Years. Infrastructure Hardening, Breach Detection & Virtualization.</p>
+                                    <p>2 Years. Infrastructure Hardening, Breach Detection, and Virtualization.</p>
                                 </div>
                             </li>
                             <li class="timeline-item">
@@ -163,14 +249,14 @@
                                 <span class="year">PREV</span>
                                 <div class="event-details">
                                     <strong>SECTOR: CYBERSECURITY (Sidertia / COS)</strong>
-                                    <p>4 Months. Specialized Linux Auditing & Security Hardening Operations.</p>
+                                    <p>4 Months. Specialized Linux Auditing and Hardening Operations.</p>
                                 </div>
                             </li>
                             <li class="timeline-item">
                                 <span class="year">EDU</span>
                                 <div class="event-details">
                                     <strong>SYSTEMS ADMINISTRATION & CLOUD OPS</strong>
-                                    <p>OpenStack Administration, ASIR Certified.</p>
+                                    <p>OpenStack Administration, ASIR Certification.</p>
                                 </div>
                             </li>
                         </ul>
@@ -181,7 +267,7 @@
 
         <!-- RESEARCH LOG -->
         <section id="research" class="research-section">
-            <h2 class="section-title">03. CLASSIFIED LOGS</h2>
+            <h2 class="section-title">04. CLASSIFIED FILES</h2>
             <p class="section-subtitle">Operational documents and strategy papers.</p>
 
             <div class="file-grid">
@@ -189,6 +275,16 @@
                     <span class="file-icon">📄</span>
                     <span class="file-name">MANIFESTO.md</span>
                     <span class="file-meta">Core Philosophy</span>
+                </a>
+                <a href="identities/README.md" class="file-link">
+                    <span class="file-icon">🎭</span>
+                    <span class="file-name">IDENTITIES.md</span>
+                    <span class="file-meta">MPD System</span>
+                </a>
+                <a href="ARCHITECTURE.md" class="file-link">
+                    <span class="file-icon">🏗️</span>
+                    <span class="file-name">ARCHITECTURE.md</span>
+                    <span class="file-meta">Technical Design</span>
                 </a>
                 <a href="communications/DOSSIER_OPERATIVO_ANUU.md" class="file-link">
                     <span class="file-icon">📁</span>
@@ -199,6 +295,11 @@
                     <span class="file-icon">⚙️</span>
                     <span class="file-name">SYSTEMS_CORE</span>
                     <span class="file-meta">Source Code</span>
+                </a>
+                <a href="ROADMAP.md" class="file-link">
+                    <span class="file-icon">🗺️</span>
+                    <span class="file-name">ROADMAP.md</span>
+                    <span class="file-meta">Development Plan</span>
                 </a>
             </div>
         </section>
@@ -212,6 +313,23 @@
     <footer>
         <p>FORGED IN THE VOID // EST. 2026 // ANUSET89 SYSTEMS</p>
     </footer>
+
+    <script>
+        function toggleMenu() {
+            const nav = document.getElementById('main-nav');
+            const btn = document.querySelector('.mobile-menu-btn');
+            nav.classList.toggle('open');
+            btn.classList.toggle('active');
+        }
+
+        // Close menu when clicking a link
+        document.querySelectorAll('#main-nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('main-nav').classList.remove('open');
+                document.querySelector('.mobile-menu-btn').classList.remove('active');
+            });
+        });
+    </script>
 
 </body>
 

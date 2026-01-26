@@ -1,39 +1,39 @@
-**🏠 Home**
-- [Welcome](Home)
-- [Philosophy](Philosophy)
-- [Status](Status)
+**🏠 Home / Inicio**
+- [Welcome / Bienvenida](Home)
+- [Philosophy / Filosofía](Philosophy)
+- [Status / Estado](Status)
 
-**🚀 Getting Started**
-- [Quick Start](Getting-Started)
-- [Use Cases](Use-Cases)
-- [Troubleshooting](Troubleshooting)
+**🚀 Getting Started / Inicio Rápido**
+- [Quick Start / Guía](Getting-Started)
+- [Use Cases / Casos](Use-Cases)
+- [Troubleshooting / Soporte](Troubleshooting)
 
-**🏗️ Architecture**
-- [System Overview](Architecture)
-- [The 9 Identities](Identities)
-- [Skills System](Skills-Map)
+**🏗️ Architecture / Arquitectura**
+- [Overview / Visión General](Architecture)
+- [Identities / Identidades](Identities)
+- [Skills System / Skills](Skills-Map)
 - [Benchmarks](Benchmarks)
 
-**💡 Research**
-- [Research Index](Research-Index)
-- [Clawdbot Integration](Research-Clawdbot)
-- [Engram Memory](Research-Engram)
+**💡 Research / Investigación**
+- [Index / Índice](Research-Index)
+- [Clawdbot](Research-Clawdbot)
+- [Engram](Research-Engram)
 
-**🛠️ Development**
-- [Developer Guide](Developer-Guide)
-- [Rituals Library](Biblioteca-de-Rituales)
-- [Refinement Protocol](Protocolo-Refinamiento)
+**🛠️ Development / Desarrollo**
+- [Dev Guide / Guía Dev](Developer-Guide)
+- [Rituals / Rituales](Biblioteca-de-Rituales)
+- [Refinement / Refinamiento](Protocolo-Refinamiento)
 - [API Reference](API-Reference)
 
-**💰 Monetization**
-- [Services](Services)
-- [Roadmap](Roadmap)
-- [Strategy](Strategy)
+**💰 Monetization / Negocio**
+- [Services / Servicios](Services)
+- [Roadmap / Hoja de Ruta](Roadmap)
+- [Strategy / Estrategia](Strategy)
 
-**📚 References**
-- [Changelog](Changelog)
-- [Journey](Journey)
+**📚 References / Referencias**
+- [Changelog / Cambios](Changelog)
+- [Journey / Diario](Journey)
 
 ---
 
-🌐 **Language:** [English](#) • [Español](es/Home)
+🌐 **Language:** [English](Home) • [Español](es/Home)

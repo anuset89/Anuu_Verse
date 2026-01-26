@@ -10,44 +10,29 @@
 
 ## High-Level Overview
 
-![Architecture Diagram](../img/architecture.png)
+```mermaid
+graph TD
+    A[Usuario] --> B[Companion Agent]
+    B --> C[Anuu Core]
+    C --> D{Orquestador}
+    D --> E[Kali - Security]
+    D --> F[Kilonova - Creative]
+    D --> G[Set - Analysis]
+    E --> H[Skills/Tools]
+    F --> H
+    G --> H
+    H --> I[ChromaDB Memory]
+    I --> J[Output]
+```
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     USER INTERFACE LAYER                     │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │ Web Portal   │  │  Terminal    │  │  API Client  │      │
-│  │ (React/Vite) │  │  (CLI/TUI)   │  │  (External)  │      │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘      │
-└─────────┼──────────────────┼──────────────────┼──────────────┘
-          │                  │                  │
-          └──────────────────┼──────────────────┘
-                             │
-┌─────────────────────────────┼──────────────────────────────────┐
-│                    ROUTER / LINKER LAYER                        │
-│  ┌──────────────────────────┴────────────────────────────┐    │
-│  │         Intent Analysis & Model Selection              │    │
-│  │  (Python FastAPI + LangChain/LiteLLM)                 │    │
-│  └──────────────────┬────────────────────────────────────┘    │
-└─────────────────────┼──────────────────────────────────────────┘
-                      │
-         ┌────────────┼────────────┐
-         │            │            │
-┌────────▼────┐  ┌───▼────┐  ┌───▼──────┐
-│ DeepSeek    │  │ Llama3 │  │ Command-R│
-│ (Code/Logic)│  │(Persona)│  │   (RAG)  │
-└─────────────┘  └────────┘  └──────────┘
-         │            │            │
-         └────────────┼────────────┘
-                      │
-┌─────────────────────▼──────────────────────────────────────┐
-│                   KNOWLEDGE LAYER                          │
-│  ┌──────────────┐  ┌──────────────┐  ┌─────────────────┐ │
-│  │ Vector DB    │  │ Skills       │  │ ANUU_CORE.json  │ │
-│  │ (ChromaDB)   │  │ (systems/)   │  │ (Memory)        │ │
-│  └──────────────┘  └──────────────┘  └─────────────────┘ │
-└────────────────────────────────────────────────────────────┘
-```
+## ⚖️ Agent Resource Requirements
+
+| Agente | VRAM Req | RAM Req | Casos de Uso | Modelo Recomendado |
+|--------|----------|---------|--------------|--------------------|
+| **Anuu Core** | 2GB | 4GB | Coordinación general, charla | Llama-3-8B |
+| **Kali** | 4GB | 8GB | Pentesting, análisis de logs | DeepSeek-Coder-V2 |
+| **Kilonova** | 8GB+ | 12GB | Generación visual / creativa | Llama-3-70B (Quant) |
+| **Set** | 3GB | 6GB | Investigación, deducción | Mistral-Nemo |
 
 ---
 
@@ -143,9 +128,7 @@ Each identity is not a separate model but a **configuration** that modulates:
 - **Temperature** - Creativity vs precision
 - **System Prompt** - Core behavior rules
 - **Model Selection** - Which LLM backend to use
-- **Tone** - Language
-
- style and emotional valence
+- **Tone** - Language style and emotional valence
 
 ### Identity Graph
 
@@ -206,46 +189,6 @@ Identities transition when specific patterns are detected:
 - **Routing:** Wouter 3.9.0
 - **Animation:** Framer Motion 12.29.0
 
-### Key Components
-
-#### `pages/Home.tsx`
-- Hero section with animated terminal
-- Logo and manifesto grid
-- Entry point for new users
-
-#### `components/system/AgentTerminal.tsx`
-- Displays active agents/skills
-- Terminal aesthetic (green on black)
-- Real-time status updates
-
-#### `components/system/AnuuCoreFetch.tsx`
-- System information display ("hyfetch" style)
-- Trans pride color scheme
-- ASCII art + metadata
-
-#### `components/DocViewer.tsx`
-- Renders Markdown documentation
-- Supports Mermaid diagrams
-- Dark theme integration
-
-### Data Flow
-
-```
-User Action (click/type)
-    │
-    ▼
-React Component (state change)
-    │
-    ▼
-API Call (if needed) → Ollama/Router
-    │
-    ▼
-Response Processing
-    │
-    ▼
-State Update → Re-render
-```
-
 ---
 
 ## Local AI Integration (Ollama)
@@ -263,37 +206,6 @@ ollama list
 
 # Create custom Modelfile
 ollama create anuu-architect -f systems/EXECUTION/skill_089/Modelfile
-```
-
-### Model Selection Strategy
-
-| Identity | Recommended Model | Purpose |
-|----------|-------------------|---------|
-| 4NVSET | DeepSeek-Coder-V2 | Code generation |
-| Anuu | Llama-3-70B | General reasoning |
-| Kali | Command-R | Deep context analysis |
-| Set | Mistral-Nemo | Fast refactoring |
-| Kilonova | Nous-Hermes2-Mixtral | High-quality output |
-
-### Router Logic (Conceptual)
-
-```python
-def route_request(prompt: str, context: dict) -> ModelConfig:
-    intent = classify_intent(prompt)
-    
-    if intent == "code":
-        return ModelConfig(
-            model="deepseek-coder-v2",
-            temperature=0.2,
-            identity="4NVSET"
-        )
-    elif intent == "creative":
-        return ModelConfig(
-            model="llama3:70b",
-            temperature=0.8,
-            identity="Kilonova"
-        )
-    # ... etc
 ```
 
 ---
@@ -351,17 +263,6 @@ The **Kanuv** identity acts as a firewall:
 - Detects potentially harmful commands
 - Requires explicit user confirmation for risky operations
 - Logs all high-privilege actions
-
----
-
-## Extension Points
-
-Want to extend Anuu_Verse? Here are the designated interfaces:
-
-1. **Add a New Skill:** `systems/[CATEGORY]/[your_skill]/`
-2. **Add a New Identity:** Update `ANUU_CORE_161914.json` + create docs
-3. **Integrate a New Model:** Add to Router's model registry
-4. **Custom UI Component:** `web/src/components/[your_component].tsx`
 
 ---
 

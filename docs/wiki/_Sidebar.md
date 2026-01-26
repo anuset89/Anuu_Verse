@@ -4,14 +4,15 @@
 - [Status](Status)
 
 **🚀 Getting Started**
-- [Installation](Getting-Started)
-- [First Steps](First-Steps)
-- [Deployment](Deployment)
+- [Quick Start](Getting-Started)
+- [Use Cases](Use-Cases)
+- [Troubleshooting](Troubleshooting)
 
 **🏗️ Architecture**
 - [System Overview](Architecture)
 - [The 9 Identities](Identities)
 - [Skills System](Skills-Map)
+- [Benchmarks](Benchmarks)
 
 **💡 Research**
 - [Research Index](Research-Index)
@@ -22,6 +23,7 @@
 - [Developer Guide](Developer-Guide)
 - [Rituals Library](Biblioteca-de-Rituales)
 - [Refinement Protocol](Protocolo-Refinamiento)
+- [API Reference](API-Reference)
 
 **💰 Monetization**
 - [Services](Services)

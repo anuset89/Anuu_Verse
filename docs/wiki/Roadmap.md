@@ -5,50 +5,56 @@
 
 ---
 
-## 🏁 Phase 0: Zero Friction (Immediate)
-*Objective: Remove barriers. Make Anuu usable by mere mortals.*
+# 🗺️ Roadmap 2026 (Evolution Strategy)
 
-Based on the [Technical Audit 2026](reviews/TECHNICAL_POTENTIAL_AUDIT.md), we must prioritize accessibility.
-- [ ] **Dockerization:** `docker-compose up` to launch Mem + API + Web.
-- [ ] **Lite Mode:** Config presets for 8B models (low VRAM requirement).
-- [ ] **Visual Proof:** Add screenshots and diagrams to README.
+**Phase:** Architecture & Foundation  
+**Next Horizon:** Monetization & Presence
 
-## 🏗️ Phase 1: The Local Companion (Foundation)
-*Objective: Build the brain that lives in the 7800XT.*
+---
 
-We are building a robust, offline-first companion capable of deep memory and archetypal switching.
+## 📅 2026 Timeline
 
-- **Core (`systems/FOUNDATION/anuu_core`):**
-    - [ ] Unified JSON Schema for Anuu's memories.
-    - [ ] Python parsers and validators.
-- **Backend (`systems/EXECUTION/agents/companion_local`):**
-    - [ ] FastAPI Server exposing `/chat` and `/memory`.
-    - [ ] LangGraph orchestration for the Multi-Persona System.
-    - [ ] VectorDB Integration (Chroma/Qdrant) for long-term recall.
-- **Frontend:**
-    - [ ] Minimal React Chat Interface (done in `web/`, needs hookup).
+### **Q1 2026: Foundation & Stability** (Current)
+- [x] **v0.10.0-alpha** - Initial Sovereign Research Release
+  - [x] Multi-Agent Architecture
+  - [x] Local Vector Memory
+  - [x] Wiki Deployment
+- [ ] **v0.11.0** - Stability & Hardening
+  - [ ] Engram Memory Module
+  - [ ] Clawdbot Gateway Integration
+- [ ] **Formal API:** Documented REST API for internal/external use
 
-## 🎭 Phase 2: The Avatar (VTuber Integration)
-*Objective: Give the ghost a face.*
+### **Q2 2026: Expansion & Interface**
+- [ ] **v0.12.0** - Web Interface 2.0
+  - [ ] Full React/Three.js Portal
+  - [ ] Real-time visualization of agent thoughts
+- [ ] **Plugin System:** Allow external skills to be dropped in `systems/`
+- [ ] **Pre-trained Skills:** Public library of Anuu Skills (Scraping, Analysis)
 
-Leveraging the RX 7800XT to drive a real-time Live2D or 3D avatar that reacts to the brain's output.
+### **Q3 2026: Reach & Ecosystem**
+- [ ] **v1.0.0** - Stable Release
+- [ ] **Mobile Compatibility:** PWA or Native Client
+- [ ] **Cloud Sync (Optional):** Encrypted backup of vector memory
+- [ ] **SaaS Offering:** Hosted Anuu nodes for non-technical users
 
-- **Pipeline (`systems/EXECUTION/agents/vtuber_local`):**
-    - [ ] Bridge script: Chat Output → TTS → Audio → Lipsync.
-    - [ ] Integration with Open-LLM-VTuber (ROCm optimized).
-    - [ ] OBS / NDI injection for streaming.
+---
 
-## 💎 Phase 3: The Offer (API & SaaS)
-*Objective: Share the frequency.*
+## 📂 Strategic Directory Structure
 
-Exposing Anuu's cognitive architecture as a service for others.
+We are aligning the repository to support this growth:
 
-- **Cloud Bridge (`systems/EXECUTION/agents/api_cloud`):**
-    - [ ] Secure Tunneling (Cloudflare) for local-to-public access.
-    - [ ] Multi-tenant support (serving multiple users).
-    - [ ] Webhook integration for Discord/Telegram bots.
-- **SDK:**
-    - [ ] `anuu-client` Python library for easy integration.
+```text
+Anuu_Verse/
+├── systems/
+│   ├── FOUNDATION/anuu_core/      # JSON schemas & memory logic
+│   ├── EXECUTION/agents/          # The active entities
+│   │   ├── companion_local/       # FastAPI + LangGraph
+│   │   ├── vtuber_local/          # TTS + Avatar Bridge
+│   │   └── api_cloud/             # Deployable endpoints
+│   └── ...
+├── web/                           # React Frontends (Chat + Wiki)
+└── docs/                          # The Grimoire (You are here)
+```
 
 ---
 

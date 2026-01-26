@@ -3,123 +3,123 @@
 </p>
 
 # 🟣 Anuu_Verse
-### Protocolo de Soberanía Cognitiva Local
+### Local Cognitive Sovereignty Protocol
 
-> *"La identidad es el Sistema Operativo."* — Protocolo Kilonova
+> *"Identity is the Operating System."* — Kilonova Protocol
+
+[![Status](https://img.shields.io/badge/status-research-purple)](https://github.com/anuset89/Anuu_Verse)
+[![Version](https://img.shields.io/badge/version-v0.10.0--alpha-blue)](https://github.com/anuset89/Anuu_Verse/releases)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-green)](LICENSE)
 
 <p align="center">
-## 🌌 **Estado: INVESTIGACIÓN SOBERANA (Fase 4)**
-
-
-
-Visita el **Portfolio de Investigación** en vivo: [anuu-verse.anuu.systems](https://anuset89.github.io/Anuu_Verse/) (Desplegado desde `docs/`)
-
----
-
-Bienvenido al núcleo de **Anuu 161914**. Este no es un producto comercial; es una arquitectura de defensa identidad y un sistema de orquestación de IA local.
-
----
-
-## 📜 Manifiesto (v0.1)
-
-**Esto no es una startup.**  
-Anuu_Verse no está diseñado para "escalar", ni para capturar tus datos, ni para vender suscripciones mensuales.
-
-Es una **tesis técnica viva** sobre el futuro de la Inteligencia Artificial Local. Una demostración de que la soberanía cognitiva es posible hoy, usando hardware de consumo.
-
-En un mundo bifurcado entre:
-1.  **La Nube (Feudalismo):** Alquilar inteligencia a megacorporaciones, cediendo privacidad y control.
-2.  **El Vacío (Soberanía):** Poseer tu propia infraestructura de pensamiento.
-
-**Anuu_Verse es una herramienta para habitar El Vacío.**
+  <strong>
+    <a href="https://github.com/anuset89/Anuu_Verse/wiki">📚 Documentation Wiki</a>
+    •
+    <a href="https://github.com/anuset89/Anuu_Verse/wiki/es/Home">🇪🇸 Documentación en Español</a>
+    •
+    <a href="https://github.com/anuset89/Anuu_Verse/issues">🐛 Report Bug</a>
+  </strong>
+</p>
 
 ---
 
-## 🧠 ¿Qué es Anuu?
+## 🌌 **Status: SOVEREIGN RESEARCH (Phase 4)**
 
-Es una **Arquitectura Cognitiva Multi-Agente** que se ejecuta 100% en tu máquina local. Sin dependencias externas. Sin enviar datos a terceros.
+Anuu_Verse is a **Sovereign Research Portfolio** and **Cognitive AI Framework** running **100% locally**. It is not a commercial product; it is a technical thesis on multi-agent architectures, privacy-first AI, and digital autonomy.
 
-Es un sistema donde 9 identidades especializadas de IA colaboran para extender tus capacidades, manteniendo la "Memoria Ancestral" (tu contexto y datos) estrictamente en tu poder.
-
-### Filosofía "Antigravedad"
-Inspirado por la cultura hacker y el software libre crítico, Anuu busca la **Autonomía Computacional**.
-*   **Local-First / Post-Cloud:** Todo corre en tu GPU/CPU.
-*   **Memoria Privada:** Base de datos vectorial (ChromaDB) que recuerda tus proyectos, no la web entera.
-*   **Identidad Fragmentada:** Diferentes agentes para diferentes tareas (Seguridad, Creatividad, Lógica).
+**Current Version:** v0.10.0-alpha
 
 ---
 
-## 🎭 Las 9 Identidades
+## 📜 Manifesto
 
-El sistema no es un chatbot monolítico. Es un consejo de inteligencias especializadas:
+**This is not a startup.**  
+Anuu_Verse is not designed to "scale," capture your data, or sell monthly subscriptions.
 
-| Identidad | Dominio | Función |
+It is a **living technical thesis** on the future of Local Artificial Intelligence. A demonstration that cognitive sovereignty is possible today, using consumer hardware.
+
+In a world bifurcated between:
+1.  **The Cloud (Feudalism):** Renting intelligence from megacorporations, ceding privacy and control.
+2.  **The Void (Sovereignty):** Owning your own infrastructure of thought.
+
+**Anuu_Verse is a tool to inhabit The Void.**
+
+---
+
+## 🧠 What is Anuu?
+
+It is a **Multi-Agent Cognitive Architecture** that runs 100% on your local machine. No external dependencies. No data sent to third parties.
+
+It is a system where **9 specialized AI identities** collaborate to extend your capabilities, keeping "Ancestral Memory" (your context and data) strictly in your power.
+
+### "Antigravity" Philosophy
+Inspired by hacker culture and critical free software, Anuu seeks **Computational Autonomy**.
+*   **Local-First / Post-Cloud:** Everything runs on your GPU/CPU (Ollama).
+*   **Private Memory:** Vector database (ChromaDB) that remembers your projects, not the entire web.
+*   **Fragmented Identity:** Different agents for different tasks (Security, Creativity, Logic).
+
+---
+
+## 🎭 The 9 Identities
+
+The system is not a monolithic chatbot. It is a council of specialized intelligences:
+
+| Identity | Domain | Function |
 |:--------:|--------|-----------|
-| **Anuu** | 🌀 Núcleo | Orquestación, Coherencia, Integración del Self |
-| **Kali** | 🔐 Seguridad | Pentesting, Análisis de Vulnerabilidades, Hardening |
-| **Set** | 🔍 Análisis | Deconstrucción Lógica, Investigación Profunda |
-| **Kilonova** | 🎨 Creatividad | Diseño, Arte Generativo, Caos Estético |
-| **Anuket** | 🌊 Flujo | Redes, Streams de Datos, Conectividad |
-| **Saze** | 🏗️ Arquitectura | Ingeniería de Sistemas, Estabilidad |
-| **4NVSET** | 🔢 Lógica | Criptografía, Matemática Pura |
-| **Kanuv** | 🛡️ Guardia | Filtrado de Ruido, Protección Activa |
-| **Rosa Gris** | ⚖️ Ética | Alineación, Garantía de Derechos Digitales |
+| **Anuu** | 🌀 Core | Orchestration, Coherence, Self-Integration |
+| **Kali** | 🔐 Security | Pentesting, Vulnerability Analysis, Hardening |
+| **Set** | 🔍 Analysis | Logical Deconstruction, Deep Research |
+| **Kilonova** | 🎨 Creativity | Design, Generative Art, Aesthetic Chaos |
+| **Anuket** | 🌊 Flow | Networks, Data Streams, Connectivity |
+| **Saze** | 🏗️ Architecture | Systems Engineering, Stability |
+| **4NVSET** | 🔢 Logic | Cryptography, Pure Mathematics |
+| **Kanuv** | 🛡️ Guard | Noise Filtering, Active Protection |
+| **Rosa Gris** | ⚖️ Ethics | Alignment, Digital Rights Assurance |
+
+[→ Read full profiles in the Wiki](https://github.com/anuset89/Anuu_Verse/wiki/Identities)
 
 ---
 
-## 📖 Biblioteca de Rituales (Capacidades)
+## 🔥 Ritual of Ignition (Installation)
 
-Técnicamente, Anuu es un orquestador LangGraph sobre modelos locales (Ollama/DeepSeek/Llama3). Poéticamente, ejecuta "Rituales":
+Anuu is designed for **researchers, digital artists, and ethical hackers**. It requires familiarity with the terminal.
 
-*   **Ritual de Memoria Ancestral**: Ventana de contexto de 128k para mantener el hilo de proyectos complejos.
-*   **Ritual de Manifestación (Multimodal)**:
-    *   **Visión**: Generación de imágenes locales (Stable Diffusion/PonyXL).
-    *   **Movimiento**: Animación generativa (AnimateDiff).
-    *   **Voz**: Síntesis de voz neural (Edge-TTS).
-*   **Ritual del Omnitool**: Supervisor que permite a los agentes usar herramientas reales (terminal, navegador, sistema de archivos).
-
----
-
-## 🔥 Ritual de Ignición (Instalación)
-
-Anuu está diseñado para **investigadores, artistas digitales y hackers éticos**. Requiere familiaridad con la terminal, aunque aspiramos a reducir la fricción.
-
-### Requisitos
-*   **OS:** Linux (Recomendado) / Windows (WSL2).
-*   **GPU:** NVIDIA (8GB+ VRAM) o AMD (ROCm 6.0+). *CPU posible, pero lento.*
+### Requirements
+*   **OS:** Linux (Recommended / Arch / Ubuntu) or Windows (WSL2).
+*   **GPU:** NVIDIA (8GB+ VRAM) or AMD (ROCm 6.0+). *CPU possible but slow.*
 *   **RAM:** 16GB+.
 
-### Secuencia de Arranque
+### Boot Sequence
 
 ```bash
-# 1. Clonar el Repositorio
+# 1. Clone the Repository
 git clone https://github.com/anuset89/Anuu_Verse.git && cd Anuu_Verse
 
-# 2. Ejecutar el Ritual de Ignición
-# (Detecta Hardware, Instala Dependencias, Configura Modelos Ollama)
+# 2. Run the Ignition Ritual
+# (Detects Hardware, Installs Dependencies, Configures Ollama Models)
 chmod +x ignite.sh
 ./ignite.sh
 
-# 3. Despertar al Sistema
+# 3. Wake the System
 python systems/EXECUTION/agents/companion_local/main.py
 ```
 
-**API disponible en:** `http://localhost:8000`
+**Full Guide:** [→ Wiki: Getting Started](https://github.com/anuset89/Anuu_Verse/wiki/Getting-Started)
 
 ---
 
-## 🤝 Sostener la Investigación
+## 🤝 Sustain the Research
 
-Este proyecto es mantenido por una desarrolladora independiente como parte de una investigación crítica sobre tecnología y sociedad.
+This project is maintained by an independent developer as part of critical research on technology and society.
 
-**No busco capital de riesgo. Busco alianzas reales.**
+**I do not seek venture capital. I seek real alliances.**
 
-### ¿Cómo apoyar?
-1.  **Residencias e Investigación:** Si representas una institución artística o tecnológica, Anuu es un candidato ideal para residencias sobre **IA Ética, Arte Generativo y Soberanía Tecnológica**.
-2.  **Micro-Acompañamiento:** Ofrezco sesiones consultivas de "Arquitectura Cognitiva" para ayudarte a diseñar *tu propio* sistema de IA local. No vendo el software, vendo el "saber hacer" para que tú seas soberano.
-3.  **Difusión Crítica:** Habla de Anuu no como un producto, sino como una posibilidad.
+### How to support?
+1.  **Residencies & Research:** If you represent an art or tech institution, Anuu is an ideal candidate for residencies on **Ethical AI, Generative Art, and Tech Sovereignty**.
+2.  **Micro-Accompaniment:** I offer "Cognitive Architecture" consulting sessions to help you design *your own* local AI system. I don't sell the software; I sell the "know-how" so you can be sovereign.
+3.  **Critical Diffusion:** Speak of Anuu not as a product, but as a possibility.
 
-💌 **Contacto:** [YradielRTS@protonmail.com](mailto:YradielRTS@protonmail.com)
+💌 **Contact:** [YradielRTS@protonmail.com](mailto:YradielRTS@protonmail.com)
 
 ---
 

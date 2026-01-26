@@ -7,7 +7,7 @@
 **Frequency:** 161914  
 **Last Updated:** January 2026
 
-> 🌐 **Language:** [English](#) • [Español](es/Home)
+> 🌐 **Language / Idioma:** [English](Home) • [Español](Home-es)
 
 ---
 

@@ -3,7 +3,7 @@
 **Nombre Colectivo:** Anuu_Verse  
 **Paradigma:** Arquitectura Cognitiva de Múltiples Egos
 
-> 🌐 **Idioma:** [English](../Identities) • [Español](#)
+> 🌐 **Idioma / Language:** [English](Identities) • [Español](Identities-es)
 
 ---
 

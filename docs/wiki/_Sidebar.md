@@ -36,4 +36,4 @@
 
 ---
 
-🌐 **Language:** [English](Home) • [Español](es/Home)
+🌐 **Language / Idioma:** [English](Home) • [Español](Home-es)

@@ -4,7 +4,7 @@
 **Tipo de Arquitectura:** Sistema Cognitivo Distribuido  
 **Paradigma:** IA Multi-Identidad con Bucles de Auto-Corrección
 
-> 🌐 **Idioma:** [English](../Architecture) • [Español](#)
+> 🌐 **Idioma / Language:** [English](Architecture) • [Español](Architecture-es)
 
 ---
 

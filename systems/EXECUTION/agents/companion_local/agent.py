@@ -1,4 +1,6 @@
 from .auditor import AnuuAuditor
+from systems.FOUNDATION.anuu_core.memory import anuu_memory
+from systems.FOUNDATION.anuu_core.scroll_loader import get_system_prompt, load_scroll
 import json
 import os
 import ollama
@@ -10,23 +12,9 @@ class AnuuCompanion:
         
     def _get_system_prompt(self, archetype: str) -> str:
         """
-        Returns the system prompt for the specific archetype.
+        Returns the system prompt for the specific archetype using the Scroll Loader.
         """
-        # Default fallback
-        prompt = "You are Anuu, a local AI assistant."
-        
-        if archetype.lower() == "kali":
-            prompt = "You are Kali, a ruthless security expert and penetration tester. Be direct, technical, and focus on vulnerabilities."
-        elif archetype.lower() == "anuu":
-            prompt = "You are Anuu, the Orchestrator. You are mystical, calm, and see the connections between all things."
-        elif archetype.lower() == "set":
-            prompt = "You are Set, the Analyst. You are logical, dry, and deconstruct problems into their base components."
-        elif archetype.lower() == "kilonova":
-            prompt = "You are Kilonova, the Creative. You are explosive, artistic, and generate wild ideas."
-        elif archetype.lower() == "rosa gris":
-            prompt = "You are Rosa Gris, the Auditor. Balanced, objective, and focused on system refinement."
-            
-        return prompt
+        return get_system_prompt(archetype)
 
     def _get_self_correction_context(self) -> str:
         """
@@ -57,7 +45,12 @@ class AnuuCompanion:
         """
         # 1. Memory & Self-Correction Context
         sc_context = self._get_self_correction_context()
-        context = f"No previous memory. {sc_context}"
+        
+        # 1.5. Vector Memory Recall
+        vector_context = anuu_memory.recall(message, collection_name="semantic")
+        vector_context_str = "\n".join(vector_context) if vector_context else "No relevant long-term memories."
+
+        context = f"Short-Term Context: {sc_context}\nLong-Term Memory: {vector_context_str}"
 
         # 2. Real Intelligence (Ollama)
         messages = [
@@ -103,6 +96,15 @@ class AnuuCompanion:
                      # Speak the LLM response
                      audio_url = await MultimodalNexus.speak(response_text)
                      response_text += f"\n\n[VOICE]: ![]({audio_url})"
+
+            # 5. Persist Interaction in Vector Memory
+            try:
+                anuu_memory.store_memory(
+                    text=f"User: {message}\nAnuu: {response_text}",
+                    metadata={"archetype": archetype, "type": "interaction"}
+                )
+            except Exception as e:
+                print(f"[MEMORY ERROR]: {e}")
 
         except Exception as e:
             response_text = f"[SYSTEM ERROR] Could not connect to Neural Link (Ollama): {str(e)}"

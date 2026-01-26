@@ -10,11 +10,9 @@
 
 ### ✅ Implementado (Rituales Activos)
 - [x] **Portfolio de Investigación (GitHub Pages)**
-- [x] **Wiki de Documentación (Bilingüe)**
 - [x] **Arquitectura Cognitiva de 9 Agentes**
 - [x] **Orquestación LangGraph Local**
 - [x] **Memoria Vectorial (ChromaDB)**
-- [x] **Investigación Activa:** Clawdbot Integration, Engram Memory, AGI Reflection
 - [x] **Nexus Multimodal** (Imagen FLUX/Pony, Video, Audio)
 
 ### 📂 Archivado

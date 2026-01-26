@@ -64,4 +64,17 @@ Provide your evaluation in JSON format with the following keys:
         with open(self.log_path, "a") as f:
             f.write(json.dumps(audit_entry) + "\n")
 
+        # Store Insight in Vector Memory (Semantic)
+        if "actionable_insight" in audit_data:
+            from systems.FOUNDATION.anuu_core.memory import anuu_memory
+            insight = audit_data["actionable_insight"]
+            try:
+                anuu_memory.store_memory(
+                    text=f"Insight: {insight}",
+                    metadata={"type": "insight", "archetype": archetype, "score": audit_data.get("coherence_score", 0)},
+                    collection_name="semantic"
+                )
+            except Exception as e:
+                print(f"[AUDITOR MEMORY ERROR]: {e}")
+
         return audit_entry

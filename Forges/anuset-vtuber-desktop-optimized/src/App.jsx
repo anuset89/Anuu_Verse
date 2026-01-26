@@ -11,12 +11,13 @@ import { ChatAvatar } from './components/ChatAvatar';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import Settings from './components/Settings';
+import AnuuVision from './components/AnuuVision';
 import './App.css';
 
 // Componente para rutas protegidas (JavaScript puro)
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
-  
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
@@ -29,11 +30,11 @@ const ProtectedRoute = ({ children }) => {
       </div>
     );
   }
-  
+
   if (!isAuthenticated) {
     return <LoginForm />;
   }
-  
+
   return <>{children}</>;
 };
 
@@ -62,30 +63,31 @@ const AppContent = () => {
     <div className="app min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <Router>
         <Routes>
-          <Route 
-            path="/" 
+          <Route
+            path="/"
             element={
               <Layout>
                 <ChatAvatar />
               </Layout>
-            } 
+            }
           />
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
               <Layout>
                 <Dashboard />
               </Layout>
-            } 
+            }
           />
-          <Route 
-            path="/settings" 
+          <Route
+            path="/settings"
             element={
               <Layout>
                 <Settings />
               </Layout>
-            } 
+            }
           />
+          <Route path="/vision" element={<AnuuVision />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
@@ -102,23 +104,23 @@ function App() {
     const initApp = async () => {
       try {
         console.log('🚀 Inicializando AnuSet Desktop...');
-        
+
         // Inicializar base de datos
         console.log('📁 Conectando base de datos SQLite...');
         await setupDatabase();
         console.log('✅ Base de datos SQLite conectada');
-        
+
         // Inicializar servicio Gemini
         console.log('🤖 Configurando Gemini API local...');
         await setupGeminiService();
         console.log('✅ Gemini API configurada');
-        
+
         // Simular tiempo de carga
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         setIsLoading(false);
         console.log('🎉 AnuSet Desktop listo');
-        
+
       } catch (error) {
         console.error('❌ Error al inicializar la aplicación:', error);
         setInitError(error.message || 'Error desconocido');
@@ -141,16 +143,16 @@ function App() {
             <p className="text-purple-300 text-lg">Sistema VTuber IA Desktop</p>
             <p className="text-purple-500 text-sm">v4.2.1 - JavaScript Puro</p>
           </div>
-          
+
           <div className="animate-spin w-12 h-12 border-2 border-purple-400 border-t-transparent rounded-full mx-auto mb-6"></div>
-          
+
           <div className="space-y-2 text-sm">
             <p>🖥️ Modo Desktop - 100% Offline</p>
             <p>🔒 Base de datos SQLite local</p>
             <p>🤖 Gemini API integrada</p>
             <p>🎭 Avatar 3D con Three.js</p>
           </div>
-          
+
           {initError && (
             <div className="mt-6 p-4 bg-red-500/20 border border-red-500 text-red-200 rounded-lg max-w-md">
               <p className="font-bold">Error de inicialización:</p>

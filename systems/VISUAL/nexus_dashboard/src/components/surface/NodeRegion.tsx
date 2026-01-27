@@ -1,12 +1,14 @@
 import React from 'react';
 import { useAnuuStore } from '../../context/useAnuuStore';
 import { SagaEngineNode } from './SagaEngineNode';
+import { TestRegion } from './TestRegion';
 import { BookOpen, Sparkles, Layers } from 'lucide-react';
 
 export const NodeRegion: React.FC = () => {
     const { activeNode, setActiveNode } = useAnuuStore();
 
     if (activeNode === 'saga') return <SagaEngineNode />;
+    if (activeNode === 'tests') return <TestRegion />;
 
     if (activeNode === 'wiki') return (
         <div className="w-full h-full flex flex-col items-center justify-center p-20 text-center">

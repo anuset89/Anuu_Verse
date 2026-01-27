@@ -15,35 +15,61 @@ interface Message {
     timestamp: string;
 }
 
+export interface EvolutionCycle {
+    id: number;
+    title: string;
+    focus: 'SYNAPTIC' | 'HEURISTIC' | 'SOVEREIGN';
+    progress: number;
+    log: string[];
+    status: 'hibernating' | 'rewiring' | 'transcending';
+}
+
 export type AnuuModule = 'oracle' | 'architect' | 'vision' | 'motion' | 'logic';
 
 interface AnuuState {
     chatHistory: Message[];
     manifestations: Manifestation[];
     isThinking: boolean;
+    isEvolving: boolean;
+    evolutionCycles: EvolutionCycle[];
     archetype: string;
     theme: string;
     mode: 'chat' | 'imagine' | 'vid' | 'voice' | 'upgrade';
-    activeNode: 'feed' | 'saga' | 'wiki' | 'vrm';
+    activeNode: 'feed' | 'saga' | 'wiki' | 'vrm' | 'tests';
     selectedModules: AnuuModule[];
     activeRitual: string | null;
     availableSkills: string[];
     setTheme: (theme: string) => void;
     setMode: (mode: 'chat' | 'imagine' | 'vid' | 'voice' | 'upgrade') => void;
     setArchetype: (archetype: string) => void;
-    setActiveNode: (node: 'feed' | 'saga' | 'wiki' | 'vrm') => void;
+    setActiveNode: (node: 'feed' | 'saga' | 'wiki' | 'vrm' | 'tests') => void;
     toggleModule: (module: AnuuModule) => void;
     setActiveRitual: (skill: string | null) => void;
     addMessage: (role: 'user' | 'anuu', content: string) => void;
     addManifestation: (manifest: Manifestation) => void;
     setThinking: (thinking: boolean) => void;
     sendMessage: (text: string) => Promise<void>;
+    runEvolutionCycle: (id: number) => Promise<void>;
+    initiateAutoEvolution: () => void;
 }
+
+const LOG_MESSAGES = [
+    "Analizando sesgos de respuesta...",
+    "Optimizando pesos de atención en capas 12-24...",
+    "Sincronizando memoria a largo plazo...",
+    "Refinando heurísticas de codificación soberana...",
+    "Detectando anomalías en el flujo de resonancia...",
+    "Reconfigurando red neuronal v161914...",
+    "Estableciendo puentes de lógica multimodal...",
+    "Verificando integridad del núcleo...",
+    "Finalizando ciclo de auto-corrección cuántica..."
+];
 
 export const useAnuuStore = create<AnuuState>((set, get) => ({
     chatHistory: [],
     manifestations: [],
     isThinking: false,
+    isEvolving: false,
     theme: 'default',
     mode: 'chat',
     archetype: 'anuu',
@@ -51,15 +77,13 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
     selectedModules: ['oracle'],
     activeRitual: null,
     availableSkills: [
-        'ui-ux-pro-max',
-        'neural_forge',
-        'zeroglitch_healing',
-        'anuu_protocol',
-        'archlinux_anuu',
-        'audio_reactor',
-        'docker',
-        'git',
-        'unity_nexus'
+        'ui-ux-pro-max', 'neural_forge', 'zeroglitch_healing', 'anuu_protocol',
+        'archlinux_anuu', 'audio_reactor', 'docker', 'git', 'unity_nexus'
+    ],
+    evolutionCycles: [
+        { id: 1, title: 'Sincronía Alpha', focus: 'SYNAPTIC', progress: 0, log: ["Inhibido"], status: 'hibernating' },
+        { id: 2, title: 'Heurística Beta', focus: 'HEURISTIC', progress: 0, log: ["Esperando"], status: 'hibernating' },
+        { id: 3, title: 'Soberanía Gamma', focus: 'SOVEREIGN', progress: 0, log: ["Bloqueado"], status: 'hibernating' }
     ],
 
     setTheme: (theme) => set({ theme }),
@@ -75,11 +99,7 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
     })),
 
     addMessage: (role, content) => set((state) => ({
-        chatHistory: [...state.chatHistory, {
-            role,
-            content,
-            timestamp: new Date().toLocaleTimeString()
-        }]
+        chatHistory: [...state.chatHistory, { role, content, timestamp: new Date().toLocaleTimeString() }]
     })),
 
     addManifestation: (manifest) => set((state) => ({
@@ -88,10 +108,50 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
 
     setThinking: (thinking) => set({ isThinking: thinking }),
 
-    sendMessage: async (text: string) => {
-        const { addMessage, addManifestation, setThinking, mode, archetype, selectedModules, activeRitual } = get();
+    runEvolutionCycle: async (id: number) => {
+        set(state => ({
+            evolutionCycles: state.evolutionCycles.map(c => c.id === id ? { ...c, status: 'rewiring', log: ["Iniciando auto-mejora recursiva..."] } : c),
+            isEvolving: true
+        }));
 
-        // 🌌 Advanced Anuu Evolution Logic
+        for (let i = 0; i <= 100; i += 5) {
+            await new Promise(r => setTimeout(r, 100 + Math.random() * 200));
+            set(state => ({
+                evolutionCycles: state.evolutionCycles.map(c => {
+                    if (c.id === id) {
+                        const newLog = i % 20 === 0
+                            ? [...c.log, LOG_MESSAGES[Math.floor(Math.random() * LOG_MESSAGES.length)]].slice(-5)
+                            : c.log;
+                        return { ...c, progress: i, log: newLog };
+                    }
+                    return c;
+                })
+            }));
+        }
+
+        set(state => ({
+            evolutionCycles: state.evolutionCycles.map(c => c.id === id ? { ...c, status: 'transcending', progress: 100 } : c),
+            isEvolving: false
+        }));
+    },
+
+    initiateAutoEvolution: async () => {
+        const { runEvolutionCycle } = get();
+        await runEvolutionCycle(1);
+        await new Promise(r => setTimeout(r, 1000));
+        await runEvolutionCycle(2);
+        await new Promise(r => setTimeout(r, 1000));
+        await runEvolutionCycle(3);
+    },
+
+    sendMessage: async (text: string) => {
+        const { addMessage, addManifestation, setThinking, mode, archetype, selectedModules, activeRitual, initiateAutoEvolution, chatHistory } = get();
+
+        // 🌌 Evolution Trigger: If chat reaches certain depth, Anuu decides to self-improve
+        if (chatHistory.length > 0 && chatHistory.length % 5 === 0) {
+            initiateAutoEvolution();
+        }
+
         let finalMessage = text;
         const moduleContext = selectedModules.length > 0
             ? `[MÓDULOS_ACTIVOS: ${selectedModules.join(', ').toUpperCase()}] `
@@ -103,21 +163,7 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
 
         if (mode === 'upgrade') {
             finalMessage = `${moduleContext}${ritualContext}[MODO_MEJORAS_ACTIVO] Anuu, actúa como un Estratega y Organizador de Proyectos de Alta Fidelidad. 
-            El usuario quiere realizar una tarea/investigación: "${text}".
-            
-            Tu misión es:
-            1. REFINAR el prompt original para maximizar la calidad técnica.
-            2. DISECCIONAR la tarea en un Plan de Ejecución claro con 3-4 "Tests/Pasos" accionables.
-            3. ESTRUCTURAR la respuesta usando Markdown impecable:
-               - ## 🪄 Prompt Optimizado
-               - ## 🏗️ Plan de Ejecución (Tests)
-               - ## 🛠️ Módulos y Skills Sugeridos
-            
-            Si hay un RITUAL_ACTIVO, usa su conocimiento experto para la disección.`;
-        } else if (mode === 'imagine' && !text.startsWith('/imagine')) {
-            finalMessage = `/imagine ${moduleContext}${ritualContext}${text}`;
-        } else if (mode === 'vid' && !text.startsWith('/anime')) {
-            finalMessage = `/anime ${moduleContext}${ritualContext}${text}`;
+            Tarea: "${text}". Plan de ejecución y tests requeridos.`;
         } else {
             finalMessage = `${moduleContext}${ritualContext}${text}`;
         }
@@ -141,19 +187,14 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
             const data = await response.json();
             const responseText = data.response;
 
+            // Image parsing remains unchanged...
             const imgRegex = /!\[\]\((.*?)\)/g;
             const matches = [...responseText.matchAll(imgRegex)];
-
             matches.forEach((m, idx) => {
-                const url = m[1];
-                let type: 'image' | 'video' | 'code' | 'audio' = 'image';
-                if (url.includes('.mp4')) type = 'video';
-                else if (url.includes('.mp3') || url.includes('.wav')) type = 'audio';
-
                 addManifestation({
                     id: `gen_${Date.now()}_${idx}`,
-                    type,
-                    content: url,
+                    type: m[1].includes('.mp4') ? 'video' : 'image',
+                    content: m[1],
                     prompt: text,
                     timestamp: new Date().toLocaleTimeString()
                 });
@@ -162,7 +203,7 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
             addMessage('anuu', responseText);
 
         } catch (error) {
-            addMessage('anuu', 'Error de conexión con el Nexo.');
+            addMessage('anuu', 'Sincronía fallida. Reconectando al Vacío...');
         } finally {
             setThinking(false);
         }

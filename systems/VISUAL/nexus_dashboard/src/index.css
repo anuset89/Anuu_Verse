@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&family=Space+Mono&display=swap');
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer base {
+  :root {
+    --color-void: #020617;
+    /* OLED Black */
+    --color-stellar-card: #0f172a;
+    --color-accent: #22c55e;
+    /* Grok Green */
+    --color-gold: #d4af37;
+    --color-cyan: #06b6d4;
+    --color-stellar-border: rgba(255, 255, 255, 0.05);
+  }
+
+  body {
+    @apply bg-black text-white font-rajdhani overflow-hidden min-h-screen antialiased;
+    background-color: var(--color-void);
+    color-scheme: dark;
+  }
+}
+
+.font-orbitron {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.05em;
+}
+
+.font-rajdhani {
+  font-family: 'Rajdhani', sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.3);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Glassmorphism */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+/* Markdown Styling (Stellar Prose) */
+.prose h1,
+.prose h2,
+.prose h3 {
+  @apply font-orbitron font-bold uppercase tracking-[0.2em] text-[var(--color-accent)] mt-8 mb-4;
+}
+
+.prose h1 {
+  @apply text-lg border-b border-[var(--color-accent)]/20 pb-2;
+}
+
+.prose h2 {
+  @apply text-base;
+}
+
+.prose h3 {
+  @apply text-sm;
+}
+
+.prose p {
+  @apply mb-5 leading-relaxed text-gray-300 text-[14px];
+}
+
+.prose ul,
+.prose ol {
+  @apply mb-6 ml-6 list-disc;
+}
+
+.prose li {
+  @apply mb-3 text-gray-300;
+}
+
+.prose code {
+  @apply bg-white/10 px-2 py-0.5 rounded text-[var(--color-accent)] font-mono text-[12px];
+}
+
+.prose pre {
+  @apply bg-black/40 border border-white/10 p-5 rounded-2xl mb-6 overflow-x-auto shadow-inner;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0 text-gray-200 border-none;
+}
+
+.prose strong {
+  @apply text-white font-bold;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-[var(--color-accent)]/40 pl-5 italic opacity-80 mb-6 bg-white/2 p-4 rounded-r-xl font-rajdhani;
+}
+
+.prose hr {
+  @apply border-white/5 my-8;
+}
+@keyframes scan {
+  from { top: -100px; opacity: 0; }
+  50% { opacity: 0.5; }
+  to { top: 100%; opacity: 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+.animate-spin-reverse {
+  animation: spin 6s linear infinite reverse;
+}

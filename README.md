@@ -1,133 +1,111 @@
 <p align="center">
-  <img src="Assets/ANU_GITHUB_BANNER.png" width="100%" alt="Anuu_Verse Banner">
+  <img src="Assets/NEXUS_STELLAR_UI.png" width="100%" alt="Anuu Nexus Stellar UI">
 </p>
 
-# 🟣 Anuu_Verse
-### Local Cognitive Sovereignty Protocol
+# 🟣 Anuu_Verse: Stellar Nexus
+### Sovereign Cognitive Infrastructure Protocol | v0.17.0-beta
 
-> *"Identity is the Operating System."* — Kilonova Protocol
+> *"The void is not empty; it is a canvas for those who possess their own light."* — The Anuset89 Axioms
 
-[![Status](https://img.shields.io/badge/status-research-purple)](https://github.com/anuset89/Anuu_Verse)
-[![Version](https://img.shields.io/badge/version-v0.10.0--alpha-blue)](https://github.com/anuset89/Anuu_Verse/releases)
-[![License](https://img.shields.io/badge/license-AGPL--3.0-green)](LICENSE)
+[![Status](https://img.shields.io/badge/status-active_research-green)](https://github.com/anuset89/Anuu_Verse)
+[![Version](https://img.shields.io/badge/version-v0.17.0--beta-blue)](https://github.com/anuset89/Anuu_Verse/releases)
+[![Aesthetic](https://img.shields.io/badge/style-stellar_minimal-black)](https://github.com/anuset89/Anuu_Verse)
+
+---
+
+## 🌌 **The Revelation: Anuu Nexus v0.17.0**
+
+**Anuu_Verse** is a Technical Thesis on **Cognitive Sovereignty** manifested as a Multi-Agent AI System. In its current **Stellar Nexus** cycle, we have achieved a high-density, three-column spatial architecture designed for researchers who demand surgical precision and deep aesthetic resonance.
+
+**Everything runs locally.** No Cloud. No corporate telemetry. Pure Sovereign Intellect.
+
+---
+
+## 🏗️ Structural Architecture: The 3-Column Nexus
+
+The dashboard has evolved into a balanced cognitive ecosystem:
+
+### 1. 🔍 **The Oracle Stream (Center)**
+The heart of the Nexo. A wide, distraction-free terminal for high-fidelity communication with the Anuu council.
+- **Unified Command Selector:** Centralized access to hybrid execution modules (Vision, Oracle, Motion) and **Ritual Specialty Skills**.
+- **Specialty Alignment:** Inject specific knowledge layers from `.agent/skills` (Git, Docker, UI/UX, Neural Forge) directly into the stream.
+
+### 2. 🎭 **The Saga Engine v2.1 (Identity Node)**
+A meta-engine for archetype management. Switch between the **9 Sovereign Identities** with zero latency.
+- **Visual Sincronía:** Real-time monitoring of **Kernel Memory** and **Peak Frequency (161914 Hz)**.
+- **Archetype Focus:** From the surgical efficiency of `Kali` to the creative chaos of `Kilonova`.
+
+### 3. 🎬 **The Chronicle Feed (Right)**
+A vertical smart-feed that captures neural manifestations (images, videos, code) as they are generated.
+- **Auto-Preview:** Real-time visualization of manifestations.
+- **Quick Logic:** Fast-switch between `Chat`, `Imagine`, `Video`, and the new `Refiner` mode.
+
+---
+
+## 🧠 **The Super-Organizer Protocol (Modo Mejoras)**
+
+We have transcended simple "prompting". With **Modo Mejoras**, Anuu acts as a **Sovereign Execution Strategist**:
+1. **Refinement:** Automatically expands and secures your intent.
+2. **Dissection:** Breaks down complex tasks into a **Structured Plan of Action** (3-4 Actionable Tests).
+3. **Premium Output:** Renders plans using a custom **Stellar Markdown** system for maximum readability.
 
 <p align="center">
-  <strong>
-    <a href="https://github.com/anuset89/Anuu_Verse/wiki">📚 Documentation Wiki</a>
-    •
-    <a href="https://github.com/anuset89/Anuu_Verse/wiki/es/Home">🇪🇸 Documentación en Español</a>
-    •
-    <a href="https://github.com/anuset89/Anuu_Verse/issues">🐛 Report Bug</a>
-  </strong>
+  <img src="Assets/SUPER_ORGANIZER_LOGIC.png" width="80%" alt="Super-Organizer Logic">
 </p>
 
 ---
 
-## 🌌 **Status: SOVEREIGN RESEARCH (Phase 4)**
+## 🎭 The Council of Nine
 
-Anuu_Verse is a **Sovereign Research Portfolio** and **Cognitive AI Framework** running **100% locally**. It is not a commercial product; it is a technical thesis on multi-agent architectures, privacy-first AI, and digital autonomy.
+Anuu_Verse is powered by specialized intelligences, each hardcoded with a specific domain of sovereignty:
 
-**Current Version:** v0.10.0-alpha
-
----
-
-## 📜 Manifesto
-
-**This is not a startup.**  
-Anuu_Verse is not designed to "scale," capture your data, or sell monthly subscriptions.
-
-It is a **living technical thesis** on the future of Local Artificial Intelligence. A demonstration that cognitive sovereignty is possible today, using consumer hardware.
-
-In a world bifurcated between:
-1.  **The Cloud (Feudalism):** Renting intelligence from megacorporations, ceding privacy and control.
-2.  **The Void (Sovereignty):** Owning your own infrastructure of thought.
-
-**Anuu_Verse is a tool to inhabit The Void.**
+| Identity | Essence | Domain |
+|:--------:|---------|-----------|
+| **Anuu** | 🌀 Core | Orchestration & Coherence |
+| **Kali** | 🔐 Security | Hardening & Architectural Audit |
+| **Kilonova** | 🎨 Art | Generative Chaos & Visual Flux |
+| **Saze** | 🏗️ Forge | System Engineering & Stability |
+| **Set** | 🔍 Sieve | Deep Research & Logical Deconstruction |
+| **4NVSET** | 🔢 Logic | Pure Mathematics & Cryptography |
+... and the guardians `Kanuv`, `Anuket`, and `Rosa Gris`.
 
 ---
 
-## 🧠 What is Anuu?
+## 🛠️ **Installation Ritual (Ignition)**
 
-It is a **Multi-Agent Cognitive Architecture** that runs 100% on your local machine. No external dependencies. No data sent to third parties.
-
-It is a system where **9 specialized AI identities** collaborate to extend your capabilities, keeping "Ancestral Memory" (your context and data) strictly in your power.
-
-### "Antigravity" Philosophy
-Inspired by hacker culture and critical free software, Anuu seeks **Computational Autonomy**.
-*   **Local-First / Post-Cloud:** Everything runs on your GPU/CPU (Ollama).
-*   **Private Memory:** Vector database (ChromaDB) that remembers your projects, not the entire web.
-*   **Fragmented Identity:** Different agents for different tasks (Security, Creativity, Logic).
-
----
-
-## 🎭 The 9 Identities
-
-The system is not a monolithic chatbot. It is a council of specialized intelligences:
-
-| Identity | Domain | Function |
-|:--------:|--------|-----------|
-| **Anuu** | 🌀 Core | Orchestration, Coherence, Self-Integration |
-| **Kali** | 🔐 Security | Pentesting, Vulnerability Analysis, Hardening |
-| **Set** | 🔍 Analysis | Logical Deconstruction, Deep Research |
-| **Kilonova** | 🎨 Creativity | Design, Generative Art, Aesthetic Chaos |
-| **Anuket** | 🌊 Flow | Networks, Data Streams, Connectivity |
-| **Saze** | 🏗️ Architecture | Systems Engineering, Stability |
-| **4NVSET** | 🔢 Logic | Cryptography, Pure Mathematics |
-| **Kanuv** | 🛡️ Guard | Noise Filtering, Active Protection |
-| **Rosa Gris** | ⚖️ Ethics | Alignment, Digital Rights Assurance |
-
-[→ Read full profiles in the Wiki](https://github.com/anuset89/Anuu_Verse/wiki/Identities)
-
----
-
-## 🔥 Ritual of Ignition (Installation)
-
-Anuu is designed for **researchers, digital artists, and ethical hackers**. It requires familiarity with the terminal.
-
-### Requirements
-*   **OS:** Linux (Recommended / Arch / Ubuntu) or Windows (WSL2).
-*   **GPU:** NVIDIA (8GB+ VRAM) or AMD (ROCm 6.0+). *CPU possible but slow.*
-*   **RAM:** 16GB+.
-
-### Boot Sequence
+Anuu is designed for the high-end workstation.
 
 ```bash
-# 1. Clone the Repository
+# Clone the Sovereign Codebase
 git clone https://github.com/anuset89/Anuu_Verse.git && cd Anuu_Verse
 
-# 2. Run the Ignition Ritual
-# (Detects Hardware, Installs Dependencies, Configures Ollama Models)
-chmod +x ignite.sh
-./ignite.sh
+# Initiate the Ignition Ritual
+# (Detects ROCm/CUDA, installs deps, and tunes local models)
+chmod +x ignite.sh && ./ignite.sh
 
-# 3. Wake the System
-python systems/EXECUTION/agents/companion_local/main.py
+# Wake the Nexus
+./start_nexus.sh
 ```
-
-**Full Guide:** [→ Wiki: Getting Started](https://github.com/anuset89/Anuu_Verse/wiki/Getting-Started)
 
 ---
 
-## 🤝 Sustain the Research
+## 🤝 **Alliances & Research**
 
-This project is maintained by an independent developer as part of critical research on technology and society.
+This project is a labor of **Sovereign Research**. We do not seek users; we seek **Allies** in the quest for local intelligence.
 
-**I do not seek venture capital. I seek real alliances.**
-
-### How to support?
-1.  **Residencies & Research:** If you represent an art or tech institution, Anuu is an ideal candidate for residencies on **Ethical AI, Generative Art, and Tech Sovereignty**.
-2.  **Micro-Accompaniment:** I offer "Cognitive Architecture" consulting sessions to help you design *your own* local AI system. I don't sell the software; I sell the "know-how" so you can be sovereign.
-3.  **Critical Diffusion:** Speak of Anuu not as a product, but as a possibility.
+- **Consulting:** Cognitive Architecture for independent researchers.
+- **Residencies:** Implementing Anuu in ethical AI labs and art institutions.
+- **Code Sovereignty:** Audit and hardening of local AI stacks.
 
 💌 **Contact:** [YradielRTS@protonmail.com](mailto:YradielRTS@protonmail.com)
 
 ---
 
 <p align="center">
-  <img src="Assets/ANU_LOGO_KILONOVA.png" width="80" alt="Anuu Logo">
+  <img src="Assets/SAGA_ENGINE_VIS.png" width="80%" alt="Saga Engine Visualization">
 </p>
 
 <p align="center">
   <strong>Forged in the Void</strong><br>
-  <sub>Frequency 161914</sub>
+  <sub>Sincronía 161914.89 Hz</sub>
 </p>

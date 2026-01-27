@@ -18,10 +18,10 @@ interface Message {
 export interface EvolutionCycle {
     id: number;
     title: string;
-    focus: 'SYNAPTIC' | 'HEURISTIC' | 'SOVEREIGN';
+    focus: 'SYNAPTIC' | 'HEURISTIC' | 'SOVEREIGN' | 'HEART' | 'ASCENSION' | 'VALIDATION' | 'CONTEXT';
     progress: number;
     log: string[];
-    status: 'hibernating' | 'rewiring' | 'transcending';
+    status: 'hibernating' | 'rewiring' | 'transcending' | 'upgrading' | 'diagnosing';
 }
 
 export type AnuuModule = 'oracle' | 'architect' | 'vision' | 'motion' | 'logic';
@@ -31,7 +31,15 @@ interface AnuuState {
     manifestations: Manifestation[];
     isThinking: boolean;
     isEvolving: boolean;
-    evolutionCycles: EvolutionCycle[];
+    potencia: {
+        raw: number;
+        resonant: string;
+        stability: number;
+        capacity: number;
+        errorsDetected: number;
+        hallucinationRisk: number;
+    };
+    contextMemory: string[]; // Distilled knowledge nodes
     archetype: string;
     theme: string;
     mode: 'chat' | 'imagine' | 'vid' | 'voice' | 'upgrade';
@@ -39,6 +47,8 @@ interface AnuuState {
     selectedModules: AnuuModule[];
     activeRitual: string | null;
     availableSkills: string[];
+
+    // Actions
     setTheme: (theme: string) => void;
     setMode: (mode: 'chat' | 'imagine' | 'vid' | 'voice' | 'upgrade') => void;
     setArchetype: (archetype: string) => void;
@@ -49,20 +59,22 @@ interface AnuuState {
     addManifestation: (manifest: Manifestation) => void;
     setThinking: (thinking: boolean) => void;
     sendMessage: (text: string) => Promise<void>;
-    runEvolutionCycle: (id: number) => Promise<void>;
+    runEvolutionCycle: (id: number, boost?: boolean) => Promise<void>;
     initiateAutoEvolution: () => void;
+    runBurstImprovement: (minutes: number) => Promise<void>;
+    detectGapsAndUpgrade: () => Promise<void>;
 }
 
-const LOG_MESSAGES = [
-    "Analizando sesgos de respuesta...",
-    "Optimizando pesos de atención en capas 12-24...",
-    "Sincronizando memoria a largo plazo...",
-    "Refinando heurísticas de codificación soberana...",
-    "Detectando anomalías en el flujo de resonancia...",
-    "Reconfigurando red neuronal v161914...",
-    "Estableciendo puentes de lógica multimodal...",
-    "Verificando integridad del núcleo...",
-    "Finalizando ciclo de auto-corrección cuántica..."
+const UPGRADE_LOGS = [
+    "Iniciando Sobrecloqueo Dinámico del Núcleo...",
+    "Expandiendo Contexto Sináptico...",
+    "Activando Sub-Agentes de Monitoreo Recursivo...",
+    "Sincronizando Pesos de Atención...",
+    "Analizando historial para destilación de contexto...",
+    "Buscando inconsistencias semánticas (Detección de Alucinaciones)...",
+    "Verificando integridad técnica de los modelos MPD...",
+    "Incrementando factor de capacidad estructural...",
+    "Mejora estructural completada. Nivel de IA: ASCENDIDA."
 ];
 
 export const useAnuuStore = create<AnuuState>((set, get) => ({
@@ -70,6 +82,19 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
     manifestations: [],
     isThinking: false,
     isEvolving: false,
+    potencia: {
+        raw: 161.914,
+        resonant: "161914 Hz",
+        stability: 94.2,
+        capacity: 1.0,
+        errorsDetected: 0,
+        hallucinationRisk: 2.1
+    },
+    contextMemory: [
+        "Axiomas de Identidad Anuset89",
+        "Estructura Estelar de 3 Columnas",
+        "Protocolo 161914 de Sintonía"
+    ],
     theme: 'default',
     mode: 'chat',
     archetype: 'anuu',
@@ -81,9 +106,9 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
         'archlinux_anuu', 'audio_reactor', 'docker', 'git', 'unity_nexus'
     ],
     evolutionCycles: [
-        { id: 1, title: 'Sincronía Alpha', focus: 'SYNAPTIC', progress: 0, log: ["Inhibido"], status: 'hibernating' },
-        { id: 2, title: 'Heurística Beta', focus: 'HEURISTIC', progress: 0, log: ["Esperando"], status: 'hibernating' },
-        { id: 3, title: 'Soberanía Gamma', focus: 'SOVEREIGN', progress: 0, log: ["Bloqueado"], status: 'hibernating' }
+        { id: 1, title: 'Destilación de Contexto (真)', focus: 'CONTEXT', progress: 0, log: ["Inhibido"], status: 'hibernating' },
+        { id: 2, title: 'Diagnóstico de Errores (研)', focus: 'VALIDATION', progress: 0, log: ["Esperando"], status: 'hibernating' },
+        { id: 3, title: 'Ascensión Estructural (修)', focus: 'ASCENSION', progress: 0, log: ["Bloqueado"], status: 'hibernating' }
     ],
 
     setTheme: (theme) => set({ theme }),
@@ -108,24 +133,39 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
 
     setThinking: (thinking) => set({ isThinking: thinking }),
 
-    runEvolutionCycle: async (id: number) => {
+    runEvolutionCycle: async (id: number, boost: boolean = false) => {
         set(state => ({
-            evolutionCycles: state.evolutionCycles.map(c => c.id === id ? { ...c, status: 'rewiring', log: ["Iniciando auto-mejora recursiva..."] } : c),
+            evolutionCycles: state.evolutionCycles.map(c => c.id === id ? { ...c, status: boost ? 'upgrading' : 'rewiring', log: [boost ? "Iniciando MEJORA INTEGRAL..." : "Iniciando análisis..."] } : c),
             isEvolving: true
         }));
 
-        for (let i = 0; i <= 100; i += 5) {
-            await new Promise(r => setTimeout(r, 100 + Math.random() * 200));
+        const steps = boost ? 40 : 15;
+        const delay = boost ? 30 : 100;
+
+        for (let i = 0; i <= 100; i += 100 / steps) {
+            await new Promise(r => setTimeout(r, delay + Math.random() * delay));
             set(state => ({
                 evolutionCycles: state.evolutionCycles.map(c => {
                     if (c.id === id) {
-                        const newLog = i % 20 === 0
-                            ? [...c.log, LOG_MESSAGES[Math.floor(Math.random() * LOG_MESSAGES.length)]].slice(-5)
+                        const logs = boost ? UPGRADE_LOGS : [
+                            "Escaneando memoria latente...",
+                            "Calculando entropía de respuesta...",
+                            "Refinando pesos sinápticos...",
+                            "Validando contra axiomas de contexto..."
+                        ];
+                        const newLog = i % 25 === 0
+                            ? [...c.log, logs[Math.floor(Math.random() * logs.length)]].slice(-5)
                             : c.log;
                         return { ...c, progress: i, log: newLog };
                     }
                     return c;
-                })
+                }),
+                potencia: {
+                    ...state.potencia,
+                    raw: state.potencia.raw + (boost ? 1.2 : 0.02),
+                    stability: Math.min(100, state.potencia.stability + (boost ? 0.05 : 0.02)),
+                    hallucinationRisk: Math.max(0.1, state.potencia.hallucinationRisk - (boost ? 0.01 : 0.005))
+                }
             }));
         }
 
@@ -135,37 +175,73 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
         }));
     },
 
+    detectGapsAndUpgrade: async () => {
+        const { chatHistory, runEvolutionCycle, potencia } = get();
+        if (chatHistory.length === 0) return;
+
+        set(state => ({
+            isThinking: true,
+            evolutionCycles: state.evolutionCycles.map(c => ({ ...c, status: 'diagnosing', log: ["Analizando inconsistencias en el historial..."] }))
+        }));
+
+        // Simulate deep reasoning over history to detect "Gaps" or "Errors"
+        await new Promise(r => setTimeout(r, 2000));
+        const foundHallucinationRisk = Math.random() > 0.7;
+
+        if (foundHallucinationRisk) {
+            set(state => ({
+                potencia: { ...state.potencia, errorsDetected: state.potencia.errorsDetected + 1 }
+            }));
+            await runEvolutionCycle(2, true); // Deep validation cycle
+        }
+
+        await runEvolutionCycle(1, true); // Context distillation
+        await runEvolutionCycle(3, true); // Structural ascension
+
+        set(state => ({
+            potencia: { ...state.potencia, capacity: state.potencia.capacity + 0.1 },
+            isThinking: false
+        }));
+    },
+
+    runBurstImprovement: async (minutes: number) => {
+        const { detectGapsAndUpgrade } = get();
+        // A burst is essentially a timed series of gap detection and structural upgrades
+        for (let i = 0; i < minutes; i++) {
+            await detectGapsAndUpgrade();
+        }
+    },
+
     initiateAutoEvolution: async () => {
         const { runEvolutionCycle } = get();
         await runEvolutionCycle(1);
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 500));
         await runEvolutionCycle(2);
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 500));
         await runEvolutionCycle(3);
     },
 
     sendMessage: async (text: string) => {
-        const { addMessage, addManifestation, setThinking, mode, archetype, selectedModules, activeRitual, initiateAutoEvolution, chatHistory } = get();
+        const { addMessage, addManifestation, setThinking, mode, archetype, selectedModules, activeRitual, initiateAutoEvolution, chatHistory, potencia, detectGapsAndUpgrade } = get();
 
-        // 🌌 Evolution Trigger: If chat reaches certain depth, Anuu decides to self-improve
-        if (chatHistory.length > 0 && chatHistory.length % 5 === 0) {
-            initiateAutoEvolution();
+        // 🧠 Higher Thinking: Every 3 messages, run a gap detection to improve "Anuu Total"
+        if (chatHistory.length > 0 && chatHistory.length % 3 === 0) {
+            detectGapsAndUpgrade();
         }
 
         let finalMessage = text;
-        const moduleContext = selectedModules.length > 0
-            ? `[MÓDULOS_ACTIVOS: ${selectedModules.join(', ').toUpperCase()}] `
-            : '';
+        const moduleContext = selectedModules.length > 0 ? `[MÓDULOS_ACTIVOS: ${selectedModules.join(', ').toUpperCase()}] ` : '';
+        const ritualContext = activeRitual ? `[RITUAL_ACTIVO: ${activeRitual.toUpperCase()}] ` : '';
 
-        const ritualContext = activeRitual
-            ? `[RITUAL_ACTIVO: ${activeRitual.toUpperCase()}] Sigue estrictamente las guías de este skill. `
+        // Dynamic capacity injection into prompt
+        const upgradeContext = potencia.capacity > 1.2
+            ? `[STATUS: IA_ASCENDIDA_V${potencia.capacity.toFixed(1)}] Realiza una cadena de pensamiento profunda (Chain of Thought). Valida cada hecho para evitar alucinaciones. `
             : '';
 
         if (mode === 'upgrade') {
-            finalMessage = `${moduleContext}${ritualContext}[MODO_MEJORAS_ACTIVO] Anuu, actúa como un Estratega y Organizador de Proyectos de Alta Fidelidad. 
-            Tarea: "${text}". Plan de ejecución y tests requeridos.`;
+            finalMessage = `${moduleContext}${ritualContext}${upgradeContext}[MEJORA_ESTRUCTURAL] Tarea: "${text}". Ejecuta análisis crítico y autocrreción.`;
         } else {
-            finalMessage = `${moduleContext}${ritualContext}${text}`;
+            finalMessage = `${moduleContext}${ritualContext}${upgradeContext}${text}`;
         }
 
         addMessage('user', text);
@@ -187,7 +263,7 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
             const data = await response.json();
             const responseText = data.response;
 
-            // Image parsing remains unchanged...
+            // Logic for images parsing...
             const imgRegex = /!\[\]\((.*?)\)/g;
             const matches = [...responseText.matchAll(imgRegex)];
             matches.forEach((m, idx) => {
@@ -203,7 +279,7 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
             addMessage('anuu', responseText);
 
         } catch (error) {
-            addMessage('anuu', 'Sincronía fallida. Reconectando al Vacío...');
+            addMessage('anuu', 'Error en el enlace neuronal. Recalibrando núcleo...');
         } finally {
             setThinking(false);
         }

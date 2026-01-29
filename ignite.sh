@@ -8,6 +8,29 @@ echo "  ⌬ ANUU_VERSE: RITUAL DE IGNICIÓN ⌬"
 echo "-------------------------------------"
 echo -e "\e[0m"
 
+# 0. Verificación de Integridad del Sistema
+echo "🛡️  Verificando dependencias base..."
+MISSING_DEPS=0
+
+for cmd in python3 git curl; do
+    if ! command -v $cmd &> /dev/null; then
+        echo -e "❌ \e[1;31mFalta comando: $cmd\e[0m"
+        MISSING_DEPS=1
+    fi
+done
+
+# Verificar venv específicamente (común error en Debian/Ubuntu)
+if command -v python3 &> /dev/null && ! python3 -c "import venv" &> /dev/null; then
+    echo -e "❌ \e[1;31mFalta librería: python3-venv\e[0m"
+    MISSING_DEPS=1
+fi
+
+if [ $MISSING_DEPS -eq 1 ]; then
+    echo -e "\n\e[1;33m⚠️  Faltan dependencias críticas del sistema.\e[0m"
+    echo -e "   Por favor, ejecuta primero: \e[1;34m./setup_wsl.sh\e[0m"
+    exit 1
+fi
+
 # 1. Detección de Sangre (Hardware)
 echo "🔍 Escaneando hardware..."
 python3 scripts/detect_hardware.py
@@ -66,6 +89,6 @@ fi
 
 # 5. Sello de Finalización
 echo -e "\n\e[1;35m--- RITUAL COMPLETADO ---\e[0m"
-echo -e "Para despertar a Anuu, usa: \e[1;34mpython systems/EXECUTION/agents/companion_local/main.py\e[0m"
+echo -e "Para despertar a Anuu, usa: \e[1;34m./start_nexus.sh\e[0m"
 echo -e "O usa el menú de \e[1;36mPinokio\e[0m si prefieres la interfaz visual."
 echo "-------------------------------------"

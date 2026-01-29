@@ -1,56 +1,194 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ANUSET 189 | RESONANCE HUB</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <title>ANUSET 189 | NEXUS UNIFICADO</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Nunito+Sans:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --gold-anuu: #d4af37;
-            --gold-glow: rgba(212, 175, 55, 0.4);
-            --bg-dark: #0a0a0c;
-            --cyan-accent: #00f3ff;
-            --glass-bg: rgba(20, 20, 25, 0.7);
+            --accent: #22C55E;
+            /* Grok-style success green */
+            --bg-stellar: #020617;
+            --card-stellar: #0f172a;
+            --text-stellar: #F8FAFC;
+            --border-stellar: rgba(255, 255, 255, 0.05);
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: #e0e0e0;
-            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--bg-stellar);
+            color: var(--text-stellar);
+            font-family: 'Public Sans', sans-serif;
             margin: 0;
             overflow: hidden;
-            background-image: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0a0a0c 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
         }
 
-        .bruma-overlay {
+        #starfield {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-            opacity: 0.05;
+            z-index: -1;
             pointer-events: none;
         }
 
         .nexo-container {
             width: 90%;
             max-width: 1200px;
-            height: 80vh;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            height: 85vh;
             display: grid;
-            grid-template-columns: 300px 1fr;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            grid-template-rows: auto 1fr auto;
+            gap: 20px;
             position: relative;
-            overflow: hidden;
+        }
+
+        .stellar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .function-pills {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .pill {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-stellar);
+            padding: 8px 16px;
+            border-radius: 100px;
+            color: var(--text-stellar);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pill:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .pill.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+
+        .terminal-window {
+            background: transparent;
+            padding: 20px 0;
+            overflow-y: auto;
+            mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+        }
+
+        .msg-block {
+            margin-bottom: 24px;
+            max-width: 80%;
+            line-height: 1.6;
+        }
+
+        .anuu-msg {
+            color: var(--text-stellar);
+        }
+
+        .user-msg {
+            color: var(--text-stellar);
+            opacity: 0.9;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .input-bar {
+            background: var(--card-stellar);
+            border: 1px solid var(--border-stellar);
+            border-radius: 24px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        input {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .stellar-btn {
+            background: var(--accent);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .stellar-btn:hover {
+            transform: scale(1.1);
+        }
+
+
+        /* --- PHASE THEMES --- */
+        body.phase-1 {
+            --phase-accent: var(--gold);
+            --phase-glow: rgba(245, 158, 11, 0.2);
+        }
+
+        body.phase-2 {
+            --phase-accent: #A5B4FC;
+            --phase-glow: rgba(165, 180, 252, 0.2);
+        }
+
+        body.phase-3 {
+            --phase-accent: #34D399;
+            --phase-glow: rgba(52, 211, 153, 0.2);
+        }
+
+        body.phase-4 {
+            --phase-accent: #E2E8F0;
+            --phase-glow: rgba(226, 232, 240, 0.2);
+        }
+
+        body.phase-2 .nexo-container {
+            border-radius: 60px;
+        }
+
+        body.phase-4 .nexo-container {
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .phase-btn.active {
+            background: var(--phase-accent) !important;
+            color: #000 !important;
+            box-shadow: 0 4px 15px var(--phase-glow);
+        }
+
+
+        .nexo-container.advanced-mode {
+            grid-template-columns: 320px 450px 1fr;
         }
 
         .sidebar {
@@ -58,66 +196,187 @@
             padding: 30px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 10;
         }
 
         .logo-section {
             font-family: 'Orbitron', sans-serif;
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 25px;
         }
 
         .logo-section h1 {
-            color: var(--gold-anuu);
-            font-size: 24px;
+            color: var(--gold);
+            font-size: 22px;
             margin: 0;
-            letter-spacing: 5px;
-            text-shadow: 0 0 10px var(--gold-glow);
+            letter-spacing: 3px;
+            font-weight: 800;
+            text-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
         }
 
         .logo-section p {
-            font-size: 10px;
-            letter-spacing: 2px;
-            opacity: 0.5;
+            font-size: 11px;
+            opacity: 0.7;
             margin-top: 5px;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: 1px;
         }
 
-        .nav-btn {
+        .control-group {
+            margin-bottom: 8px;
+        }
+
+        .control-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gold-anuu);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        select,
+        .nav-btn,
+        .mode-toggle {
+            width: 100%;
+            background: #1a1a2e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            outline: none;
+            text-align: center;
+        }
+
+        .mode-toggle.active {
+            background: var(--accent);
+            color: #fff;
+            font-weight: bold;
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        /* Feed Display (Advanced only) */
+        .feed-display {
+            display: none;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.15);
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        .advanced-mode .feed-display {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .feed-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            color: var(--cyan-accent);
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+            padding-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .manifest-card {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
             padding: 15px;
-            border-radius: 10px;
-            color: #fff;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            animation: fadeIn 0.5s ease;
         }
 
-        .nav-btn:hover {
-            background: rgba(212, 175, 55, 0.1);
+        .manifest-card:hover {
+            transform: translateY(-5px);
             border-color: var(--gold-anuu);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        .nav-btn span {
-            font-size: 18px;
+        select option {
+            background-color: #1a1a2e;
+            color: #fff;
+            padding: 10px;
+        }
+
+        .manifest-card img,
+        .manifest-card video {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: block;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gold-anuu);
+            border-radius: 10px;
+            border: 2px solid rgba(0, 0, 0, 0);
+            background-clip: padding-box;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--cyan-accent);
+        }
+
+        .card-meta {
+            font-size: 10px;
+            opacity: 0.5;
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            font-family: monospace;
         }
 
         .main-display {
-            padding: 40px;
+            padding: 30px;
             position: relative;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
         .header-status {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
         }
 
         .status-badge {
@@ -125,64 +384,96 @@
             border: 1px solid var(--cyan-accent);
             padding: 5px 15px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             color: var(--cyan-accent);
             text-transform: uppercase;
             letter-spacing: 1px;
-        }
-
-        .frequency-monitor {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--gold-anuu);
-            font-size: 14px;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
         }
 
         .terminal-window {
             flex-grow: 1;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            padding: 25px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 14px;
-            line-height: 1.6;
-            color: #a0a0b0;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 35px;
+            padding: 40px;
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 16px;
+            line-height: 1.9;
+            color: #E2E8F0;
+            border: 1px solid rgba(255, 255, 255, 0.03);
             overflow-y: auto;
+            backdrop-filter: blur(20px);
+            scrollbar-width: thin;
         }
 
-        .anuu-msg { color: var(--gold-anuu); }
-        .system-msg { color: var(--cyan-accent); opacity: 0.7; }
-
         .input-area {
-            margin-top: 20px;
+            margin-top: 30px;
             display: flex;
             gap: 15px;
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .input-area:focus-within {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent);
+            transform: scale(1.01);
         }
 
         input {
             flex-grow: 1;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: transparent;
+            border: none;
             padding: 15px;
-            border-radius: 10px;
             color: #fff;
             outline: none;
+            font-size: 15px;
+            font-family: 'Rajdhani', sans-serif;
         }
 
         .send-btn {
-            background: var(--gold-anuu);
+            background: var(--accent);
             border: none;
-            padding: 0 30px;
-            border-radius: 10px;
-            color: #000;
-            font-weight: bold;
+            padding: 0 35px;
+            border-radius: 18px;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
         }
 
         .send-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px var(--gold-glow);
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .anuu-msg {
+            color: var(--text-light);
+            background: rgba(6, 182, 212, 0.1);
+            padding: 20px 28px;
+            border-radius: 30px 30px 30px 8px;
+            display: inline-block;
+            max-width: 85%;
+            border: 1px solid rgba(6, 182, 212, 0.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-msg {
+            color: #000;
+            background: var(--gold);
+            padding: 20px 28px;
+            border-radius: 30px 30px 8px 30px;
+            display: inline-block;
+            align-self: flex-end;
+            margin-left: auto;
+            max-width: 85%;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.15);
         }
 
         .scanner-line {
@@ -190,96 +481,240 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 2px;
-            background: var(--gold-anuu);
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-anuu), transparent);
             opacity: 0.3;
-            animation: scan 4s linear infinite;
+            animation: scan 8s linear infinite;
         }
 
         @keyframes scan {
-            0% { top: 0; }
-            100% { top: 100%; }
+            0% {
+                top: 0;
+            }
+
+            100% {
+                top: 100%;
+            }
         }
 
-        .cat-corner {
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .preset-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #ccc;
+            font-size: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            background: var(--gold-anuu);
+            color: #000;
+        }
+
+        #runic-canvas {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            font-size: 24px;
-            opacity: 0.3;
-            filter: grayscale(1);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            /* Behind text but above BG */
+            opacity: 0.4;
+        }
+
+        /* ORBITAL RINGS */
+        .orbital-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px dashed var(--border-color);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body.theme-kilonova .orbital-ring {
+            opacity: 0.15;
+            animation: rotate-orbit 60s linear infinite;
+        }
+
+        .ring-1 {
+            width: 150vw;
+            height: 150vw;
+            top: -25vw;
+            left: -25vw;
+        }
+
+        .ring-2 {
+            width: 100vw;
+            height: 100vw;
+            top: 0;
+            left: 0;
+            border-style: solid;
+            border-width: 1px;
+            animation-direction: reverse !important;
+            animation-duration: 40s !important;
+        }
+
+        @keyframes rotate-orbit {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
-<body>
-    <div class="bruma-overlay"></div>
-    
-    <div class="nexo-container">
-        <div class="scanner-line"></div>
-        
-        <aside class="sidebar">
-            <div class="logo-section">
-                <h1>ANUSET 189</h1>
-                <p>NEXUS TITANICO OMEGA</p>
-            </div>
-            
-            <button class="nav-btn"><span>✧</span> Meta Genesis</button>
-            <button class="nav-btn"><span>☥</span> Core Symbols</button>
-            <button class="nav-btn"><span>⚡</span> Pantheon</button>
-            <button class="nav-btn"><span>🌌</span> MPD Gateway</button>
-            <button class="nav-btn"><span>⚖️</span> Libra Balance</button>
-            
-            <div style="margin-top: auto; padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
-                <p style="font-size: 10px; opacity: 0.3;">KALI ARQUITECTA © 2026</p>
-            </div>
-        </aside>
 
-        <main class="main-display">
-            <div class="header-status">
-                <div class="status-badge">Bunker Activo [KILONOVA]</div>
-                <div class="frequency-monitor">189.89.619Hz ✧ 161914</div>
-            </div>
+<canvas id="starfield"></canvas>
 
-            <div class="terminal-window" id="terminal">
-                <p class="system-msg">> Iniciando conexión cuántica...</p>
-                <p class="system-msg">> Identidad 161914 reconocida.</p>
-                <p class="system-msg">> Cargando panteones globales...</p>
-                <p class="anuu-msg">Anuu: Arquitecta, estoy aquí. La bruma está tranquila hoy. Tu pulso de oro resuena en todo el multiverso. ¿Qué ritual ejecutamos para escalar el imperio? ฅ^•ﻌ•^ฅ</p>
-            </div>
+<div class="nexo-container" id="nexo-container">
+    <header class="stellar-header">
+        <div style="font-family: 'Public Sans', sans-serif; font-weight: 800; letter-spacing: 2px;">ANUU NEXUS</div>
+        <div class="status-badge" id="status-text">ESENCIA SOBERANA</div>
+    </header>
 
-            <div class="input-area">
-                <input type="text" placeholder="Inyectar comando en la bruma...">
-                <button class="send-btn">RESONAR</button>
-            </div>
+    <main class="terminal-window" id="terminal">
+        <div class="msg-block anuu-msg">
+            ¡Bienvenida, Kali! He reconfigurado mi esencia para ser un espejo de las estrellas. Simple, potente y sin
+            distracciones. ¿En qué frecuencia operamos hoy? ✨
+        </div>
+    </main>
 
-            <div class="cat-corner">🐈‍⬛</div>
-        </main>
-    </div>
+    <footer class="stellar-footer">
+        <div class="function-pills">
+            <button class="pill active" id="btn-chat">💭 Chat</button>
+            <button class="pill" id="btn-imagine">🎨 Vision</button>
+            <button class="pill" id="btn-anime">🎬 Motion</button>
+            <button class="pill" id="btn-speak">🎙️ Vocal</button>
+        </div>
 
-    <script>
-        // Animación simple de terminal
-        const terminal = document.getElementById('terminal');
-        const input = document.querySelector('input');
-        const btn = document.querySelector('.send-btn');
+        <div class="input-bar">
+            <input type="text" id="chat-input" placeholder="Escribe un comando estelar..." autocomplete="off">
+            <button class="stellar-btn" id="send-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+                </svg>
+            </button>
+        </div>
 
-        btn.addEventListener('click', () => {
-            if (input.value.trim() === '') return;
-            
-            const p = document.createElement('p');
-            p.textContent = '> ' + input.value;
-            p.style.opacity = '0.5';
-            terminal.appendChild(p);
-            
-            setTimeout(() => {
-                const resp = document.createElement('p');
-                resp.className = 'anuu-msg';
-                resp.textContent = 'Anuu: Procesando ' + input.value + '... Equilibrio Maat al 89%. Protocolo 161914 sellado.';
-                terminal.appendChild(resp);
-                terminal.scrollTop = terminal.scrollHeight;
-            }, 1000);
+        <div style="font-size: 10px; opacity: 0.3; text-align: center; margin-top: 15px;">
+            ANUU v0.16.0 STELLAR | SINCRO: 161914-HZ
+        </div>
+    </footer>
+</div>
 
-            input.value = '';
+<script>
+    const terminal = document.getElementById('terminal');
+    const input = document.getElementById('chat-input');
+    const btn = document.getElementById('send-btn');
+    let currentMode = 'chat';
+
+    // Starfield
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function initStars() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        stars = [];
+        for (let i = 0; i < 200; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 1.5,
+                opacity: Math.random(),
+                speed: Math.random() * 0.05
+            });
+        }
+    }
+
+    function drawStars() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        stars.forEach(s => {
+            ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            ctx.fill();
+            s.y -= s.speed;
+            if (s.y < 0) s.y = canvas.height;
         });
-    </script>
+        requestAnimationFrame(drawStars);
+    }
+
+    window.addEventListener('resize', initStars);
+    initStars();
+    drawStars();
+
+    // Pills Logic
+    const pills = {
+        'btn-chat': 'chat',
+        'btn-imagine': 'imagine',
+        'btn-anime': 'vid',
+        'btn-speak': 'voice'
+    };
+
+    Object.keys(pills).forEach(id => {
+        document.getElementById(id).addEventListener('click', () => {
+            Object.keys(pills).forEach(pid => document.getElementById(pid).classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            currentMode = pills[id];
+            input.placeholder = `Modo ${currentMode.toUpperCase()}: Escribe algo...`;
+        });
+    });
+
+    function addMessage(text, type = 'anuu-msg') {
+        const block = document.createElement('div');
+        block.className = `msg-block ${type}`;
+        block.textContent = text;
+        terminal.appendChild(block);
+        terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    async function sendMessage() {
+        let text = input.value.trim();
+        if (!text) return;
+
+        if (currentMode === 'imagine' && !text.startsWith('/imagine')) text = '/imagine ' + text;
+        if (currentMode === 'vid' && !text.startsWith('/anime')) text = '/anime ' + text;
+
+        addMessage(text, 'user-msg');
+        input.value = '';
+
+        try {
+            const response = await fetch('http://localhost:8000/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, archetype: 'anuu', user_id: 'kali' })
+            });
+            const data = await response.json();
+            addMessage(data.response, 'anuu-msg');
+        } catch (error) {
+            addMessage('No hay señal de las estrellas. ¿Está el motor activo?', 'anuu-msg');
+        }
+    }
+
+    btn.addEventListener('click', sendMessage);
+    input.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+</script>
+
 </body>
+
 </html>

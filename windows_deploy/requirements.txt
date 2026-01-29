@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+websockets
+watchfiles
+rich
+ddgs
+python-multipart
+httpx
+requests
+colorama

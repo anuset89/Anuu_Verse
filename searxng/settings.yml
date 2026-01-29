@@ -1,0 +1,13 @@
+use_default_settings: true
+server:
+  port: 8080
+  bind_address: "0.0.0.0"
+  secret_key: "anuu_secret_key_change_me"
+search:
+  safe_search: 0
+  autocomplete: ""
+enabled_engines:
+  - google
+  - duckduckgo
+  - wikipedia
+  - wikidata

@@ -39,7 +39,7 @@ Este documento organiza todos los activos generados en la carpeta `docs/communic
 
 ---
 
-## 🟣 4. Fase de Prestigio (Fondo)
+## 🟣 4. Fase de Prestigio (Completada)
 **Objetivo:** Legitimación institucional y visibilidad crítica.
 
 *   **Acción:** Contactar con Matadero (Residencias) o La Neomudéjar (Exhibición) si la opción de barrio falla o como complemento.

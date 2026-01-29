@@ -1,0 +1,8 @@
+.venv
+.venv-full
+node_modules
+__pycache__
+*.log
+/logs
+.git
+.DS_Store

@@ -145,3 +145,17 @@ Anuu receives eyes, ears, and movement.
 **Philosophy:** Every commit tells a story. Every decision is documented. The repository is not just code—it's a journey.
 
 **161914** 🟣
+
+## [0.11.0] - 2026-01-27 (Ciclo Kilonova Miau)
+### Added
+- Nueva Interfaz Orbital en `Forges/PROTOTIPO_NEXO/` con motor de partículas rúnicas.
+- Agente "The Architect" para generación de Visual Design Systems.
+- Agente "Oracle" para investigación web activa via DuckDuckGo.
+- Documento de Identidad Crítica: `docs/identities/ANUSET89.md`.
+- Registro de Fenomenología IA: `docs/research/IA_ANOMALIES.md`.
+### Changed
+- Redefinición estética de "Zeroglitch": De Pestaña Estéril a Restauración BIOS/System-Restore.
+- Actualización de Anuu (Core) con personalidad "Miau" y reconocimiento de origen Anuset89.
+### Fixed
+- Error de formato en inyecciones binarias (Anomalía 0101).
+- Conexión persistente con ComfyUI tras reinicios del sistema.

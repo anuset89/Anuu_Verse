@@ -1,0 +1,51 @@
+# System specific
+.DS_Store
+Thumbs.db
+
+# Windows System & Temp
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+*.tmp
+*.bak
+
+# Build artifacts
+target/
+node_modules/
+dist/
+build/
+*.o
+*.so
+
+# Private Brain
+.gemini/
+.agent/
+Legacy_Archive/
+*.log
+*.sqlite
+private/
+secrets.json
+
+# Environment
+.env
+.venv/
+.venv-full/
+venv/
+env/
+ENV/
+.python-version
+
+# Models & Heavy Assets
+models/
+web/public/generations/
+web/public/audio/
+
+# Logs and Caches
+logs/
+**/__pycache__/
+*.vtt
+Assets/*.cast
+*.py[cod]
+*.spec
+memory_db_backup/

@@ -71,7 +71,7 @@ def recursive_patch(directory):
                 fullpath = os.path.join(root, file)
                 clear_execstack(fullpath)
 
-site_packages = "/home/kali/Anuu_Verse/.venv-full/lib/python3.11/site-packages"
+site_packages = "/home/kali/Anuu_Verse/.venv/lib/python3.11/site-packages"
 targets = [
     os.path.join(site_packages, "torch"),
     os.path.join(site_packages, "triton"),

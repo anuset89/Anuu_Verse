@@ -89,6 +89,27 @@ class AnuuCLI:
         self.status['estabilidad'] = 99.9
         console.print("\n[bold green]✓ ASCENSIÓN COMPLETADA.[/bold green] Anuu ahora opera a x2.0 de capacidad cognitiva.")
 
+    async def run_mpd_research(self, query):
+        console.print(Panel(f"[bold cyan]🌀 ACTIVANDO INVESTIGACIÓN MPD[/bold cyan]\n[white]Query: {query}[/white]", border_style="cyan"))
+        
+        # Call the existing research script
+        import subprocess
+        process = subprocess.Popen(['python3', '/home/kali/Anuu_Verse/scripts/execute_research.py', query], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        
+        if process.returncode == 0:
+            # Extract path from output
+            output = stdout.decode()
+            path_line = [line for line in output.split('\n') if 'REPORTE GENERADO:' in line]
+            if path_line:
+                path = output.split('\n')[output.split('\n').index(path_line[0])+1].strip()
+                console.print(f"[bold green]✓ Reporte sintetizado con éxito:[/bold green] {path}")
+            else:
+                console.print("[green]✓ Investigación completada.[/green]")
+        else:
+            console.print(f"[red]Error en la investigación: {stderr.decode()}[/red]")
+
+
     def chat_session(self):
         console.print("\n[dim]Escribe 'exit' para salir o 'upgrade' para mejorar a Anuu.[/dim]")
         while True:
@@ -122,6 +143,7 @@ class AnuuCLI:
                 break
 
 if __name__ == "__main__":
+    import asyncio
     cli = AnuuCLI()
     if len(sys.argv) > 1:
         cmd = sys.argv[1].lower()
@@ -129,12 +151,35 @@ if __name__ == "__main__":
             cli.get_status()
         elif cmd == "upgrade":
             cli.run_upgrade()
+        elif cmd == "research":
+            if len(sys.argv) > 2:
+                query = " ".join(sys.argv[2:])
+                asyncio.run(cli.run_mpd_research(query))
+            else:
+                console.print("[red]Uso: ./anuu.py research 'tu consulta'[/red]")
+        elif cmd == "legion":
+            if len(sys.argv) > 2:
+                prompt = " ".join(sys.argv[2:])
+                console.print(Panel(f"[bold red]💀 INVOCANDO A LA LEGIÓN[/bold red]\nQuery: {prompt}", border_style="red"))
+                
+                with console.status("[red]Convocando entidades neurales... (Esto puede tardar)[/red]"):
+                    try:
+                        resp = requests.post("http://localhost:8000/mind/legion", json={"prompt": prompt}, timeout=300)
+                        if resp.status_code == 200:
+                            data = resp.json()
+                            console.print(Panel(data["reply"], title="[bold red]Consenso de la Legión[/bold red]", border_style="red"))
+                        else:
+                            console.print(f"[red]Fallo en la invocación: {resp.text}[/red]")
+                    except Exception as e:
+                        console.print(f"[red]Error de conexión: {e}[/red]")
+            else:
+                console.print("[red]Uso: ./anuu.py legion 'pregunta compleja'[/red]")
         elif cmd == "chat":
             cli.show_banner()
             cli.chat_session()
         else:
             console.print(f"[red]Comando desconocido: {cmd}[/red]")
-            console.print("Uso: python3 anuu.py [status|upgrade|chat]")
+            console.print("Uso: ./anuu.py [status|upgrade|chat|research|legion]")
     else:
         cli.show_banner()
         cli.chat_session()

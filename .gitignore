@@ -49,3 +49,10 @@ Assets/*.cast
 *.py[cod]
 *.spec
 memory_db_backup/
+
+# Large Portable Packages
+*.zip
+
+# Temp Video Transcripts
+temp_video_*.vtt
+

@@ -144,6 +144,10 @@ class AnuuCLI:
 
 if __name__ == "__main__":
     import asyncio
+    import platform
+    import subprocess
+    import os
+    
     cli = AnuuCLI()
     if len(sys.argv) > 1:
         cmd = sys.argv[1].lower()
@@ -151,6 +155,37 @@ if __name__ == "__main__":
             cli.get_status()
         elif cmd == "upgrade":
             cli.run_upgrade()
+        elif cmd == "start":
+            # Phase 2: OS-aware unified launcher
+            current_os = platform.system()
+            console.print(f"[bold cyan]⚡ Detectando Sistema Operativo: {current_os}[/bold cyan]")
+            
+            if current_os == "Linux":
+                console.print("[cyan]Invocando: ./ignite.sh[/cyan]")
+                os.execvp("bash", ["bash", "ignite.sh"])
+            elif current_os == "Windows":
+                console.print("[cyan]Invocando: INITIATE_RUMA.bat[/cyan]")
+                os.startfile("INITIATE_RUMA.bat")
+            else:
+                console.print(f"[yellow]Sistema no reconocido: {current_os}. Intentando ignite.sh...[/yellow]")
+                subprocess.run(["bash", "ignite.sh"])
+                
+        elif cmd == "invoke":
+            # Phase 2: Route to AnuuMind (Pantheon)
+            if len(sys.argv) > 2:
+                intent = " ".join(sys.argv[2:])
+                console.print(Panel(f"[bold cyan]👁️ INVOCANDO AL PANTEÓN[/bold cyan]\nIntención: {intent}", border_style="cyan"))
+                
+                # Import and run the Pantheon Orchestrator
+                try:
+                    from systems.PANTHEON.anuu_mind import AnuuMind
+                    anuu_mind = AnuuMind()
+                    asyncio.run(anuu_mind.manifest_intent(intent))
+                except ImportError as e:
+                    console.print(f"[red]Error: Panteón no disponible. {e}[/red]")
+            else:
+                console.print("[red]Uso: ./anuu.py invoke 'tu intención aquí'[/red]")
+                
         elif cmd == "research":
             if len(sys.argv) > 2:
                 query = " ".join(sys.argv[2:])
@@ -179,7 +214,8 @@ if __name__ == "__main__":
             cli.chat_session()
         else:
             console.print(f"[red]Comando desconocido: {cmd}[/red]")
-            console.print("Uso: ./anuu.py [status|upgrade|chat|research|legion]")
+            console.print("Uso: ./anuu.py [status|upgrade|chat|research|legion|start|invoke]")
     else:
         cli.show_banner()
         cli.chat_session()
+

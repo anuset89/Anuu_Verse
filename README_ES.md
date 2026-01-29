@@ -1,6 +1,9 @@
 <p align="center">
-  <img src="Assets/ANUU_HERO_BANNER.png" width="100%" alt="Soberanía Cognitiva Interface">
+  <img src="Assets/ANU_GITHUB_BANNER.png" width="100%" alt="Anuu_Verse Banner">
 </p>
+
+<h1 align="center">🟣 Anuu_Verse</h1>
+<h3 align="center">Arquitectura Cognitiva Multi-Agente Distribuida</h3>
 
 <p align="center">
   <strong>"La Identidad es el Sistema Operativo"</strong>

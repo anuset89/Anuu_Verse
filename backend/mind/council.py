@@ -60,10 +60,14 @@ CORE FILES TO INTROSPECT:
         async with httpx.AsyncClient() as client:
             try:
                 # 1. First Pass: Initial Analysis
+                import os
+                ctx = int(os.getenv("ANUU_CONTEXT_WINDOW", "4096"))
+                
                 response = await client.post(self.url, json={
                     "model": self.model,
                     "messages": messages,
-                    "stream": False
+                    "stream": False,
+                    "options": {"num_ctx": ctx}
                 }, timeout=45.0)
                 
                 content = response.json().get("message", {}).get("content", "")
@@ -145,7 +149,12 @@ CORE FILES TO INTROSPECT:
                             metrics = analyze_complexity(code_content)
                             messages.append({"role": "assistant", "content": content})
                             messages.append({"role": "user", "content": f"COMPLEXITY_METRICS ({path_str}):\n{json.dumps(metrics, indent=2)}\n\n¿Es este código digno de una IA soberana o necesita el martillo de la Forja?"})
-                            second_response = await client.post(self.url, json={"model": self.model, "messages": messages, "stream": False}, timeout=60.0)
+                            second_response = await client.post(self.url, json={
+                                "model": self.model,
+                                "messages": messages, 
+                                "stream": False,
+                                "options": {"num_ctx": ctx}
+                            }, timeout=60.0)
                             return second_response.json().get("message", {}).get("content", "Error.")
                         except Exception as e:
                             return f"Analysis failed for {path_str}: {e}"

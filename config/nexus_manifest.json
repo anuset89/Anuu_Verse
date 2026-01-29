@@ -1,0 +1,42 @@
+{
+    "meta": {
+        "version": "1.0.0",
+        "description": "Dissociative Node Manifest - The Single Source of Truth for Anuu_Verse Configuration",
+        "last_updated": "2026-01-29"
+    },
+    "default_model": "anuu-hermes",
+    "fallback_model": "deepseek-coder-v2:16b",
+    "profiles": {
+        "desktop": {
+            "description": "High Performance / Kali Node (Arch)",
+            "context_window": 8192,
+            "timeout": 300,
+            "gpu_layers": -1
+        },
+        "portable": {
+            "description": "Efficiency / Ruma Node (Windows)",
+            "context_window": 2048,
+            "timeout": 60,
+            "gpu_layers": 20
+        }
+    },
+    "ports": {
+        "backend": 8000,
+        "ollama": 11434,
+        "web": 5173
+    },
+    "env_vars": {
+        "ANUU_CONTEXT_WINDOW": {
+            "desktop": 8192,
+            "portable": 2048
+        },
+        "ANUU_MODEL_TIMEOUT": {
+            "desktop": 300,
+            "portable": 60
+        },
+        "ANUU_DEFAULT_MODEL": {
+            "desktop": "anuu-hermes",
+            "portable": "anuu-hermes"
+        }
+    }
+}

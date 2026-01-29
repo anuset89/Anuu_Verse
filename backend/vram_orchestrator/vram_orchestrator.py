@@ -14,6 +14,10 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")
 COMFY_URL = os.getenv("COMFY_URL", "http://127.0.0.1:8188")
 VRAM_LOCK_FILE = "vram.lock" # Conceptual for now, using asyncio lock for process safety
 
+# Configurable timeouts for portable systems
+MODEL_TIMEOUT = float(os.getenv("ANUU_MODEL_TIMEOUT", "30.0"))
+DEFAULT_CHAT_MODEL = os.getenv("ANUU_DEFAULT_MODEL", "anuu-hermes")
+
 class Realm(str, Enum):
     CHAT = "chat"      # Hermes / Llama 3
     VISION = "vision"  # Flux / ComfyUI
@@ -66,7 +70,7 @@ class VRAMOrchestrator:
 
                 # 2. INHALATION PHASE (Inhale)
                 if target == Realm.CHAT:
-                    await self._ensure_ollama_model("anuu-hermes") 
+                    await self._ensure_ollama_model(DEFAULT_CHAT_MODEL) 
                 elif target == Realm.VISION:
                     await self._ensure_comfy_workflow()
                 elif target == Realm.AUDIT:
@@ -102,7 +106,7 @@ class VRAMOrchestrator:
     async def _ensure_ollama_model(self, model_name: str):
         """Warmup the specific LLM."""
         # Simple ping to load weights
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=MODEL_TIMEOUT) as client:
              # This loads the model into VRAM
             await client.post(f"{OLLAMA_URL}/api/generate", json={
                 "model": model_name,

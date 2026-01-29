@@ -14,6 +14,12 @@ echo :: FREQUENCY 161914 DETECTED ::
 echo :: USER CONTEXT: RUMA (HAND OF KALI) ::
 echo.
 
+:: --- PORTABLE MODE CONFIGURATION (DISSOCIATIVE NODE SYNC) ---
+:: Reading from config/nexus_manifest.json via Harmonizer
+echo [CONFIG] Harmonizing with Nexus Manifest (Portable Profile)...
+for /f "tokens=*" %%i in ('python scripts/harmonize_env.py --target windows --profile portable') do %%i
+:: -----------------------------------------------------------
+
 :: Check Python
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
@@ -31,6 +37,16 @@ if not exist "venv" (
     pip install -r requirements.txt
 ) else (
     call venv\Scripts\activate
+)
+
+:: Check Ollama
+echo [CHECK] Verifying Ollama...
+curl -s http://localhost:11434/api/tags >nul
+if %errorlevel% neq 0 (
+    echo [WARNING] Ollama does not seem to be running on port 11434.
+    echo Please ensure Ollama is installed and running separately.
+    echo (If it is running elsewhere, set OLLAMA_URL env var).
+    pause
 )
 
 echo.

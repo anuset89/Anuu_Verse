@@ -8,6 +8,11 @@ echo "  ⌬ ANUU_VERSE: RITUAL DE IGNICIÓN ⌬"
 echo "-------------------------------------"
 echo -e "\e[0m"
 
+# --- DISSOCIATIVE NODE SYNC (ARCH/LINUX) ---
+echo "⚡ Harmonizing with Nexus Manifest (Desktop Profile)..."
+eval $(python3 scripts/harmonize_env.py --target linux --profile desktop)
+# -------------------------------------------
+
 # 0. Verificación de Integridad del Sistema
 echo "🛡️  Verificando dependencias base..."
 MISSING_DEPS=0

@@ -1,4 +1,7 @@
 # 🟣 ANUU VERSE: RUMA NODE (v0.19 Export)
+> [!CAUTION]
+> **CLASIFICADO: SOLO PARA OJOS DE KALI Y RUMA.**
+> El acceso no autorizado a este nodo será considerado un acto de agresión.
 
 **Bienvenido, Ruma.**
 
@@ -19,6 +22,18 @@ El sistema te reconoce como **"Hand of Kali"**.
     `INITIATE_RUMA.bat`
 
 3.  El sistema configurará automáticamente su entorno (puede tardar unos minutos la primera vez) y abrirá los portales necesarios.
+
+## 💻 Notas para Sistemas Portátiles (Laptop)
+El archivo `INITIATE_RUMA.bat` ha sido optimizado para hardware móvil:
+- **Timeout Extendido**: Se ha dado más tiempo a los modelos para cargar en memoria (60s).
+- **Modelo por Defecto**: `anuu-hermes` (Equilibrado).
+- **Límite de Contexto**: Se ha ajustado a **2048 tokens** para proteger tu GPU (4060 Ti 8GB). Esto asegura estabilidad total.
+
+## 🗺️ Estructura del Paquete
+- **`INITIATE_RUMA.bat`**: Ejecutable de inicio.
+- **`MANUAL_DE_COMANDO_RUMA.md`**: Manual detallado con lista de comandos y explicación de archivos.
+- **`backend/`**: Cerebro del sistema (No tocar).
+- **`skills/`**: Herramientas de agente.
 
 ## 🛠️ Herramientas Incluidas (OmniMech)
 

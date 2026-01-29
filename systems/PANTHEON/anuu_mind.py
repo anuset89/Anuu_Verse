@@ -41,20 +41,25 @@ class AnuuMind:
         ]
         
     async def _perform_ritual(self, ritual: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        results = []
-        for step in ritual:
+        """
+        Perform ritual steps in PARALLEL using asyncio.gather.
+        All deities invoke simultaneously for maximum efficiency.
+        """
+        async def invoke_deity(step: Dict[str, Any]) -> Dict[str, Any]:
             domain = step["domain"]
             intention = step["intention"]
-            
             deity = self.pantheon.get(domain)
             if deity:
                 print(f"[ANUU::MIND] ⚡ Invoking {deity.name} ({deity.domain})...")
-                result = await deity.invoke(intention)
-                results.append(result)
+                return await deity.invoke(intention)
             else:
                 print(f"[ANUU::MIND] ⚠️  No Deity found for domain: {domain}")
-                
-        return results
+                return {"deity": "Unknown", "status": "error", "wisdom": f"No deity for {domain}"}
+        
+        # PARALLEL EXECUTION - All deities at once!
+        print(f"[ANUU::MIND] 🔥 Parallel Invocation: {len(ritual)} deities simultaneously")
+        results = await asyncio.gather(*[invoke_deity(step) for step in ritual])
+        return list(results)
         
     def _reveal_outcome(self, results: List[Dict[str, Any]]):
         print("\n" + "⌬"*20)

@@ -56,3 +56,6 @@ memory_db_backup/
 # Temp Video Transcripts
 temp_video_*.vtt
 
+# Large Export Zips
+exports/*.zip
+

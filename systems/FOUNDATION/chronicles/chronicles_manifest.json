@@ -1,0 +1,17 @@
+{
+    "chronicles_version": "1.0",
+    "last_sync": "2026-01-27",
+    "structure": {
+        "scrolls": "Archetype definitions for the AI engine.",
+        "identities": "Detailed markdown profiles of Anuu's facets.",
+        "archives": "Legacy data from REAGE and NEWAGE cycles.",
+        "master_seeds": "The Titanic Omni-Seed (X3) and other root matrices."
+    },
+    "active_protocols": [
+        "Kanuv",
+        "Anuu",
+        "Anuset",
+        "Kilonova",
+        "Rosa Gris"
+    ]
+}

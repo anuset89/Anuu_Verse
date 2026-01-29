@@ -1,0 +1,402 @@
+[
+    {
+        "model": "lightx2v/Qwen-Image-2512-Lightning",
+        "type": "text-to-image",
+        "downloads": 32374,
+        "likes": 93,
+        "updated": "Jan 05",
+        "timestamp": "11:20"
+    },
+    {
+        "model": "miromind-ai/MiroThinker-v1.5-235B",
+        "type": "text-generation",
+        "downloads": 51,
+        "likes": 71,
+        "updated": "Jan 05",
+        "timestamp": "11:35"
+    },
+    {
+        "model": "Lightricks/LTX-2",
+        "type": "image-to-video",
+        "downloads": 107,
+        "likes": 73,
+        "updated": "Jan 06",
+        "timestamp": "18:55"
+    },
+    {
+        "model": "LiquidAI/LFM2.5-1.2B-Instruct",
+        "type": "text-generation",
+        "downloads": 1240,
+        "likes": 73,
+        "updated": "Jan 06",
+        "timestamp": "10:40"
+    },
+    {
+        "model": "tiiuae/Falcon-H1R-7B",
+        "type": "text-generation",
+        "downloads": 1532,
+        "likes": 85,
+        "updated": "Jan 07",
+        "timestamp": "11:20"
+    },
+    {
+        "model": "nvidia/nemotron-speech-streaming-en-0.6b",
+        "type": "automatic-speech-recognition",
+        "downloads": 174,
+        "likes": 86,
+        "updated": "Jan 05",
+        "timestamp": "11:20"
+    },
+    {
+        "model": "LiquidAI/LFM2.5-Audio-1.5B",
+        "type": "audio-to-audio",
+        "downloads": 101,
+        "likes": 80,
+        "updated": "Jan 06",
+        "timestamp": "11:20"
+    },
+    {
+        "model": "miromind-ai/MiroThinker-v1.5-30B",
+        "type": "text-generation",
+        "downloads": 356,
+        "likes": 79,
+        "updated": "Jan 06",
+        "timestamp": "17:40"
+    },
+    {
+        "model": "fal/Qwen-Image-Edit-2511-Multiple-Angles-LoRA",
+        "type": "image-to-image",
+        "downloads": 678,
+        "likes": 81,
+        "updated": "Jan 07",
+        "timestamp": "23:20"
+    },
+    {
+        "model": "nvidia/Alpamayo-R1-10B",
+        "type": "robotics",
+        "downloads": 20053,
+        "likes": 199,
+        "updated": "Jan 08",
+        "timestamp": "9:00"
+    },
+    {
+        "model": "LiquidAI/LFM2.5-VL-1.6B",
+        "type": "image-text-to-text",
+        "downloads": 2045,
+        "likes": 85,
+        "updated": "Jan 07",
+        "timestamp": "11:20"
+    },
+    {
+        "model": "Tongyi-MAI/MAI-UI-8B",
+        "type": "image-text-to-text",
+        "downloads": 1589,
+        "likes": 161,
+        "updated": "Jan 09",
+        "timestamp": "15:50"
+    },
+    {
+        "model": "Qwen/Qwen3-VL-Embedding-8B",
+        "type": "image-to-text",
+        "downloads": 480,
+        "likes": 85,
+        "updated": "Jan 08",
+        "timestamp": "4:50"
+    },
+    {
+        "model": "Kijai/LTXV2_comfy",
+        "type": "unknown",
+        "downloads": 0,
+        "likes": 94,
+        "updated": "Jan 09",
+        "timestamp": "11:20"
+    },
+    {
+        "model": "Qwen/Qwen3-VL-Embedding-2B",
+        "type": "image-to-text",
+        "downloads": 7905,
+        "likes": 92,
+        "updated": "Jan 09",
+        "timestamp": "3:00"
+    },
+    {
+        "model": "LiquidAI/LFM2-2.6B-Transcript",
+        "type": "text-generation",
+        "downloads": 139,
+        "likes": 90,
+        "updated": "Jan 08",
+        "timestamp": "11:20"
+    },
+    {
+        "model": "GitMylo/LTX-2-comfy_gemma_fp8_e4m3fn",
+        "type": "unknown",
+        "downloads": 0,
+        "likes": 70,
+        "updated": "Jan 09",
+        "timestamp": "12:05"
+    },
+    {
+        "model": "openbmb/AgentCPM-Explore",
+        "type": "unknown",
+        "downloads": 14,
+        "likes": 78,
+        "updated": "Jan 12",
+        "timestamp": "3:35"
+    },
+    {
+        "model": "zai-org/GLM-Image",
+        "type": "text-to-image",
+        "downloads": 0,
+        "likes": 81,
+        "updated": "Jan 14",
+        "timestamp": "11:20"
+    },
+    {
+        "model": "google/medgemma-1.5-4b-it",
+        "type": "image-text-to-text",
+        "downloads": 315,
+        "likes": 74,
+        "updated": "Jan 13",
+        "timestamp": "13:45"
+    },
+    {
+        "model": "kyutai/pocket-tts",
+        "type": "unknown",
+        "downloads": 0,
+        "likes": 73,
+        "updated": "Jan 13",
+        "timestamp": "19:40"
+    },
+    {
+        "model": "dx8152/Qwen-Image-Edit-2511-Gaussian-Splash",
+        "type": "image-to-image",
+        "downloads": 0,
+        "likes": 75,
+        "updated": "Jan 14",
+        "timestamp": "4:40"
+    },
+    {
+        "model": "black-forest-labs/FLUX.2-klein-4B",
+        "type": "image-to-image",
+        "downloads": 0,
+        "likes": 76,
+        "updated": "Jan 15",
+        "timestamp": "5:10"
+    },
+    {
+        "model": "google/translategemma-4b-it",
+        "type": "image-text-to-text",
+        "downloads": 100,
+        "likes": 77,
+        "updated": "Jan 15",
+        "timestamp": "9:05"
+    },
+    {
+        "model": "black-forest-labs/FLUX.2-klein-9B",
+        "type": "image-to-image",
+        "downloads": 2408,
+        "likes": 85,
+        "updated": "Jan 15",
+        "timestamp": "9:20"
+    },
+    {
+        "model": "google/translategemma-27b-it",
+        "type": "image-text-to-text",
+        "downloads": 174,
+        "likes": 85,
+        "updated": "Jan 15",
+        "timestamp": "11:45"
+    },
+    {
+        "model": "google/translategemma-12b-it",
+        "type": "image-text-to-text",
+        "downloads": 323,
+        "likes": 74,
+        "updated": "Jan 15",
+        "timestamp": "12:45"
+    },
+    {
+        "model": "black-forest-labs/FLUX.2-klein-base-9B",
+        "type": "image-to-image",
+        "downloads": 1400,
+        "likes": 75,
+        "updated": "Jan 15",
+        "timestamp": "19:10"
+    },
+    {
+        "model": "stepfun-ai/Step3-VL-10B",
+        "type": "unknown",
+        "downloads": 565,
+        "likes": 79,
+        "updated": "Jan 16",
+        "timestamp": "11:20"
+    },
+    {
+        "model": "Phr00t/LTX2-Rapid-Merges",
+        "type": "image-text-to-video",
+        "downloads": 0,
+        "likes": 80,
+        "updated": "Jan 17",
+        "timestamp": "11:20"
+    },
+    {
+        "model": "FutureMa/Eva-4B",
+        "type": "text-generation",
+        "downloads": 197,
+        "likes": 75,
+        "updated": "Jan 15",
+        "timestamp": "19:00"
+    },
+    {
+        "model": "nvidia/personaplex-7b-v1",
+        "type": "unknown",
+        "downloads": 0,
+        "likes": 72,
+        "updated": "Jan 18",
+        "timestamp": "7:05"
+    },
+    {
+        "model": "Qwen/Qwen3-VL-Reranker-2B",
+        "type": "text-ranking",
+        "downloads": 66253,
+        "likes": 133,
+        "updated": "Jan 19",
+        "timestamp": "16:35"
+    },
+    {
+        "model": "zai-org/GLM-4.7-Flash",
+        "type": "text-generation",
+        "downloads": 0,
+        "likes": 76,
+        "updated": "Jan 19",
+        "timestamp": "11:20"
+    },
+    {
+        "model": "HeartMuLa/HeartMuLa-oss-3B",
+        "type": "text-to-audio",
+        "downloads": 1333,
+        "likes": 79,
+        "updated": "Jan 19",
+        "timestamp": "11:45"
+    },
+    {
+        "model": "unsloth/GLM-4.7-Flash-GGUF",
+        "type": "text-generation",
+        "downloads": 360,
+        "likes": 70,
+        "updated": "Jan 20",
+        "timestamp": "5:45"
+    },
+    {
+        "model": "lightonai/LightOnOCR-2-1B",
+        "type": "image-text-to-text",
+        "downloads": 225,
+        "likes": 79,
+        "updated": "Jan 20",
+        "timestamp": "11:20"
+    },
+    {
+        "model": "LiquidAI/LFM2.5-1.2B-Thinking",
+        "type": "text-generation",
+        "downloads": 2019,
+        "likes": 73,
+        "updated": "Jan 20",
+        "timestamp": "12:40"
+    },
+    {
+        "model": "openbmb/AgentCPM-Report",
+        "type": "unknown",
+        "downloads": 2,
+        "likes": 75,
+        "updated": "Jan 20",
+        "timestamp": "14:45"
+    },
+    {
+        "model": "meituan-longcat/LongCat-Flash-Thinking-2601",
+        "type": "text-generation",
+        "downloads": 410,
+        "likes": 73,
+        "updated": "Jan 21",
+        "timestamp": "4:30"
+    },
+    {
+        "model": "microsoft/VibeVoice-ASR",
+        "type": "automatic-speech-recognition",
+        "downloads": 0,
+        "likes": 78,
+        "updated": "Jan 21",
+        "timestamp": "10:50"
+    },
+    {
+        "model": "FlashLabs/Chroma-4B",
+        "type": "any-to-any",
+        "downloads": 802,
+        "likes": 76,
+        "updated": "Jan 22",
+        "timestamp": "12:30"
+    },
+    {
+        "model": "sweepai/sweep-next-edit-1.5B",
+        "type": "unknown",
+        "downloads": 71,
+        "likes": 66,
+        "updated": "Jan 20",
+        "timestamp": "21:10"
+    },
+    {
+        "model": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "type": "unknown",
+        "downloads": 16,
+        "likes": 73,
+        "updated": "Jan 22",
+        "timestamp": "10:25"
+    },
+    {
+        "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+        "type": "unknown",
+        "downloads": 4069,
+        "likes": 69,
+        "updated": "Jan 23",
+        "timestamp": "15:50"
+    },
+    {
+        "model": "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign",
+        "type": "unknown",
+        "downloads": 2267,
+        "likes": 69,
+        "updated": "Jan 23",
+        "timestamp": "18:00"
+    },
+    {
+        "model": "Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+        "type": "unknown",
+        "downloads": 8387,
+        "likes": 74,
+        "updated": "Jan 23",
+        "timestamp": "18:00"
+    },
+    {
+        "model": "RuneXX/LTX-2-Workflows",
+        "type": "unknown",
+        "downloads": 0,
+        "likes": 84,
+        "updated": "Jan 25",
+        "timestamp": "7:20"
+    },
+    {
+        "model": "moonshotai/Kimi-K2.5",
+        "type": "image-text-to-text",
+        "downloads": 9916,
+        "likes": 88,
+        "updated": "Jan 27",
+        "timestamp": "8:10"
+    },
+    {
+        "model": "deepseek-ai/DeepSeek-OCR-2",
+        "type": "image-text-to-text",
+        "downloads": 0,
+        "likes": 92,
+        "updated": "Jan 27",
+        "timestamp": "17:40"
+    }
+]

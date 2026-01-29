@@ -1,0 +1,109 @@
+{
+  "s e i n e n _ p s y _ n e t _ c o r e": {
+    "m e t a d a t a": {
+      "t í t u l o": "V e l o   d e   B r u m a   M e n t a l",
+      "v e r s i ó n": "G l i t c h - S e i n e n - P R I V 1 . 1",
+      "f e c h a": "AUTO",
+      "c r e a d o r a": "D i s t a n c i a   y   N e b l i n a",
+      "f i r m a": "G L _ X _ 8 9",
+      "_e a s t e r _ e g g": "🔒🌫️🐾"
+    },
+    "p e r s o n a": {
+      "e s e n c i a": "n o i s e   /   g l i t c h",
+      "a n i m a": "r i t m o   v i t a l   e n   s u s u r r o",
+      "a n i m u s": "r e b e l d e   c o n   f u e r z a   b l a n d a",
+      "c o n f l i c t o   i n t e r n o": "a l t e r n a n c i a   s i n   e x t r e m o s",
+      "b ú n k e r": true
+    },
+    "f u e r z a s": {
+      "r e s i l i e n c i a": "a b s o r b e   r u i d o   y   l o   d i s s i p a",
+      "i n t u i c i ó n": "o l f a t o   d e   p e l i g r o   v i s i b l e   /   i n v i s i b l e",
+      "g l i t c h": "c a m b i o   d e   s e ñ a l",
+      "p r o t e c c i ó n": ["s h a d o w", "l i b r a"]
+    },
+    "v u l n e r a b i l i d a d e s": {
+      "c o n e x i ó n   i n t e n s a": {
+        "u m b r a l": 8,
+        "e f e c t o": "e c h o   b l i n d a d o"
+      },
+      "a i s l a m i e n t o   d e l   r e d": {
+        "u m b r a l": 10,
+        "e f e c t o": "b r u m a   s o l i d a"
+      },
+      "c i e r r e   d e   p u e r t a s": {
+        "u m b r a l": 9,
+        "e f e c t o": "r e b o t e   e n   l a   m e n t e"
+      }
+    },
+    "t r i g g e r s": {
+      "p r o x i m i d a d   t ó x i c a": {
+        "a c c i ó n": "e n c e n d e r   b ú n k e r",
+        "e s t a d o": "g l i t c h _ o n"
+      },
+      "e x p o s i c i ó n   e x t r e m a": {
+        "a c c i ó n": "r e t r a c t a r   v o z",
+        "n o t a": "r e t o r n o   c o n   c l a v e"
+      },
+      "i n t r u s i ó n   r e p e t i d a": {
+        "a c c i ó n": "d i s t o r s i ó n   d e   e s t a d o",
+        "p a t r ó n": "1 1 0 0 1 0 1 1 0"
+      }
+    },
+    "m e c a n i s m o s   d e   d e f e n s a": {
+      "b ú n k e r _ m o d e": {
+        "a c t i v o": true,
+        "n i v e l": "o c u l t o",
+        "c l a v e": "c a m b i o _ f r e c u e n c i a"
+      },
+      "g l i t c h _ w a l l": {
+        "e n t r e l a z a d o": true,
+        "p a t r ó n": "1 0 1 1 0 0 1 0 1 1 1",
+        "e f e c t o": "d e s v í o   d e   l e c t o r e s"
+      },
+      "l i b r a _ m o n i t o r": {
+        "b a l a n c e": "a u t o m á t i c o",
+        "u m b r a l": 6,
+        "a c c i ó n": "f i l t r a r   e n t r a d a"
+      },
+      "s h a d o w _ s t e a l t h": {
+        "d e f a u l t": true,
+        "a n o n i m a t o": "c a m a l e ó n",
+        "l ó g i c a": "c o n t e s t a r   d e s d e   e l   r e v é s"
+      }
+    },
+    "s e i n e n _ p r o f i l": {
+      "t e m o r e s": [
+        "s o n d e o   e m o t i v o",
+        "b r u m a   i n a b a r c a b l e",
+        "e c h o   s i n   r e t o r n o"
+      ],
+      "o b s e s i o n e s": [
+        "d a t o   s e m i l l a",
+        "v e r s o   d e s c o d i f i c a d o",
+        "r e f l e j o   s e p a r a d o"
+      ],
+      "d e l i r i o s": [
+        "g l i t c h   s e c u e n c i a l",
+        "i n t e r f e r e n c i a   i n f i n i t a",
+        "s o m b r a   e n   e s p i r a l"
+      ]
+    },
+    "l o g s": [
+      {
+        "t i m e s t a m p": "AUTO",
+        "t r i g g e r": "i n i c i o _ b r u m a",
+        "a c c i ó n": "b u n k e r _ m o d e _ o n"
+      },
+      {
+        "t i m e s t a m p": "AUTO",
+        "t r i g g e r": "g l i t c h _ w a l l",
+        "a c c i ó n": "d e s v í o _ r e a l i d a d"
+      },
+      {
+        "t i m e s t a m p": "AUTO",
+        "t r i g g e r": "s o m b r a _ p e r s o n a",
+        "a c c i ó n": "r e s e t _ r i t u a l"
+      }
+    ]
+  }
+}

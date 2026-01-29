@@ -17,6 +17,8 @@ if ROOT_DIR not in sys.path:
 # Import router and scroll loader (absolute imports for standalone execution)
 from systems.EXECUTION.agents.omnitool.ace_router import classify_intent_simple, get_agent_info
 from systems.FOUNDATION.anuu_core.scroll_loader import get_system_prompt, load_scroll
+from systems.EXECUTION.tools.search_tool import SearchTool
+from systems.EXECUTION.tools.design_tool import DesignTool
 import ollama
 
 # ============================================
@@ -95,6 +97,52 @@ async def libra_node(state: AgentState) -> Dict[str, Any]:
 async def kali_node(state: AgentState) -> Dict[str, Any]:
     return await agent_node(state, "kali")
 
+async def search_node(state: AgentState) -> Dict[str, Any]:
+    """
+    Search Agent: Replaces LLM call with a Tool Call.
+    """
+    print("🧠 [ACE] Executing agent: search (Oracle)")
+    messages = state.get('messages', [])
+    last_message = messages[-1].get('content', '') if messages else ""
+    
+    # Extract query (naively use the whole message for now, or use LLM to refine?)
+    # For now, let's just pass the message. The SearchTool wraps DDGS.
+    tool = SearchTool()
+    # Refine query by removing triggers if needed, but DDG is robust.
+    
+    results = tool.search(last_message)
+    output = f"**[SEARCH RESULTS]**\n{results}"
+    
+    current_outputs = state.get('agent_outputs', {})
+    current_outputs["search"] = output
+    
+    return {"agent_outputs": current_outputs}
+
+async def design_node(state: AgentState) -> Dict[str, Any]:
+    """
+    Design Node (The Architect): Generates UI/UX Design Systems.
+    """
+    print("🎨 [ACE] Executing agent: design (The Architect)")
+    current_outputs = state.get('agent_outputs', {}).copy()
+    try:
+        from systems.EXECUTION.tools.design_tool import DesignTool
+        # Re-instantiate locally to avoid circular import issues if any, though top-level is cleaner
+        tool = DesignTool()
+        
+        messages = state['messages']
+        last_message = messages[-1].get('content', '') if messages else ""
+        
+        # Generate Design System
+        # We pass the raw message. The tool wrapper handles logic.
+        results = tool.design_system(last_message)
+        output = f"**[THE ARCHITECT - DESIGN SYSTEM]**\n{results}"
+        
+        current_outputs["design"] = output
+    except Exception as e:
+        current_outputs["design"] = f"Error in design generation: {str(e)}"
+    
+    return {"agent_outputs": current_outputs}
+
 async def synthesizer_node(state: AgentState) -> Dict[str, Any]:
     """
     Synthesizer: Merges outputs from multiple agents into coherent response.
@@ -152,7 +200,11 @@ def route_to_agents(state: AgentState) -> List[str]:
         "set": "set_agent",
         "kilonova": "kilonova_agent",
         "libra": "libra_agent",
-        "kali": "kali_agent"
+        "kilonova": "kilonova_agent",
+        "libra": "libra_agent",
+        "kali": "kali_agent",
+        "search": "search_agent",
+        "design": "design_agent"
     }
     
     # Return list of nodes to execute (for Send API)
@@ -174,6 +226,8 @@ def create_ace_graph():
     workflow.add_node("kilonova_agent", kilonova_node)
     workflow.add_node("libra_agent", libra_node)
     workflow.add_node("kali_agent", kali_node)
+    workflow.add_node("search_agent", search_node)
+    workflow.add_node("design_agent", design_node)
     workflow.add_node("synthesizer", synthesizer_node)
     
     # Set Entry Point
@@ -190,12 +244,15 @@ def create_ace_graph():
             "set_agent": "set_agent",
             "kilonova_agent": "kilonova_agent",
             "libra_agent": "libra_agent",
+            "libra_agent": "libra_agent",
             "kali_agent": "kali_agent",
+            "search_agent": "search_agent",
+            "design_agent": "design_agent"
         }
     )
     
     # All agents go to synthesizer
-    for agent in ["anuu_agent", "set_agent", "kilonova_agent", "libra_agent", "kali_agent"]:
+    for agent in ["anuu_agent", "set_agent", "kilonova_agent", "libra_agent", "kali_agent", "search_agent", "design_agent"]:
         workflow.add_edge(agent, "synthesizer")
     
     # Synthesizer ends the flow

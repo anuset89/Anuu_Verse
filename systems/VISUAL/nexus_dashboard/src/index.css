@@ -4,14 +4,17 @@
 
 @layer base {
   :root {
-    --color-void: #020617;
-    /* OLED Black */
-    --color-stellar-card: #0f172a;
-    --color-accent: #22c55e;
-    /* Grok Green */
-    --color-gold: #d4af37;
-    --color-cyan: #06b6d4;
-    --color-stellar-border: rgba(255, 255, 255, 0.05);
+    --color-void: #0f172a;
+    /* Deep Slate Blue */
+    --color-stellar-card: #1e293b;
+    /* Softer Navy Card */
+    --color-accent: #10b981;
+    /* Emerald Pulse */
+    --color-gold: #fbbf24;
+    /* Amber Gold */
+    --color-cyan: #38bdf8;
+    /* Sky Cyan */
+    --color-stellar-border: rgba(255, 255, 255, 0.08);
   }
 
   body {
@@ -117,21 +120,37 @@
 .prose hr {
   @apply border-white/5 my-8;
 }
+
 @keyframes scan {
-  from { top: -100px; opacity: 0; }
-  50% { opacity: 0.5; }
-  to { top: 100%; opacity: 0; }
+  from {
+    top: -100px;
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  to {
+    top: 100%;
+    opacity: 0;
+  }
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .animate-spin-slow {

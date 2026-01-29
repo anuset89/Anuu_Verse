@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional, List
 from functools import lru_cache
 
 # Path relative to this file
-SCROLLS_DIR = os.path.join(os.path.dirname(__file__), "..", "scrolls")
+SCROLLS_DIR = os.path.join(os.path.dirname(__file__), "..", "chronicles", "scrolls")
 
 # Default fallback scroll
 DEFAULT_SCROLL = {
@@ -40,7 +40,7 @@ def load_scroll(archetype_name: str) -> Dict[str, Any]:
     aliases = {
         "anuu": "anuu_core",
         "anuset": "anuu_core",
-        "kanuv": "libra",
+        "kanuv": "kanuv",
         "rosa_gris": "rosa_gris",
     }
     scroll_filename = aliases.get(normalized, normalized)

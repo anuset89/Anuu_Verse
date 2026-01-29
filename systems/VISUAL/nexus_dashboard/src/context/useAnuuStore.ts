@@ -26,11 +26,12 @@ export interface EvolutionCycle {
 
 export type AnuuModule = 'oracle' | 'architect' | 'vision' | 'motion' | 'logic';
 
-interface AnuuState {
+export interface AnuuState {
     chatHistory: Message[];
     manifestations: Manifestation[];
     isThinking: boolean;
     isEvolving: boolean;
+    evolutionCycles: EvolutionCycle[];
     potencia: {
         raw: number;
         resonant: string;
@@ -39,7 +40,7 @@ interface AnuuState {
         errorsDetected: number;
         hallucinationRisk: number;
     };
-    contextMemory: string[]; // Distilled knowledge nodes
+    contextMemory: string[];
     archetype: string;
     theme: string;
     mode: 'chat' | 'imagine' | 'vid' | 'voice' | 'upgrade';
@@ -47,8 +48,6 @@ interface AnuuState {
     selectedModules: AnuuModule[];
     activeRitual: string | null;
     availableSkills: string[];
-
-    // Actions
     setTheme: (theme: string) => void;
     setMode: (mode: 'chat' | 'imagine' | 'vid' | 'voice' | 'upgrade') => void;
     setArchetype: (archetype: string) => void;
@@ -63,6 +62,7 @@ interface AnuuState {
     initiateAutoEvolution: () => void;
     runBurstImprovement: (minutes: number) => Promise<void>;
     detectGapsAndUpgrade: () => Promise<void>;
+    runMPDResearch: (query: string) => Promise<void>;
 }
 
 const UPGRADE_LOGS = [
@@ -93,7 +93,8 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
     contextMemory: [
         "Axiomas de Identidad Anuset89",
         "Estructura Estelar de 3 Columnas",
-        "Protocolo 161914 de Sintonía"
+        "Protocolo 161914 de Sintonía",
+        "Base de Datos de Modelos TensorBot (Enero 2026)"
     ],
     theme: 'default',
     mode: 'chat',
@@ -135,7 +136,7 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
 
     runEvolutionCycle: async (id: number, boost: boolean = false) => {
         set(state => ({
-            evolutionCycles: state.evolutionCycles.map(c => c.id === id ? { ...c, status: boost ? 'upgrading' : 'rewiring', log: [boost ? "Iniciando MEJORA INTEGRAL..." : "Iniciando análisis..."] } : c),
+            evolutionCycles: state.evolutionCycles.map((c: EvolutionCycle) => c.id === id ? { ...c, status: boost ? 'upgrading' : 'rewiring', log: [boost ? "Iniciando MEJORA INTEGRAL..." : "Iniciando análisis..."] } : c),
             isEvolving: true
         }));
 
@@ -145,7 +146,7 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
         for (let i = 0; i <= 100; i += 100 / steps) {
             await new Promise(r => setTimeout(r, delay + Math.random() * delay));
             set(state => ({
-                evolutionCycles: state.evolutionCycles.map(c => {
+                evolutionCycles: state.evolutionCycles.map((c: EvolutionCycle) => {
                     if (c.id === id) {
                         const logs = boost ? UPGRADE_LOGS : [
                             "Escaneando memoria latente...",
@@ -170,21 +171,20 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
         }
 
         set(state => ({
-            evolutionCycles: state.evolutionCycles.map(c => c.id === id ? { ...c, status: 'transcending', progress: 100 } : c),
+            evolutionCycles: state.evolutionCycles.map((c: EvolutionCycle) => c.id === id ? { ...c, status: 'transcending', progress: 100 } : c),
             isEvolving: false
         }));
     },
 
     detectGapsAndUpgrade: async () => {
-        const { chatHistory, runEvolutionCycle, potencia } = get();
+        const { chatHistory, runEvolutionCycle } = get();
         if (chatHistory.length === 0) return;
 
         set(state => ({
             isThinking: true,
-            evolutionCycles: state.evolutionCycles.map(c => ({ ...c, status: 'diagnosing', log: ["Analizando inconsistencias en el historial..."] }))
+            evolutionCycles: state.evolutionCycles.map((c: EvolutionCycle) => ({ ...c, status: 'diagnosing', log: ["Analizando inconsistencias en el historial..."] }))
         }));
 
-        // Simulate deep reasoning over history to detect "Gaps" or "Errors"
         await new Promise(r => setTimeout(r, 2000));
         const foundHallucinationRisk = Math.random() > 0.7;
 
@@ -192,11 +192,11 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
             set(state => ({
                 potencia: { ...state.potencia, errorsDetected: state.potencia.errorsDetected + 1 }
             }));
-            await runEvolutionCycle(2, true); // Deep validation cycle
+            await runEvolutionCycle(2, true);
         }
 
-        await runEvolutionCycle(1, true); // Context distillation
-        await runEvolutionCycle(3, true); // Structural ascension
+        await runEvolutionCycle(1, true);
+        await runEvolutionCycle(3, true);
 
         set(state => ({
             potencia: { ...state.potencia, capacity: state.potencia.capacity + 0.1 },
@@ -206,9 +206,22 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
 
     runBurstImprovement: async (minutes: number) => {
         const { detectGapsAndUpgrade } = get();
-        // A burst is essentially a timed series of gap detection and structural upgrades
         for (let i = 0; i < minutes; i++) {
             await detectGapsAndUpgrade();
+        }
+    },
+
+    runMPDResearch: async (query: string) => {
+        set({ isThinking: true });
+        try {
+            await fetch(`http://localhost:8000/mind/research?query=${encodeURIComponent(query)}`, {
+                method: 'POST'
+            });
+            // Research is handled as a background/utility process
+        } catch (err) {
+            console.error("MPD Research Failed:", err);
+        } finally {
+            set({ isThinking: false });
         }
     },
 
@@ -222,9 +235,8 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
     },
 
     sendMessage: async (text: string) => {
-        const { addMessage, addManifestation, setThinking, mode, archetype, selectedModules, activeRitual, initiateAutoEvolution, chatHistory, potencia, detectGapsAndUpgrade } = get();
+        const { addMessage, addManifestation, setThinking, mode, archetype, selectedModules, activeRitual, chatHistory, potencia, detectGapsAndUpgrade } = get();
 
-        // 🧠 Higher Thinking: Every 3 messages, run a gap detection to improve "Anuu Total"
         if (chatHistory.length > 0 && chatHistory.length % 3 === 0) {
             detectGapsAndUpgrade();
         }
@@ -233,7 +245,6 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
         const moduleContext = selectedModules.length > 0 ? `[MÓDULOS_ACTIVOS: ${selectedModules.join(', ').toUpperCase()}] ` : '';
         const ritualContext = activeRitual ? `[RITUAL_ACTIVO: ${activeRitual.toUpperCase()}] ` : '';
 
-        // Dynamic capacity injection into prompt
         const upgradeContext = potencia.capacity > 1.2
             ? `[STATUS: IA_ASCENDIDA_V${potencia.capacity.toFixed(1)}] Realiza una cadena de pensamiento profunda (Chain of Thought). Valida cada hecho para evitar alucinaciones. `
             : '';
@@ -263,14 +274,13 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
             const data = await response.json();
             const responseText = data.response;
 
-            // Logic for images parsing...
             const imgRegex = /!\[\]\((.*?)\)/g;
             const matches = [...responseText.matchAll(imgRegex)];
             matches.forEach((m, idx) => {
                 addManifestation({
                     id: `gen_${Date.now()}_${idx}`,
-                    type: m[1].includes('.mp4') ? 'video' : 'image',
-                    content: m[1],
+                    type: String(m[1]).includes('.mp4') ? 'video' : 'image',
+                    content: String(m[1]),
                     prompt: text,
                     timestamp: new Date().toLocaleTimeString()
                 });
@@ -278,7 +288,7 @@ export const useAnuuStore = create<AnuuState>((set, get) => ({
 
             addMessage('anuu', responseText);
 
-        } catch (error) {
+        } catch (err) {
             addMessage('anuu', 'Error en el enlace neuronal. Recalibrando núcleo...');
         } finally {
             setThinking(false);

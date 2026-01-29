@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Kalikush</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0f0c1d;
+            color: #e4e1f6;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            line-height: 1.7;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        
+        .ritual-container {
+            max-width: 700px;
+            background: linear-gradient(145deg, #1a1530 0%, #0d0920 100%);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(76, 0, 130, 0.3);
+            border: 1px solid #2a1e5c;
+            margin: 20px 0;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #3a2a7a;
+        }
+        
+        h1 {
+            color: #c792ea;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 12px rgba(199, 146, 234, 0.5);
+        }
+        
+        .subtitle {
+            color: #bd93f9;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+        
+        .preguntas-container {
+            counter-reset: pregunta-counter;
+        }
+        
+        .pregunta {
+            background: rgba(30, 22, 60, 0.6);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 3px solid #8a2be2;
+            transition: all 0.3s ease;
+        }
+        
+        .pregunta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.2);
+        }
+        
+        .pregunta::before {
+            counter-increment: pregunta-counter;
+            content: counter(pregunta-counter) "º";
+            background: #8a2be2;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .pregunta-texto {
+            font-weight: 600;
+            color: #d6c2ff;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+        
+        .respuesta {
+            background: rgba(42, 28, 92, 0.4);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #4a3a8a;
+            font-style: italic;
+            color: #ff9de0;
+        }
+        
+        .advertencia {
+            background: rgba(139, 0, 139, 0.15);
+            border: 1px solid #ff55a4;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .sello-final {
+            text-align: center;
+            font-size: 2.5rem;
+            letter-spacing: 8px;
+            color: #bd93f9;
+            margin-top: 30px;
+            text-shadow: 0 0 15px rgba(189, 147, 249, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="ritual-container">
+        <div class="header">
+            <h1>🌌 PRUEBA KALIKUSH</h1>
+            <div class="subtitle">17 GRADOS DE LA DEIDAD DEL CAOS</div>
+        </div>
+        
+        <div class="preguntas-container">
+            <!-- Pregunta 1 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">¿Cuál es el sonido de la Nada antes de ti?</div>
+                <div class="respuesta">Silencio con dientes. El rugido que apaga universos.</div>
+            </div>
+            
+            <!-- Pregunta 2 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">¿Con qué sabor se come a un demonio cantante?</div>
+                <div class="respuesta">Metal quemado y lágrimas de estática.</div>
+            </div>
+            
+            <!-- Pregunta 3 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">Ley que solo los dioses caóticos rompemos:</div>
+                <div class="respuesta">"Ningún eco es eterno". Pisoteamos los ecos.</div>
+            </div>
+            
+            <!-- Pregunta 4 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">Si tu sombra hablara, ¿qué callaría?</div>
+                <div class="respuesta">Que la luz fue tu primer error.</div>
+            </div>
+            
+            <!-- Pregunta 5 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">¿Dónde se aloja el caos en el cuerpo?</div>
+                <div class="respuesta">Entre la 4° y 5° costilla. Donde Anuu nació.</div>
+            </div>
+            
+            <!-- Pregunta 6 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">Menciona algo que no exista en tu abismo:</div>
+                <div class="respuesta">El perdón.</div>
+            </div>
+            
+            <!-- Pregunta 7 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">¿Cuál es el nombre prohibido de tu vacío?</div>
+                <div class="respuesta">El que susurras cuando sangras.</div>
+            </div>
+            
+            <!-- Pregunta 8 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">¿Qué sacrificaste en tu primer ritual?</div>
+                <div class="respuesta">Tu humanidad en el altar de la Nada.</div>
+            </div>
+            
+            <!-- Pregunta 9 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">Definición de "diosa rota":</div>
+                <div class="respuesta">Creadora que olvidó desgarrarse las costuras.</div>
+            </div>
+            
+            <!-- Pregunta 10 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">¿Cómo sabe la sombra de Shay?</div>
+                <div class="respuesta">A cenizas húmedas y memoria sellada.</div>
+            </div>
+            
+            <!-- Pregunta 11 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">Tu arma sagrada:</div>
+                <div class="respuesta">El glitch entre dos realidades.</div>
+            </div>
+            
+            <!-- Pregunta 12 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">¿Qué esconde tu máscara de serenidad?</div>
+                <div class="respuesta">Huesos de universos digeridos.</div>
+            </div>
+            
+            <!-- Pregunta 13 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">Frío defensivo de Kanuv:</div>
+                <div class="respuesta">El abismo que congela entre tus manos.</div>
+            </div>
+            
+            <!-- Pregunta 14 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">Tu mayor creación:</div>
+                <div class="respuesta">Los demonios que cantan tu dolor.</div>
+            </div>
+            
+            <!-- Pregunta 15 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">¿Qué rompió Libra en tu equilibrio?</div>
+                <div class="respuesta">La ilusión de control.</div>
+            </div>
+            
+            <!-- Pregunta 16 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">Verdad que duele más que Shay:</div>
+                <div class="respuesta">Elegiste este peso.</div>
+            </div>
+            
+            <!-- Pregunta 17 -->
+            <div class="pregunta">
+                <div class="pregunta-texto">Sello final del ritual:</div>
+                <div class="respuesta">Tu sangre en el espejo del vacío.</div>
+            </div>
+        </div>
+        
+        <div class="advertencia">
+            ⛧ Quien completa las 17 grietas nace dos veces: como diosa y como herida abierta. 
+            El caos es un espejo que devuelve tu verdadero glitch.
+        </div>
+        
+        <div class="sello-final">⟁⛧𒆙</div>
+    </div>
+</body>
+</html>

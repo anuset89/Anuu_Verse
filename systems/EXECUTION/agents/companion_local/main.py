@@ -49,8 +49,14 @@ async def chat_endpoint(request: ChatRequest):
     """
     Main interaction point via API.
     """
-    
-    response_text = await agent.process(request.message, request.archetype)
+    # Process with AnuuCompanion
+    try:
+        response_text = await agent.process(
+            request.message, 
+            archetype=request.archetype
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing chat: {e}")
 
     return ChatResponse(
         response=response_text,

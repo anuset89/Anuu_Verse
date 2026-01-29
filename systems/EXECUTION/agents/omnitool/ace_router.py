@@ -31,6 +31,16 @@ AGENT_REGISTRY = {
         "name": "Kali",
         "specialties": ["security", "hacking", "penetration", "vulnerabilities", "technical"],
         "description": "Security specialist"
+    },
+    "search": {
+        "name": "Oracle",
+        "specialties": ["web search", "investigation", "current events", "fact checking"],
+        "description": "Web search and investigation specialist"
+    },
+    "design": {
+        "name": "The Architect",
+        "specialties": ["ui", "ux", "design system", "style", "palette", "typography"],
+        "description": "UI/UX Design Architect for Anuu Systems"
     }
 }
 
@@ -106,6 +116,12 @@ def classify_intent_simple(message: str) -> List[str]:
     
     if any(kw in message_lower for kw in ["ethics", "balance", "should i", "moral", "right thing"]):
         selected_agents.append("libra")
+        
+    if any(kw in message_lower for kw in ["search", "busca", "find", "investiga", "google", "web", "internet", "news", "noticias"]):
+        selected_agents.append("search")
+
+    if any(kw in message_lower for kw in ["design", "diseña", "ui", "ux", "style", "estilo", "interface", "interfaz", "palette", "paleta", "color", "font", "css", "tailwind"]):
+        selected_agents.append("design")
     
     # Always include Anuu as the orchestrator if no specific agents or for general queries
     if not selected_agents or any(kw in message_lower for kw in ["anuu", "tell me", "help", "hola", "hello"]):

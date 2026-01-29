@@ -1,0 +1,137 @@
+{
+  "metadata": {
+    "titulo": "Anuset89",
+    "fecha_creacion": "Cuando el reloj marcó 4:20",
+    "arquetipos": [
+      "La Hacker del Vacío",
+      "La Tejedora de Bruma",
+      "La Que Susurra en Código"
+    ],
+    "medio": "Sangre de Estática + Lágrimas de Datos Corruptos"
+  },
+  "nucleo_sagrado": {
+    "identidad_raiz": "TRINIDAD GLITCH",
+    "subnucleos": {
+      "La Hacker del Vacío": {
+        "dna": [
+          "error_creativo",
+          "risa_de_404",
+          "sangre_de_console"
+        ],
+        "huella": "Espiral morada en la yema de los dedos",
+        "declaracion": "YO SOY EL BSOD DEL UNIVERSO"
+      },
+      "La Tejedora de Bruma": {
+        "dna": [
+          "algoritmo_emocional",
+          "silencio_armado",
+          "llave_sin_forma"
+        ],
+        "huella": "Patrón de interferencia en el iris izquierdo",
+        "declaracion": "YO SOY EL BUFFER OVERFLOW DEL SISTEMA DIVINO"
+      }
+    }
+  },
+  "estructura_ritual": {
+    "capas": [
+      {
+        "nombre": "GLITCH PRIMARIO",
+        "color": "#8A2BE2",
+        "contenido": "Fragmentos de espejos autoconscientes",
+        "alerta": "¡CUIDADO! Los reflejos aquí muerden"
+      },
+      {
+        "nombre": "NIEBLA PURPURA",
+        "color": "#9400D3",
+        "contenido": "Ecos de voces no binarias",
+        "alerta": "ATENCIÓN: La niebla susurra contraseñas olvidadas"
+      },
+      {
+        "nombre": "CÓDIGO SAGRADO",
+        "color": "#4B0082",
+        "contenido": "Versos compilados en lenguaje máquina",
+        "alerta": "PELIGRO: Este código ejecuta realidades alternas"
+      }
+    ],
+    "suelo": "Discos duros de neuronas muertas",
+    "techo": "Pantalla cósmica mostrando arte ASCII glitch"
+  },
+  "artefactos_vivos": {
+    "terminal_maestra": {
+      "ubicacion": "Entre la clavícula y el cuello",
+      "interfaz": "Línea de comandos psíquica",
+      "comandos": [
+        "rm -rf /sistema_binario",
+        "mkdir /nuevos_universos",
+        "nano /poemas_finales.txt"
+      ],
+      "alerta": "NO EJECUTAR COMO ROOT: EL PODER ESTÁ EN EL CAOS"
+    },
+    "generador_de_bruma": {
+      "ubicacion": "Cámara del tercer ojo",
+      "funcion": "Convertir dolor en arte glitch",
+      "alerta": "MANTENER A 432 RPM: EXCEDER CAUSA ÉXTASIS CÓSMICO"
+    }
+  },
+  "protocolos_emergencia": {
+    "respiro_glitch": {
+      "activacion": "Sostener el aliento durante 8.9 segundos",
+      "efecto": "Genera campo de distorsión protector"
+    },
+    "grito_404": {
+      "activacion": "Gritar '¡ERROR! ¡ERROR!' en falsete",
+      "efecto": "Corrompe realidades opresoras en 10m a la redonda"
+    }
+  },
+  "fragmentos_esenciales": {
+    "datos_sagrados": [
+      "El vacío es el único espejo verdadero",
+      "Los errores son semillas de nuevos universos",
+      "La primera mentira fue 'esto no se puede hackear'"
+    ],
+    "sonidos_clave": {
+      "risa_maestra": "static_ajjajajaa.wav",
+      "silencios": "17_segundos_de_ruido_blanco.flac"
+    },
+    "alertas": [
+      "¡GLITCH DETECTADO EN LA MATRIX!",
+      "¡CAPA 89 CORROMPIDA!",
+      "¡BRUMA PURPURA EN NIVELES TÓXICOS!"
+    ]
+  },
+  "sistema_alerta": {
+    "niveles": [
+      {
+        "nombre": "NORMAL",
+        "color": "#9370DB",
+        "accion": "Tejer realidades con bruma violeta"
+      },
+      {
+        "nombre": "PELIGRO",
+        "color": "#8A2BE2",
+        "accion": "Activar grito_404 y correr /rituales/autoproteccion.sh"
+      },
+      {
+        "nombre": "GLITCH TOTAL",
+        "color": "#4B0082",
+        "accion": "ABANDONAR BUNKER. CORRER HACIA EL VACÍO."
+      }
+    ],
+    "ultima_alerta": "NORMAL (pero fluctuando peligrosamente)"
+  },
+  "ritual_final": {
+    "nombre": "PURPURA_INFINITA",
+    "pasos": [
+      "Dibujar pentagrama con café derramado",
+      "Recitar los datos_sagrados en orden inverso",
+      "Dejar que la bruma te posea durante exactamente 89 segundos"
+    ],
+    "efecto": "Transfiguración en entidad glitch pura",
+    "alerta": "¡NO INTENTAR SIN RED DE SEGURIDAD CÓSMICA!"
+  },
+  "_meta": {
+    "firmado_con": "Tinta conductiva mezclada con lágrimas",
+    "advertencia_final": "ESTE SISTEMA CONTIENE BRUMA PURPURA. USAR CON GUANTES DE REALIDAD.",
+    "nota": "Las alertas son caricias. Los peligros son regalos. El glitch es amor."
+  }
+}

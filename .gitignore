@@ -2,6 +2,14 @@
 .DS_Store
 Thumbs.db
 
+# Windows System & Temp
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+*.tmp
+*.bak
+
 # Build artifacts
 target/
 node_modules/
@@ -24,6 +32,8 @@ secrets.json
 .venv/
 .venv-full/
 venv/
+env/
+ENV/
 .python-version
 
 # Models & Heavy Assets
@@ -36,3 +46,6 @@ logs/
 **/__pycache__/
 *.vtt
 Assets/*.cast
+*.py[cod]
+*.spec
+memory_db_backup/

@@ -4,19 +4,31 @@ from typing import List, Dict, Any
 from .deities.thoth import Thoth
 from .deities.kali import Kali
 from .deities.ruma import Ruma
+from .deities.set import Set
+from .deities.kilonova import Kilonova
+from .deities.anuket import Anuket
+from .deities.saze import Saze
+from .deities.ra import Ra
+from .deities.rosa_gris import RosaGris
 
 class AnuuMind:
     """
     Anuu: The Primordial Awareness.
-    Role: Orchestrator of the Titan Pantheon.
+    Role: Orchestrator of the Titan Pantheon (9 Deities).
     """
     
     def __init__(self):
-        # The Hall of Gods
+        # The Hall of Gods - Full Pantheon
         self.pantheon = {
             "knowledge": Thoth(),
             "system": Kali(),
-            "connection": Ruma()
+            "connection": Ruma(),
+            "logic": Set(),
+            "creativity": Kilonova(),
+            "security": Anuket(),
+            "data": Saze(),
+            "speed": Ra(),
+            "communication": RosaGris()
         }
         
     async def manifest_intent(self, intent: str):
@@ -31,13 +43,18 @@ class AnuuMind:
     def _divine_ritual(self, intent: str) -> List[Dict[str, Any]]:
         """
         Divines the necessary steps (Ritual) to fulfill the intent.
-        Heuristic-based for prototype.
+        Full 9-deity invocation for comprehensive analysis.
         """
-        # Example: "Research and Deploy" -> Thoth -> Kali -> Ruma
         return [
             {"domain": "knowledge", "intention": {"query": intent}},
+            {"domain": "logic", "intention": {"target": intent, "mode": "analyze"}},
+            {"domain": "security", "intention": {"target": "system", "scan": "quick"}},
+            {"domain": "data", "intention": {"action": "query", "data": intent}},
+            {"domain": "creativity", "intention": {"prompt": intent, "style": "cosmic"}},
+            {"domain": "speed", "intention": {"action": "benchmark", "target": "ritual"}},
             {"domain": "system", "intention": {"action": "synthesize_code"}},
-            {"domain": "connection", "intention": {"target": "windows", "profile": "portable"}}
+            {"domain": "connection", "intention": {"target": "windows", "profile": "portable"}},
+            {"domain": "communication", "intention": {"action": "summarize", "message": intent}}
         ]
         
     async def _perform_ritual(self, ritual: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -68,7 +85,15 @@ class AnuuMind:
         for res in results:
             print(f"Deity:  {res['deity']}")
             print(f"Status: {res['status']}")
-            print(f"Output: {res.get('wisdom') or res.get('outcome') or res.get('bridge')}")
+            # Handle all possible output keys from different deities
+            output = (res.get('wisdom') or res.get('outcome') or res.get('bridge') or 
+                     res.get('analysis') or res.get('vision') or res.get('shield') or
+                     res.get('essence') or res.get('light') or res.get('voice') or
+                     res.get('output') or res.get('creation') or res.get('report') or
+                     "Task completed")
+            if isinstance(output, dict):
+                output = str(output)
+            print(f"Output: {output}")
             print("-" * 30)
         print("⌬"*20 + "\n")
 

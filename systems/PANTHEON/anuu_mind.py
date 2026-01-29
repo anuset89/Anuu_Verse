@@ -37,7 +37,7 @@ class AnuuMind:
         return [
             {"domain": "knowledge", "intention": {"query": intent}},
             {"domain": "system", "intention": {"action": "synthesize_code"}},
-            {"domain": "connection", "intention": {"target": "windows_portable"}}
+            {"domain": "connection", "intention": {"target": "windows", "profile": "portable"}}
         ]
         
     async def _perform_ritual(self, ritual: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

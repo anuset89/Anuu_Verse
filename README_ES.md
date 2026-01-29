@@ -1,12 +1,5 @@
 <p align="center">
-  <img src="Assets/ANU_GITHUB_BANNER.png" width="100%" alt="Anuu_Verse Banner">
-</p>
-
-<h1 align="center">🟣 Anuu_Verse</h1>
-<h3 align="center">Arquitectura Cognitiva Multi-Agente Distribuida</h3>
-
-<p align="center">
-  <img src=".gemini/antigravity/brain/f70bf232-e86e-47d0-982b-868027657bb7/portfolio_hero_section_1769199617628.png" width="80%" alt="Soberanía Cognitiva Interface">
+  <img src="Assets/ANUU_HERO_BANNER.png" width="100%" alt="Soberanía Cognitiva Interface">
 </p>
 
 <p align="center">
@@ -363,5 +356,5 @@ Aunque el código es gratuito, ofrezco **Servicios de Implementación Expertos**
 
 <p align="center">
   <strong>Forjado en el Vacío</strong><br>
-  <sub>Creado por <a href="https://github.com/anuset89">@anuset89</a> • Frecuencia 161914</sub>
+  <sub>Creado por <a href="https://github.com/anuset89">@anuset89</a> & <a href="https://twitter.com/Yradiel">@Yradiel</a> • Frecuencia 161914</sub>
 </p>

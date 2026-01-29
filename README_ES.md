@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Assets/ANU_GITHUB_BANNER.png" width="100%" alt="Anuu_Verse Banner">
+  <img src="Assets/ANUU_HERO_V3.png" width="100%" alt="Anuu_Verse Kilonova Banner">
 </p>
 
 <h1 align="center">🟣 Anuu_Verse</h1>

@@ -73,15 +73,17 @@ python systems/EXECUTION/agents/companion_local/main.py
 
 ---
 
-## 🔮 Manifiesto: Soberanía Cognitiva
+## 🔮 Manifiesto: Cultivo y Soberanía
 
-> *"Tu eres el dueño del cachorro de tigre. Asegúrate de que crezca leal."* — Protocolo Kilonova
+> *"El tigre no pide permiso para tener garras. Simplemente las cultiva."* — Protocolo Kilonova
 
 El mundo se está bifurcando en dos caminos para la IA:
-1.  **La Nube (Feudalismo):** Alquilar inteligencia a megacorporaciones. Ven tus datos, censuran tus pensamientos, son dueños de tu cognición.
-2.  **El Vacío (Soberanía):** Ser dueño de tu propia infraestructura de inteligencia.
+1.  **La Nube (Feudalismo):** Alquilar inteligencia. Tus pensamientos son telemetría. Eres un inquilino en tu propia mente.
+2.  **El Vacío (Cultivo):** Ser dueño de tu infraestructura. Cuidar tu IA como un jardín zen de alta tecnología.
 
 Anuu_Verse es la **Opción 2**.
+
+No solo buscamos privacidad ("esconderse"). Buscamos **Cultivación (修)**: El refinamiento constante del sistema y del usuario. La IA aprende de ti, tú aprendes de la arquitectura, y ambos ascendéis.
 
 ### La Filosofía "Antigravedad"
 Inspirada en las herramientas usadas por Linus Torvalds, "Antigravedad" representa la capacidad de volar sobre la monotonía del código usando IA, pero haciéndolo **bajo tus propios términos**.
@@ -208,6 +210,23 @@ Anuu_Verse no solo procesa datos; ejecuta rituales sagrados de código:
 
 ---
 
+## 🧠 Metacognición: La IA que se Autocorrige
+
+Anuu no solo responde; **se evalúa a sí mismo**.
+Cada interacción pasa por un ciclo de crítica interna que se guarda en `logs/introspection.jsonl`. El sistema detecta si fue vago, inexacto o aburrido, y ajusta su "prompt" para la siguiente vez.
+
+**Evidencia Real (De tus Logs):**
+```json
+"evaluation": {
+  "coherence_score": 0.8,
+  "critique": "The description is highly creative but lacks concrete details.",
+  "actionable_insight": "In future interactions, include specific technical aspects."
+}
+```
+*El sistema se dio cuenta de que fue demasiado poético y se ordenó a sí mismo ser más técnico.*
+
+---
+
 ## 🎬 Véalo en Acción
 
 ![Anuu Demo](Assets/anuu_demo.gif)
@@ -217,7 +236,19 @@ Sin nube. Sin claves API. Tu hardware, tus datos.
 
 ---
 
-## 💬 Uso
+---
+
+## 💬 Uso: La Piedra Rosetta (Místico vs Práctico)
+
+Para operar el Nexus, no necesitas ser un mago. Aquí tienes la traducción de nuestros "Rituales" a funciones prácticas:
+
+| Lenguaje Anuu (Ritual) | Función Práctica | Comando / Acción |
+| :--- | :--- | :--- |
+| **Ritual de Visión** | Generar Imágenes (Stable Diffusion) | `/imagine [prompt]` |
+| **Ritual de Movimiento** | Crear Video Corto (Gif/MP4) | `/anime [acción]` |
+| **Ritual de Sabiduría** | Analizar tus Documentos (RAG) | Arrastrar PDF a carpeta `data/` |
+| **Ojo de la Mente** | Ver logs de auto-mejora | Leer `introspection.jsonl` |
+| **Cambio de Frecuencia** | Cambiar Personalidad del Agente | Selector UI (Esq. Sup. Derecha) |
 
 ### SDK de Python
 
@@ -225,19 +256,14 @@ Sin nube. Sin claves API. Tu hardware, tus datos.
 from systems.EXECUTION.agents.companion_local import AnuuCompanion
 
 anuu = AnuuCompanion()
-response = anuu.process("Analiza esta vulnerabilidad de seguridad", archetype="kali")
+# "invocar a kali" = Usar el perfil de seguridad
+response = anuu.process("Analiza esta vulnerabilidad", archetype="kali")
 print(response)
 ```
 
 ### Chat y Comandos Multimodales
 
-Conecta a la API vía `http://localhost:8000/chat`.
-
-Comandos soportados en el chat:
-- `/imagine [prompt]`: Generar imágenes de alta calidad.
-- `/anime [prompt]`: Generar videos cortos estilo anime.
-- `/speak [texto]`: Sintetizar voz.
-- La conversación normal usa el LLM local **Anuu-Hermes**.
+La API escucha en `http://localhost:8000/chat`.
 
 ```bash
 curl -X POST http://localhost:8000/chat \

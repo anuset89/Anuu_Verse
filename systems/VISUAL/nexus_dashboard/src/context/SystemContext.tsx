@@ -24,8 +24,8 @@ export function SystemProvider({ children }: { children: ReactNode }) {
         async function loadSystem() {
             try {
                 const [coreRes, agentsRes] = await Promise.all([
-                    fetch('/data/ANUU_CORE.json'),
-                    fetch('/data/AGENTS_REGISTRY.json')
+                    fetch('/Anuu_Verse/data/ANUU_CORE.json'),
+                    fetch('/Anuu_Verse/data/AGENTS_REGISTRY.json')
                 ]);
 
                 if (!coreRes.ok || !agentsRes.ok) {

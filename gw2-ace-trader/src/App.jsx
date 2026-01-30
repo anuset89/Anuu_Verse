@@ -12,7 +12,7 @@ const LANG = {
         title: 'MOTOR ACE', subtitle: 'Terminal de Trading GW2', manual: 'MANUAL', link: 'Vincular API', linked: 'API Conectada',
         wallet: 'Billetera', gold: 'Oro', shards: 'Spirit Shards', liquidator: 'Liquidar Activos', liquidatorSub: 'Vende estos items para recuperar oro:',
         routes: 'Guías Estratégicas', routeSafe: 'Ruta Segura', routeBalanced: 'Ruta Balanceada', routeAggro: 'Ruta Kilonova',
-        opportunities: 'Ranking de Oportunidades', flips: 'OPERACIONES', recipe: 'Receta de Forja',
+        opportunities: 'Terminal de Inteligencia Flip', flips: 'INTERCAMBIO', recipe: 'Receta de Mercado',
         iterations: '¿Cuántas veces?', limit: 'Límite', totalCost: 'Inversión Total', profit: 'Beneficio Neto', protocol: 'Protocolo Diario', tip: 'Consejo Pro',
         tipText: 'Usa el Liquidator para convertir materiales muertos en capital fresco.', log: 'Registro del Sistema', loading: 'CARGANDO DATOS...', ok: 'SISTEMA OK',
         finance: 'Arquitectura Financiera', realtime: 'Análisis Tiempo Real', total: 'Valor Total', max: 'máx', wikiLink: 'Wiki',
@@ -72,7 +72,7 @@ const LANG = {
         title: 'ACE ENGINE', subtitle: 'GW2 Trading Terminal', manual: 'MANUAL', link: 'Link API', linked: 'API Connected',
         wallet: 'Wallet', gold: 'Gold', shards: 'Spirit Shards', liquidator: 'Liquidate Assets', liquidatorSub: 'Sell these dead items for gold:',
         routes: 'Strategic Guides', routeSafe: 'Safe Route', routeBalanced: 'Balanced Route', routeAggro: 'Kilonova Route',
-        opportunities: 'Opportunity Ranking', flips: 'TRADES', recipe: 'Mystic Forge Recipe',
+        opportunities: 'Flip Intelligence Terminal', flips: 'EXCHANGE', recipe: 'Market Recipe',
         iterations: 'How many times?', limit: 'Limit', totalCost: 'Total Investment', profit: 'Net Profit', protocol: 'Daily Protocol', tip: 'Pro Tip',
         tipText: 'Use the Liquidator to turn dead materials into fresh capital.', log: 'System Log', loading: 'LOADING DATA...', ok: 'SYSTEM OK',
         finance: 'Financial Architecture', realtime: 'Real-Time Analysis', total: 'Total Value', max: 'max', wikiLink: 'Wiki',
@@ -148,6 +148,11 @@ const MANUAL_CONTENT = {
             { title: "Identificación Crítica", content: "NUNCA recicles verdes directo. Tienes un 4% de upgrade a Raro/Exótico (Ectos)." },
             { title: "Reciclaje Selectivo", content: "Autorrecicladora de Runas en Verdes (Materiales Lúcidos). Místico/Plata en Amarillos." },
             { title: "Gestión de Suerte", content: "Refina suerte a Exótico. Cámbiala por Sacos Rojos en Año Nuevo Lunar." }
+        ],
+        flipMastery: [
+            { title: "Velocidad de Mercado", content: "Items con mucho margen (como T6) son arriesgados si la rotación es baja." },
+            { title: "Estrategia de Puja", content: "Solo sobrepuja por 1 moneda de cobre. Reventar el precio destruye el margen de todos." },
+            { title: "Cálculo de Comisiones", content: "El TP cobra un 15% total. El margen debe ser superior al 15% para dar beneficios." }
         ]
     },
     en: {
@@ -166,6 +171,11 @@ const MANUAL_CONTENT = {
             { title: "Identification", content: "Never salvage greens directly. Identification has a 4% chance of upgrading to Rare/Exotic (Ectoplasms)." },
             { title: "Salvage Choice", content: "Use Runecrafter's for Greens (Lucent Motes). Use Mystic/Silver-Fed for Yellows." },
             { title: "Luck Management", content: "Refine luck to Exotic. Exchange for Red Envelopes during Lunar New Year." }
+        ],
+        flipMastery: [
+            { title: "Market Velocity", content: "High spread items (like T6) are risky if velocity is low. Check daily volumes." },
+            { title: "Order Undercutting", content: "Only undercut by 1 copper. Crushing the price hurts everyone's profit." },
+            { title: "Tax Calculation", content: "The TP takes 15% (10% on sale, 5% on listing). Margins must be > 15% to break even." }
         ]
     }
 };
@@ -205,16 +215,15 @@ const ALL_LISTING_IDS = [...T6_IDS, ESSENTIALS.ECTO, ESSENTIALS.MYSTIC_COIN, ESS
 const TREND_KEY = 'ace_trend_v1';
 
 // --- KILONOVA SCANNER DATA ---
-const KILONOVA_IDS = [24295, 24294, 24358, 24341, 24340, 24283, 24289, 24277];
+const KILONOVA_IDS = [24295, 24358, 24289, 24277, 19721, 19976, 44941];
 const KILONOVA_NAMES = {
-    24295: "Sangre Poderosa (T6)",
-    24294: "Sangre Potente (T5)",
-    24358: "Hueso Antiguo (T6)",
-    24341: "Hueso Grande (T5)",
-    24340: "Magnetita Corrupta",
-    24283: "Escama Grande (T5)",
+    24295: "Colmillo Vicioso (T6)",
+    24358: "Sangre Poderosa (T6)",
     24289: "Escama Blindada (T6)",
-    24277: "Polvo Cristalino (T6)"
+    24277: "Polvo Cristalino (T6)",
+    19721: "Ectoplasma",
+    19976: "Moneda Mística",
+    44941: "Engranaje de Mecanismo"
 };
 
 const getWikiUrl = (slug) => `https://wiki.guildwars2.com/wiki/${slug}`;
@@ -231,7 +240,29 @@ const ManualModal = ({ onClose, lang }) => {
                 <div className="overflow-y-auto p-8 space-y-10">
                     <div><h3 className="text-2xl font-bold text-zinc-200 mb-6 flex items-center gap-3 border-b border-zinc-700 pb-2"><Target className="text-emerald-400 w-6 h-6" /> {t.finance}</h3><div className="grid grid-cols-1 md:grid-cols-2 gap-6">{content.finance.map((item, i) => <div key={i} className="bg-zinc-900/50 p-6 rounded-2xl border border-zinc-700"><h4 className="font-bold text-zinc-100 text-lg mb-2">{item.title}</h4><p className="text-base text-zinc-400">{item.content}</p></div>)}</div></div>
                     <div><h3 className="text-2xl font-bold text-zinc-200 mb-6 flex items-center gap-3 border-b border-zinc-700 pb-2"><Database className="text-emerald-400 w-6 h-6" /> {t.securityTitle}</h3><p className="text-zinc-400 text-lg mb-4">{t.securityText}</p><div className="flex gap-4"><div className="flex items-center gap-2 bg-zinc-900 p-3 rounded-xl border border-zinc-700"><Lock size={20} className="text-emerald-400" /><span>{t.securityServer}</span></div><div className="flex items-center gap-2 bg-zinc-900 p-3 rounded-xl border border-zinc-700"><Eye size={20} className="text-indigo-400" /><span>{t.securityScope}</span></div><div className="flex items-center gap-2 bg-zinc-900 p-3 rounded-xl border border-zinc-700"><FileCode size={20} className="text-amber-400" /><span>{t.securityOpen}</span></div></div></div>
-                    <div><h3 className="text-2xl font-bold text-zinc-200 mb-6 flex items-center gap-3 border-b border-zinc-700 pb-2"><Zap className="text-amber-500 w-6 h-6" /> {t.phandrelTitle}</h3><div className="grid grid-cols-1 md:grid-cols-2 gap-6">{content.phandrel.map((item, i) => <div key={i} className="bg-zinc-950/40 p-6 rounded-2xl border border-amber-500/10 hover:border-amber-500/30 transition-colors"><h4 className="font-bold text-amber-500 text-lg mb-2">{item.title}</h4><p className="text-base text-zinc-400">{item.content}</p></div>)}</div></div>
+                    <div>
+                        <h3 className="text-2xl font-bold text-zinc-200 mb-6 flex items-center gap-3 border-b border-zinc-700 pb-2"><TrendingUp className="text-emerald-500 w-6 h-6" /> {lang === 'es' ? 'Maestría Flip' : 'Flip Mastery'}</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {content.flipMastery.map((item, i) => (
+                                <div key={i} className="bg-zinc-950/40 p-6 rounded-2xl border border-emerald-500/10 hover:border-emerald-500/30 transition-colors">
+                                    <h4 className="font-bold text-emerald-500 text-lg mb-2">{item.title}</h4>
+                                    <p className="text-base text-zinc-400">{item.content}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 className="text-2xl font-bold text-zinc-200 mb-6 flex items-center gap-3 border-b border-zinc-700 pb-2"><Zap className="text-amber-500 w-6 h-6" /> {t.phandrelTitle}</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {content.phandrel.map((item, i) => (
+                                <div key={i} className="bg-zinc-950/40 p-6 rounded-2xl border border-amber-500/10 hover:border-amber-500/30 transition-colors">
+                                    <h4 className="font-bold text-amber-500 text-lg mb-2">{item.title}</h4>
+                                    <p className="text-base text-zinc-400">{item.content}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -568,8 +599,6 @@ const App = () => {
         } catch (e) { }
     }, [apiKey, addAudit]);
 
-    useEffect(() => { fetchMarketData(); if (apiKey) fetchUserData(); }, [fetchMarketData, fetchUserData, apiKey]);
-
     const runKilonovaScan = async () => {
         if (!apiKey) { setShowKeyInput(true); return; }
         setKiloLoading(true);
@@ -637,6 +666,14 @@ const App = () => {
         }
     };
 
+    useEffect(() => {
+        fetchMarketData();
+        if (apiKey) {
+            fetchUserData();
+            runKilonovaScan();
+        }
+    }, [fetchMarketData, fetchUserData, apiKey]);
+
     // --- RECYCLING CALCULATOR ---
     const recycleStats = useMemo(() => {
         if (!prices[ESSENTIALS.ECTO] || !prices[ESSENTIALS.CRYSTALLINE_DUST]) return null;
@@ -684,12 +721,15 @@ const App = () => {
     // --- GLOBAL ALPHA LOGIC ---
     const globalAlpha = useMemo(() => {
         const topCraft = opportunities[0];
-        const topFlip = kilonovaData?.flips?.[0]; // Simplification for demo
+        const topFlip = kilonovaData?.flips?.[0];
 
         const choices = [];
+        // Flip-First priority: if a flip has > 5% margin, it can take the spot
+        if (topFlip && topFlip.profitVal > 0) {
+            choices.push({ type: 'flip', profitVal: topFlip.profitVal * 5, label: topFlip.name, profit: topFlip.profit }); // Boost weight for flips
+        }
         if (topCraft) choices.push({ type: 'craft', profitVal: topCraft.potentialProfit, label: getItemName(topCraft.id, lang), profit: formatGold(topCraft.potentialProfit) });
-        if (topFlip) choices.push({ type: 'flip', profitVal: topFlip.profitVal, label: topFlip.name, profit: topFlip.profit });
-        if (recycleStats?.isCheaper) choices.push({ type: 'salvage', profitVal: 1000, label: t.recomSalvage, profit: `${recycleStats.savingPct.toFixed(1)}%` }); // Placeholder weight
+        if (recycleStats?.isCheaper) choices.push({ type: 'salvage', profitVal: 1000, label: t.recomSalvage, profit: `${recycleStats.savingPct.toFixed(1)}%` });
 
         return choices.sort((a, b) => b.profitVal - a.profitVal)[0];
     }, [opportunities, kilonovaData, recycleStats, lang, t]);
@@ -794,8 +834,11 @@ const App = () => {
             </header>
 
             <OracleBar alpha={globalAlpha} route={bestRoute} lang={lang} />
+            <div className="mb-12">
+                <KilonovaScanner data={kilonovaData} loading={kiloLoading} onScan={runKilonovaScan} lang={lang} />
+            </div>
             <EliteList opportunities={opportunities} flips={kilonovaData?.flips} recycle={recycleStats} lang={lang} />
-
+            <PhandrelProtocol prices={prices} lang={lang} />
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
                 <div className="xl:col-span-3 space-y-8">
@@ -826,7 +869,7 @@ const App = () => {
                 </div>
 
                 <div className="xl:col-span-6 space-y-6">
-                    <PhandrelProtocol prices={prices} lang={lang} />
+                    {/* PhandrelProtocol was here, moved to top level */}
                     <div className="flex items-center justify-between px-2">
                         <div>
                             <h2 className="text-2xl font-black flex items-center gap-3 text-white"><Activity className="text-amber-500" size={28} /> {t.opportunities} <InfoToolTip content={t.infoRanking} /></h2>
@@ -935,10 +978,7 @@ const App = () => {
                 </div>
             </div>
 
-            {/* KILONOVA SCANNER AREA */}
-            <div className="mt-12">
-                <KilonovaScanner data={kilonovaData} loading={kiloLoading} onScan={runKilonovaScan} lang={lang} />
-            </div>
+            {/* KILONOVA SCANNER AREA was here, moved to top */}
 
             <footer className="mt-16 pt-8 border-t border-zinc-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-zinc-600 font-mono uppercase tracking-widest">
                 <span>ACE_161914 // SYSTEM V16.0 KILONOVA</span>

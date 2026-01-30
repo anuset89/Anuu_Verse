@@ -1,588 +1,361 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
-    TrendingUp,
-    Flame,
-    Zap,
-    Database,
-    Cpu,
-    Activity,
-    RefreshCcw,
-    AlertTriangle,
-    ArrowUpRight,
-    ArrowDownRight,
-    Clock,
-    Coins,
-    Sun,
-    Key,
-    Wallet,
-    Lock,
-    BookOpen,
-    X,
-    Target
+    TrendingUp, Zap, Database, Cpu, Activity, RefreshCcw, AlertTriangle, ArrowUpRight,
+    Clock, Key, Wallet, Lock, BookOpen, X, Target, ChevronDown, ChevronUp, FlaskConical,
+    Puzzle, PieChart, TrendingDown, Trash2, Calculator, Globe, ExternalLink
 } from 'lucide-react';
 
-// --- MANUAL DATA ---
+// --- i18n ---
+const LANG = {
+    es: {
+        title: 'MOTOR ACE', subtitle: 'Terminal de Trading GW2', manual: 'MANUAL', link: 'Vincular', linked: 'Vinculado',
+        wallet: 'Billetera', gold: 'Oro', shards: 'Shards', liquidator: 'Liquidar Activos', liquidatorSub: 'Vende estos items muertos:',
+        smartRoute: 'Ruta Smart', diversify: 'DIVERSIFICA', opportunities: 'Oportunidades', flips: 'FLIPS', recipe: 'Receta',
+        iterations: 'Iteraciones', limit: 'Límite', totalCost: 'Costo', profit: 'Beneficio', protocol: 'Protocolo', tip: 'Consejo',
+        tipText: 'Usa el Liquidator para convertir activos muertos en capital.', log: 'Log', loading: 'CARGA', ok: 'OK',
+        finance: 'Arquitectura Financiera', realtime: 'Análisis Tiempo Real', total: 'Total', max: 'max', wikiLink: 'Ver en Wiki',
+        aggressive: 'Agresivo', moderate: 'Moderado', conservative: 'Conservador', why: '¿Por qué?',
+        whyPromo: 'La promoción T5→T6 tiene ~30% ROI. Usas Spirit Shards (gratis de nivelación) para generar materiales más caros.',
+        whyDiversify: 'No pongas todo en un solo item. Si el precio cae, pierdes todo. Divide para minimizar riesgo.',
+        sortedBy: 'Ordenado por: Beneficio Total'
+    },
+    en: {
+        title: 'ACE ENGINE', subtitle: 'GW2 Trading Terminal', manual: 'MANUAL', link: 'Link', linked: 'Linked',
+        wallet: 'Wallet', gold: 'Gold', shards: 'Shards', liquidator: 'Liquidate Assets', liquidatorSub: 'Sell these dead assets:',
+        smartRoute: 'Smart Route', diversify: 'DIVERSIFY', opportunities: 'Opportunities', flips: 'FLIPS', recipe: 'Recipe',
+        iterations: 'Iterations', limit: 'Limit', totalCost: 'Cost', profit: 'Profit', protocol: 'Protocol', tip: 'Tip',
+        tipText: 'Use the Liquidator to convert dead assets into capital.', log: 'Log', loading: 'LOAD', ok: 'OK',
+        finance: 'Financial Architecture', realtime: 'Real-Time Analysis', total: 'Total', max: 'max', wikiLink: 'View on Wiki',
+        aggressive: 'Aggressive', moderate: 'Moderate', conservative: 'Conservative', why: 'Why?',
+        whyPromo: 'T5→T6 promotion has ~30% ROI. You use Spirit Shards (free from leveling) to create more valuable materials.',
+        whyDiversify: 'Don\'t put everything in one item. If the price drops, you lose it all. Diversify to minimize risk.',
+        sortedBy: 'Sorted by: Total Profit'
+    }
+};
+
 const MANUAL_CONTENT = {
-    finance: [
-        {
-            title: "1. Liquidez vs. Patrimonio",
-            content: "La Regla de Kilonova: Nunca dejes que tu liquidez baje del 20% de tu patrimonio operativo. Si tienes 73g, ese es tu motor. Convertirlo en objetos permanentes mata tu capacidad de aprovechar oportunidades."
-        },
-        {
-            title: "2. Trampa de la Amortización",
-            content: "Antes de comprar algo 'útil' (e.g. contratos), calcula el 'Breakeven'. Si necesitas 100,000 usos para amortizarlo, es un LUJO, no una inversión."
-        },
-        {
-            title: "3. Inversión Activa vs. Pasiva",
-            content: "Prioriza la Inversión Activa (Forja/Bazar) con ROI 10-20%. Solo pasa a Pasiva (Nodos/Recicladoras) cuando tu tiempo o el mercado saturen la activa."
-        },
-        {
-            title: "4. Coste de Oportunidad",
-            content: "Cada oro gastado en comodidad es oro que no está generando beneficios. Ejemplo: Gastar 200g en una recicladora hoy te cuesta ~50g/semana de beneficio potencil perdido."
-        },
-        {
-            title: "5. Magic Find vs. Oro/Hora",
-            content: "El MF no afecta a los cofres ni bolsas de botín (80% de tus ingresos). No te obsesiones. Prioriza builds de AoE y rotación de eventos (RIBA/Drizzlewood)."
-        },
-        {
-            title: "6. Escalones de Riqueza",
-            content: "1. Promoción T5-T6 (Base). 2. Especulación de Parches (100-500g). 3. Legendarias (1000g+). No saltes pasos."
-        }
-    ],
-    realtime: [
-        {
-            title: "1. Los Tres Pilares",
-            content: "Spread (>20%), Velocidad (Ventas/Hora altas) y Volumen (Muro de Competencia). No mires solo el margen, mira si se vende."
-        },
-        {
-            title: "2. Regla del Cobre (Undercut)",
-            content: "Siempre lista a 1 cobre menos. Nunca bajes por platas o destruirás el valor. Retira y relista solo si el precio se mueve significativamente tras 15 min."
-        },
-        {
-            title: "3. Flujo de Decisión (Algoritmo Kilonova)",
-            content: "¿Tengo T5? > ¿Polvo estable? > ¿Venta T6 > (Coste T5 + Polvo)/0.85? > SÍ: FORJA. NO: BANCO."
-        },
-        {
-            title: "4. Detección de Anomalías",
-            content: "Sangre T6 < 25s: Mercado Saturado (NO VENDER). Sangre T6 > 32s: Escasez (VENDER TODO)."
-        },
-        {
-            title: "5. El Factor API",
-            content: "Usa tu inventario como dato. Si tienes 0 oro pero 500 sangres, VENDE YA para recuperar liquidez (Motor)."
-        }
-    ]
+    es: {
+        finance: [
+            { title: "Liquidez 20%", content: "Mantén al menos 20% de tu patrimonio en oro líquido." },
+            { title: "Amortización", content: "Calcula el breakeven antes de comprar lujos." },
+            { title: "Diversificación", content: "Usa Smart Route para dividir capital entre Top 3." }
+        ],
+        realtime: [
+            { title: "Spread/Velocidad", content: "No solo margen, mira la velocidad de venta." },
+            { title: "Undercut 1c", content: "Lista siempre a 1 cobre menos." },
+            { title: "Tendencias", content: "Flechas 🔺/🔻 indican dirección del precio." }
+        ]
+    },
+    en: {
+        finance: [
+            { title: "20% Liquidity", content: "Keep at least 20% of your wealth in liquid gold." },
+            { title: "Amortization", content: "Calculate breakeven before buying luxuries." },
+            { title: "Diversification", content: "Use Smart Route to split capital across Top 3." }
+        ],
+        realtime: [
+            { title: "Spread/Velocity", content: "Not just margin, check sale velocity." },
+            { title: "Undercut 1c", content: "Always list at 1 copper less." },
+            { title: "Trends", content: "Arrows 🔺/🔻 indicate price direction." }
+        ]
+    }
 };
 
-// --- DATA CONSTANTS (TRANSLATED) ---
+// --- ITEM DATA with Wiki slugs ---
 const ITEM_DATA = {
-    // T6 Materials (ID: { name, icon, t5Id })
-    24295: { name: 'Colmillo Vicioso', t5: 24294, icon: 'E0B9C67E9B95D2999DEC3A7C5E83FBEA6D53F2E6' },
-    24357: { name: 'Escama Blindada', t5: 24356, icon: 'C5A274C2DE4E6A30C81FF2F1EE53F10D0A3D85F6' },
-    24289: { name: 'Garra Viciosa', t5: 24288, icon: '3B2C3B9B7B1F1B8D0E8C2D5E4B7A1F9C3D2E8B5' },
-    24351: { name: 'Hueso Antiguo', t5: 24350, icon: '9E8D7C6B5A4F3E2D1C0B9A8F7E6D5C4B3A29180' },
-    24350: { name: 'Hueso Grande', t5: 24349, icon: '1A2B3C4D5E6F7A8B9C0D1E2F3A4B5C6D7E8F9A0' },
-    24283: { name: 'Montón de Polvo Cristalino', t5: 24282, icon: 'B8A7C6D5E4F3A2918B7C6D5E4F3A2918B7C6D5E4' },
-    24299: { name: 'Tótem Elaborado', t5: 24298, icon: 'F1E2D3C4B5A69788F9E0D1C2B3A4F5E6D7C8B9A0' },
-    24341: { name: 'Saco de Veneno Poderoso', t5: 24340, icon: 'A1B2C3D4E5F6A7B8C9D0E1F2A3B4C5D6E7F8A9B0' }
+    // T6 Materials
+    24295: { name: { es: 'Colmillo Vicioso', en: 'Vicious Fang' }, wiki: 'Vicious_Fang', t5: 24294 },
+    24357: { name: { es: 'Escama Blindada', en: 'Armored Scale' }, wiki: 'Armored_Scale', t5: 24356 },
+    24289: { name: { es: 'Garra Viciosa', en: 'Vicious Claw' }, wiki: 'Vicious_Claw', t5: 24288 },
+    24351: { name: { es: 'Hueso Antiguo', en: 'Ancient Bone' }, wiki: 'Ancient_Bone', t5: 24350 },
+    24283: { name: { es: 'Polvo Cristalino', en: 'Crystalline Dust' }, wiki: 'Pile_of_Crystalline_Dust', t5: 24282 },
+    24299: { name: { es: 'Tótem Elaborado', en: 'Elaborate Totem' }, wiki: 'Elaborate_Totem', t5: 24298 },
+    24341: { name: { es: 'Veneno Poderoso', en: 'Powerful Venom Sac' }, wiki: 'Powerful_Venom_Sac', t5: 24340 },
+    24358: { name: { es: 'Sangre Poderosa', en: 'Powerful Blood' }, wiki: 'Vial_of_Powerful_Blood', t5: 24357 },
+    // T5 & Essentials
+    24294: { name: { es: 'Colmillo Grande', en: 'Large Fang' }, wiki: 'Large_Fang' },
+    24356: { name: { es: 'Escama Grande', en: 'Large Scale' }, wiki: 'Large_Scale' },
+    24288: { name: { es: 'Garra Grande', en: 'Large Claw' }, wiki: 'Large_Claw' },
+    24350: { name: { es: 'Hueso Grande', en: 'Large Bone' }, wiki: 'Large_Bone' },
+    24282: { name: { es: 'Polvo Luminoso', en: 'Luminous Dust' }, wiki: 'Pile_of_Luminous_Dust' },
+    24298: { name: { es: 'Tótem Intrincado', en: 'Intricate Totem' }, wiki: 'Intricate_Totem' },
+    24340: { name: { es: 'Veneno Potente', en: 'Potent Venom Sac' }, wiki: 'Potent_Venom_Sac' },
+    24277: { name: { es: 'Polvo Cristalino', en: 'Crystalline Dust' }, wiki: 'Pile_of_Crystalline_Dust' },
+    19721: { name: { es: 'Ectoplasma', en: 'Glob of Ectoplasm' }, wiki: 'Glob_of_Ectoplasm' },
+    19976: { name: { es: 'Moneda Mística', en: 'Mystic Coin' }, wiki: 'Mystic_Coin' }
 };
 
-const ESSENTIALS = {
-    ECTO: 19721, // Pegote de Ectoplasma
-    MYSTIC_COIN: 19976, // Moneda Mística
-    CRYSTALLINE_DUST: 24277, // Polvo Cristalino
-    SPIRIT_SHARD: 23 // Wallet ID
-};
+const ESSENTIALS = { ECTO: 19721, MYSTIC_COIN: 19976, CRYSTALLINE_DUST: 24277, SPIRIT_SHARD: 23 };
+const T6_IDS = [24295, 24357, 24289, 24351, 24283, 24299, 24341, 24358];
+const ALL_IDS = [...Object.keys(ITEM_DATA).map(Number), ...T6_IDS.map(id => ITEM_DATA[id]?.t5).filter(Boolean)];
+const ALL_LISTING_IDS = [...T6_IDS, ESSENTIALS.ECTO, ESSENTIALS.MYSTIC_COIN];
+const TREND_KEY = 'ace_trend_v1';
 
-const ALL_IDS = [
-    ...Object.keys(ITEM_DATA),
-    ...Object.values(ITEM_DATA).map(i => i.t5),
-    ...Object.values(ESSENTIALS).filter(id => id > 100) // Filter out wallet IDs
-];
+const getWikiUrl = (slug) => `https://wiki.guildwars2.com/wiki/${slug}`;
+const getItemName = (id, lang) => ITEM_DATA[id]?.name?.[lang] || ITEM_DATA[id]?.name?.en || `Item ${id}`;
 
-const ManualModal = ({ onClose }) => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200">
-
-            {/* Header */}
-            <div className="bg-slate-50 px-8 py-5 border-b border-slate-200 flex justify-between items-center">
-                <div>
-                    <h2 className="text-xl font-black text-slate-800 flex items-center gap-3">
-                        <BookOpen className="text-blue-600" /> MANUAL DE OPERACIONES 161914
-                    </h2>
-                    <p className="text-xs text-slate-500 uppercase tracking-widest font-bold mt-1">Estrategia Financiera & Análisis Tiempo Real</p>
+// --- MODAL ---
+const ManualModal = ({ onClose, lang }) => {
+    const t = LANG[lang];
+    const content = MANUAL_CONTENT[lang];
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/80 backdrop-blur-sm">
+            <div className="bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col border border-zinc-700">
+                <div className="bg-zinc-900 px-6 py-4 border-b border-zinc-700 flex justify-between items-center">
+                    <h2 className="text-lg font-black text-zinc-100 flex items-center gap-2"><BookOpen className="text-amber-500" /> MANUAL 161914</h2>
+                    <button onClick={onClose} className="p-2 hover:bg-zinc-700 rounded-full text-zinc-400 hover:text-white"><X size={20} /></button>
                 </div>
-                <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-500 hover:text-red-500">
-                    <X size={24} />
-                </button>
-            </div>
-
-            {/* Content */}
-            <div className="overflow-y-auto p-8 space-y-10 custom-scrollbar">
-
-                {/* SECTION 1 */}
-                <div>
-                    <h3 className="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
-                        <Target className="text-emerald-500" /> 1. Arquitectura Financiera
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {MANUAL_CONTENT.finance.map((item, i) => (
-                            <div key={i} className="bg-slate-50 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 transition-colors">
-                                <h4 className="font-bold text-slate-800 text-sm mb-2">{item.title}</h4>
-                                <p className="text-xs text-slate-600 leading-relaxed">{item.content}</p>
-                            </div>
-                        ))}
-                    </div>
+                <div className="overflow-y-auto p-6 space-y-6">
+                    <div><h3 className="text-sm font-bold text-zinc-300 mb-3 flex items-center gap-2"><Target className="text-emerald-400" /> {t.finance}</h3><div className="grid grid-cols-1 md:grid-cols-3 gap-3">{content.finance.map((item, i) => <div key={i} className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-700"><h4 className="font-bold text-zinc-200 text-xs mb-1">{item.title}</h4><p className="text-[11px] text-zinc-400">{item.content}</p></div>)}</div></div>
+                    <div><h3 className="text-sm font-bold text-zinc-300 mb-3 flex items-center gap-2"><Zap className="text-amber-400" /> {t.realtime}</h3><div className="grid grid-cols-1 md:grid-cols-3 gap-3">{content.realtime.map((item, i) => <div key={i} className="bg-zinc-900/50 p-3 rounded-lg border border-zinc-700"><h4 className="font-bold text-zinc-200 text-xs mb-1">{item.title}</h4><p className="text-[11px] text-zinc-400">{item.content}</p></div>)}</div></div>
                 </div>
-
-                {/* SECTION 2 */}
-                <div>
-                    <h3 className="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
-                        <Zap className="text-amber-500" /> 2. Análisis de Mercado en Tiempo Real
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {MANUAL_CONTENT.realtime.map((item, i) => (
-                            <div key={i} className="bg-slate-50 p-4 rounded-xl border border-slate-100 hover:border-amber-200 transition-colors">
-                                <h4 className="font-bold text-slate-800 text-sm mb-2">{item.title}</h4>
-                                <p className="text-xs text-slate-600 leading-relaxed">{item.content}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="bg-blue-50 p-5 rounded-xl border border-blue-100 text-center">
-                    <p className="text-sm font-bold text-blue-800 mb-1">Conclusión</p>
-                    <p className="text-xs text-blue-600 italic">"El análisis en tiempo real no es adivinar el futuro, es reaccionar al presente con los datos de tu API y los del Bazar cruzados."</p>
-                </div>
-
             </div>
         </div>
-    </div>
-);
+    );
+};
 
+// --- MAIN APP ---
 const App = () => {
+    const [lang, setLang] = useState(localStorage.getItem('ace_lang') || 'es');
     const [prices, setPrices] = useState({});
     const [listings, setListings] = useState({});
-    const [gemRate, setGemRate] = useState(null);
+    const [trends, setTrends] = useState({});
     const [loading, setLoading] = useState(true);
-    const [lastUpdate, setLastUpdate] = useState(null);
     const [apiKey, setApiKey] = useState(localStorage.getItem('ace_api_key') || '');
     const [userData, setUserData] = useState({ wallet: {}, materials: {} });
     const [showKeyInput, setShowKeyInput] = useState(false);
     const [showManual, setShowManual] = useState(false);
-    const [auditLog, setAuditLog] = useState([
-        { agent: "ACE_Core", msg: "Sistema iniciado.", type: "info" }
-    ]);
+    const [expandedId, setExpandedId] = useState(null);
+    const [customIterations, setCustomIterations] = useState({});
+    const [aggressiveness, setAggressiveness] = useState(localStorage.getItem('ace_aggro') || 'moderate'); // conservative, moderate, aggressive
+    const [auditLog, setAuditLog] = useState([{ agent: "ACE", msg: "v8 Init", type: "info" }]);
 
-    const CACHE_KEY = 'ace_gw2_data_v2';
+    const t = LANG[lang];
+    const toggleLang = () => { const newLang = lang === 'es' ? 'en' : 'es'; setLang(newLang); localStorage.setItem('ace_lang', newLang); };
+    const cycleAggro = () => { const modes = ['conservative', 'moderate', 'aggressive']; const next = modes[(modes.indexOf(aggressiveness) + 1) % 3]; setAggressiveness(next); localStorage.setItem('ace_aggro', next); };
+    const getAggroMultiplier = () => ({ conservative: 0.5, moderate: 1, aggressive: 1.5 }[aggressiveness]);
+    const getAggroLabel = () => ({ conservative: t.conservative, moderate: t.moderate, aggressive: t.aggressive }[aggressiveness]);
+    const getAggroColor = () => ({ conservative: 'text-blue-400', moderate: 'text-amber-400', aggressive: 'text-red-400' }[aggressiveness]);
 
     const addAudit = useCallback((agent, msg, type = "info") => {
-        const time = new Date().toLocaleTimeString('es-ES', { hour12: false });
-        setAuditLog(prev => [{ agent, msg, time, type }, ...prev.slice(0, 8)]);
+        setAuditLog(prev => [{ agent, msg, time: new Date().toLocaleTimeString('es-ES', { hour12: false }), type }, ...prev.slice(0, 6)]);
     }, []);
 
-    // --- API LOGIC ---
+    const updateTrendHistory = useCallback((priceMap) => {
+        try {
+            const history = JSON.parse(localStorage.getItem(TREND_KEY) || '{}');
+            const now = Date.now();
+            Object.keys(priceMap).forEach(id => {
+                if (!history[id]) history[id] = [];
+                history[id].push({ price: priceMap[id].sells?.unit_price || 0, ts: now });
+                history[id] = history[id].slice(-10);
+            });
+            localStorage.setItem(TREND_KEY, JSON.stringify(history));
+            const trendMap = {};
+            Object.keys(history).forEach(id => {
+                const data = history[id];
+                if (data.length > 1) {
+                    const avg = data.slice(0, -1).reduce((a, c) => a + c.price, 0) / (data.length - 1);
+                    trendMap[id] = data[data.length - 1].price > avg ? 'up' : data[data.length - 1].price < avg ? 'down' : 'flat';
+                }
+            });
+            setTrends(trendMap);
+        } catch (e) { console.error(e); }
+    }, []);
+
     const fetchMarketData = useCallback(async (silent = false) => {
         if (!silent) setLoading(true);
         try {
-            const [priceRes, gemRes, listingRes] = await Promise.all([
+            const [priceRes, listingRes] = await Promise.all([
                 fetch(`https://api.guildwars2.com/v2/commerce/prices?ids=${ALL_IDS.join(',')}`),
-                fetch(`https://api.guildwars2.com/v2/commerce/exchange/gems?quantity=100`),
-                fetch(`https://api.guildwars2.com/v2/commerce/listings?ids=${ESSENTIALS.ECTO},${ESSENTIALS.MYSTIC_COIN}`)
+                fetch(`https://api.guildwars2.com/v2/commerce/listings?ids=${ALL_LISTING_IDS.join(',')}`)
             ]);
-
             const priceData = await priceRes.json();
-            const gemData = await gemRes.json();
             const listingData = await listingRes.json();
-
-            const priceMap = {};
-            priceData.forEach(p => priceMap[p.id] = p);
-
-            const listingMap = {};
-            listingData.forEach(l => listingMap[l.id] = l);
-
-            setPrices(priceMap);
-            setListings(listingMap);
-            setGemRate(gemData);
-            setLastUpdate(new Date());
-
-            localStorage.setItem(CACHE_KEY, JSON.stringify({
-                prices: priceMap,
-                gemRate: gemData,
-                timestamp: new Date().toISOString()
-            }));
-
-            addAudit("Mercado", "Datos de precios actualizados", "success");
-        } catch (error) {
-            console.error(error);
-            addAudit("Error Mercado", "Fallo al conectar con API pública", "error");
-        } finally {
-            if (!silent) setLoading(false);
-        }
-    }, [addAudit]);
+            const priceMap = {}; priceData.forEach(p => priceMap[p.id] = p);
+            const listingMap = {}; listingData.forEach(l => { listingMap[l.id] = { ...l, supply: l.sells?.slice(0, 10).reduce((a, c) => a + c.quantity, 0) || 0 }; });
+            setPrices(priceMap); setListings(listingMap); updateTrendHistory(priceMap);
+            addAudit("Market", "Synced", "success");
+        } catch (e) { addAudit("Error", e.message, "error"); }
+        finally { if (!silent) setLoading(false); }
+    }, [addAudit, updateTrendHistory]);
 
     const fetchUserData = useCallback(async () => {
         if (!apiKey) return;
         try {
-            const [walletRes, matsRes] = await Promise.all([
+            const [walletRes, matsRes, bankRes] = await Promise.all([
                 fetch(`https://api.guildwars2.com/v2/account/wallet?access_token=${apiKey}`),
-                fetch(`https://api.guildwars2.com/v2/account/materials?access_token=${apiKey}`)
+                fetch(`https://api.guildwars2.com/v2/account/materials?access_token=${apiKey}`),
+                fetch(`https://api.guildwars2.com/v2/account/bank?access_token=${apiKey}`)
             ]);
-
-            if (!walletRes.ok || !matsRes.ok) throw new Error("API Key inválida o permisos insuficientes");
-
-            const walletData = await walletRes.json();
-            const matsData = await matsRes.json();
-
-            const walletMap = {};
-            walletData.forEach(c => walletMap[c.id] = c.value);
-
-            const matsMap = {};
-            matsData.forEach(m => matsMap[m.id] = m.count);
-
+            if (!walletRes.ok) throw new Error("Invalid Key");
+            const [wallet, mats, bank] = await Promise.all([walletRes.json(), matsRes.json(), bankRes.json()]);
+            const walletMap = {}; wallet.forEach(c => walletMap[c.id] = c.value);
+            const matsMap = {}; mats.forEach(m => matsMap[m.id] = (matsMap[m.id] || 0) + m.count);
+            bank.forEach(item => { if (item) matsMap[item.id] = (matsMap[item.id] || 0) + item.count; });
             setUserData({ wallet: walletMap, materials: matsMap });
-            addAudit("Cuenta", "Datos de billetera y materiales sincronizados", "success");
-        } catch (error) {
-            addAudit("Error Cuenta", error.message, "error");
-        }
+            addAudit("Account", "Synced", "success");
+        } catch (e) { addAudit("Error", e.message, "error"); }
     }, [apiKey, addAudit]);
 
-    useEffect(() => {
-        fetchMarketData();
-        if (apiKey) fetchUserData();
+    useEffect(() => { fetchMarketData(); if (apiKey) fetchUserData(); const i = setInterval(() => { fetchMarketData(true); if (apiKey) fetchUserData(); }, 300000); return () => clearInterval(i); }, [fetchMarketData, fetchUserData, apiKey]);
 
-        const interval = setInterval(() => {
-            fetchMarketData(true);
-            if (apiKey) fetchUserData();
-        }, 300000); // 5 min
+    const saveKey = (key) => { setApiKey(key); localStorage.setItem('ace_api_key', key); setShowKeyInput(false); addAudit("Config", "Key saved"); setTimeout(fetchUserData, 500); };
+    const formatGold = (c) => { if (!c && c !== 0) return "---"; const a = Math.abs(c); return <span className="font-mono">{c < 0 ? '-' : ''}{Math.floor(a / 10000)}<span className="text-amber-400">g</span> {Math.floor((a % 10000) / 100)}<span className="text-zinc-500">s</span></span>; };
 
-        return () => clearInterval(interval);
-    }, [fetchMarketData, fetchUserData, apiKey]);
-
-    const saveKey = (key) => {
-        setApiKey(key);
-        localStorage.setItem('ace_api_key', key);
-        setShowKeyInput(false);
-        addAudit("Config", "API Key guardada", "info");
-        setTimeout(fetchUserData, 500);
-    };
-
-    // --- CALCULATIONS ---
-    const formatGold = (copper) => {
-        if (!copper && copper !== 0) return "---";
-        const absCopper = Math.abs(copper);
-        const g = Math.floor(absCopper / 10000);
-        const s = Math.floor((absCopper % 10000) / 100);
-        const c = Math.floor(absCopper % 100);
-        const sign = copper < 0 ? '-' : '';
-        return (
-            <span className="font-mono whitespace-nowrap">
-                {sign}{g}<span className="text-yellow-600 font-bold">g</span>{' '}
-                {s}<span className="text-slate-400 font-bold">s</span>{' '}
-                {c}<span className="text-orange-600 font-bold">c</span>
-            </span>
-        );
-    };
-
-    const calculatePromotion = (t6Id) => {
-        const item = ITEM_DATA[t6Id];
-        const t6 = prices[t6Id];
-        const t5 = prices[item.t5];
-        const dust = prices[ESSENTIALS.CRYSTALLINE_DUST];
-
+    const calculatePromotion = (t6Id, overrideIter = null) => {
+        const item = ITEM_DATA[t6Id]; if (!item?.t5) return null;
+        const t6 = prices[t6Id], t5 = prices[item.t5], dust = prices[ESSENTIALS.CRYSTALLINE_DUST];
         if (!t6 || !t5 || !dust) return null;
-
         const cost = (50 * t5.buys.unit_price) + (1 * t6.buys.unit_price) + (5 * dust.buys.unit_price);
         const revenue = (6.85 * t6.sells.unit_price) * 0.85;
-
-        return {
-            cost,
-            revenue,
-            profit: revenue - cost,
-            roi: ((revenue - cost) / cost) * 100,
-            t5Id: item.t5
-        };
+        const profit = revenue - cost;
+        let maxCrafts = 9999, limitReason = "Market";
+        if (apiKey) {
+            const shardLimit = Math.floor((userData.wallet[23] || 0) * 2);
+            const dustLimit = Math.floor((userData.materials[ESSENTIALS.CRYSTALLINE_DUST] || 0) / 5);
+            const t5Limit = Math.floor((userData.materials[item.t5] || 0) / 50);
+            maxCrafts = Math.min(shardLimit, dustLimit, t5Limit);
+            if (maxCrafts === shardLimit) limitReason = "Shards";
+            else if (maxCrafts === dustLimit) limitReason = "Dust";
+            else if (maxCrafts === t5Limit) limitReason = "T5";
+        }
+        const chosen = overrideIter !== null ? overrideIter : maxCrafts;
+        return { cost, profit, roi: ((revenue - cost) / cost) * 100, t5Id: item.t5, maxCrafts, limitReason, chosen, totalCost: cost * chosen, potentialProfit: profit * chosen };
     };
-
-    const ectoFlip = useMemo(() => {
-        const ecto = prices[ESSENTIALS.ECTO];
-        if (!ecto) return null;
-        return {
-            profit: (ecto.sells.unit_price * 0.85) - ecto.buys.unit_price,
-            margin: (((ecto.sells.unit_price * 0.85) - ecto.buys.unit_price) / ecto.buys.unit_price) * 100
-        };
-    }, [prices]);
 
     const opportunities = useMemo(() => {
         const ops = [];
-        Object.keys(ITEM_DATA).forEach(t6Id => {
-            const calc = calculatePromotion(t6Id);
-            if (calc && calc.roi > 10) {
-                ops.push({
-                    type: 'promo',
-                    item: ITEM_DATA[t6Id],
-                    id: t6Id,
-                    ...calc
-                });
+        T6_IDS.forEach(t6Id => {
+            const calc = calculatePromotion(t6Id, customIterations[t6Id]);
+            if (calc && calc.roi > 5) ops.push({ id: t6Id, item: ITEM_DATA[t6Id], trend: trends[t6Id], ...calc });
+        });
+        return ops.sort((a, b) => b.potentialProfit - a.potentialProfit); // Sort by TOTAL PROFIT, not ROI
+    }, [prices, userData, customIterations, trends]);
+
+    const liquidatorData = useMemo(() => {
+        if (!apiKey) return [];
+        const sellables = [];
+        Object.keys(userData.materials).forEach(id => {
+            const count = userData.materials[id];
+            const priceInfo = prices[id];
+            if (count > 0 && priceInfo) {
+                const value = count * priceInfo.sells.unit_price * 0.85;
+                if (value > 10000) sellables.push({ id: Number(id), count, value });
             }
         });
-        return ops.sort((a, b) => b.roi - a.roi);
-    }, [prices]);
+        return sellables.sort((a, b) => b.value - a.value).slice(0, 5);
+    }, [userData, prices, apiKey]);
 
+    const smartRoute = useMemo(() => {
+        if (opportunities.length < 2) return null;
+        const top3 = opportunities.slice(0, 3);
+        const totalRoi = top3.reduce((a, c) => a + c.roi, 0);
+        return top3.map(op => ({ ...op, allocation: Math.round((op.roi / totalRoi) * 100) }));
+    }, [opportunities]);
+
+    const handleIterChange = (id, v) => setCustomIterations(prev => ({ ...prev, [id]: parseInt(v, 10) || 0 }));
+
+    // --- RENDER ---
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-800 p-4 md:p-8 font-sans relative">
-            {showManual && <ManualModal onClose={() => setShowManual(false)} />}
+        <div className="min-h-screen bg-zinc-900 text-zinc-100 p-4 md:p-6 font-sans">
+            {showManual && <ManualModal onClose={() => setShowManual(false)} lang={lang} />}
 
             {/* HEADER */}
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6 border-b border-slate-200 pb-6 bg-white p-6 rounded-2xl shadow-sm">
-                <div className="flex items-center gap-5">
-                    <div className="bg-blue-600 p-3 rounded-lg shadow-lg shadow-blue-200">
-                        <Cpu className="w-8 h-8 text-white" />
-                    </div>
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-zinc-800 pb-4 bg-zinc-800/50 p-4 rounded-xl">
+                <div className="flex items-center gap-4">
+                    <div className="bg-amber-600 p-2.5 rounded-lg"><Cpu className="w-7 h-7 text-zinc-900" /></div>
                     <div>
-                        <h1 className="text-2xl font-black tracking-tight text-slate-900 leading-none">
-                            MOTOR ACE <span className="text-blue-600">161914</span>
-                        </h1>
-                        <div className="flex items-center gap-2 mt-1.5">
-                            <p className="text-xs uppercase tracking-widest text-slate-500 font-bold">
-                                Terminal de Trading GW2
-                            </p>
-                            <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${loading ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                                {loading ? 'CARGANDO' : 'ONLINE'}
-                            </div>
-                        </div>
+                        <h1 className="text-xl font-black tracking-tight text-zinc-100">{t.title} <span className="text-amber-500">161914</span></h1>
+                        <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">{t.subtitle} v8</p>
                     </div>
                 </div>
-
-                <div className="flex gap-4 w-full md:w-auto items-center">
-
-                    <button
-                        onClick={() => setShowManual(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-lg text-xs font-bold hover:bg-slate-700 transition-colors shadow-sm"
-                    >
-                        <BookOpen size={14} />
-                        <span className="hidden md:inline">MANUAL 161914</span>
-                    </button>
-
-                    {/* API KEY INPUT */}
-                    <div className="relative">
-                        {showKeyInput ? (
-                            <div className="flex gap-2 animate-scan">
-                                <input
-                                    type="text"
-                                    placeholder="Pegar API Key (usada localmente)"
-                                    className="bg-slate-100 border border-slate-300 rounded px-2 text-xs w-48 focus:outline-none focus:border-blue-500"
-                                    onBlur={(e) => saveKey(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && saveKey(e.target.value)}
-                                    autoFocus
-                                />
-                            </div>
-                        ) : (
-                            <button
-                                onClick={() => setShowKeyInput(true)}
-                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${apiKey ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'}`}
-                            >
-                                <Key size={14} />
-                                {apiKey ? 'API Conectada' : 'Vincular Cuenta'}
-                            </button>
-                        )}
-                    </div>
-
-                    <div className="bg-slate-100 px-5 py-2.5 rounded-lg border border-slate-200 hidden md:block">
-                        <p className="text-[10px] uppercase text-slate-500 font-bold mb-1">Gemas/Oro</p>
-                        <p className="text-sm font-bold text-slate-800">
-                            {gemRate ? formatGold(gemRate.coins_per_gem * 100) : "---"}
-                        </p>
-                    </div>
-
-                    <button
-                        onClick={() => { fetchMarketData(); fetchUserData(); }}
-                        disabled={loading}
-                        className="bg-slate-900 hover:bg-slate-800 text-white disabled:bg-slate-300 disabled:cursor-not-allowed transition-all p-3 rounded-lg shadow-sm hover:shadow-md"
-                    >
-                        <RefreshCcw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
-                    </button>
+                <div className="flex gap-2 items-center">
+                    <button onClick={toggleLang} className="flex items-center gap-1 px-2 py-1 bg-zinc-700 text-zinc-300 rounded text-[10px] font-bold hover:bg-zinc-600"><Globe size={12} /> {lang.toUpperCase()}</button>
+                    <button onClick={cycleAggro} className={`flex items-center gap-1 px-2 py-1 bg-zinc-700 rounded text-[10px] font-bold hover:bg-zinc-600 ${getAggroColor()}`}><Target size={12} /> {getAggroLabel()}</button>
+                    <button onClick={() => setShowManual(true)} className="flex items-center gap-1 px-2 py-1 bg-zinc-700 text-zinc-300 rounded text-[10px] font-bold hover:bg-zinc-600"><BookOpen size={12} /> {t.manual}</button>
+                    {showKeyInput ? <input type="text" placeholder="API Key" className="bg-zinc-700 border border-zinc-600 rounded px-2 py-1 text-xs w-36 text-zinc-100" onBlur={(e) => saveKey(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && saveKey(e.target.value)} autoFocus /> : <button onClick={() => setShowKeyInput(true)} className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold ${apiKey ? 'bg-emerald-900/50 text-emerald-400 border border-emerald-800' : 'bg-zinc-700 text-zinc-400'}`}><Key size={12} /> {apiKey ? t.linked : t.link}</button>}
+                    <button onClick={() => { fetchMarketData(); fetchUserData(); }} disabled={loading} className="bg-amber-600 hover:bg-amber-500 text-zinc-900 p-2 rounded disabled:opacity-50"><RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /></button>
                 </div>
             </header>
 
-            {/* GRID PRINCIPAL */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-                {/* LEFT COL - AUDIT & STATUS */}
-                <div className="lg:col-span-3 space-y-6">
-                    <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm h-[300px] flex flex-col">
-                        <h3 className="text-xs font-bold text-slate-400 uppercase mb-4 flex items-center gap-2">
-                            <Database size={14} /> Registro del Sistema
-                        </h3>
-                        <div className="space-y-3 overflow-y-auto flex-1 pr-2">
-                            {auditLog.map((log, i) => (
-                                <div key={i} className="text-xs border-b border-slate-100 pb-2 last:border-0">
-                                    <div className="flex justify-between text-slate-400 mb-1 font-mono text-[10px]">
-                                        <span className="font-bold text-slate-500">[{log.agent}]</span>
-                                        <span>{log.time}</span>
-                                    </div>
-                                    <p className={`font-medium ${log.type === 'error' ? 'text-red-600' :
-                                            log.type === 'success' ? 'text-emerald-600' : 'text-slate-600'
-                                        }`}>
-                                        {log.msg}
-                                    </p>
-                                </div>
-                            ))}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* LEFT */}
+                <div className="lg:col-span-3 space-y-4">
+                    <div className="bg-zinc-800 rounded-xl p-4 border border-zinc-700 h-[220px] flex flex-col">
+                        <h3 className="text-[10px] font-bold text-zinc-500 uppercase mb-2 flex items-center gap-1"><Database size={12} /> {t.log}</h3>
+                        <div className="space-y-1.5 overflow-y-auto flex-1 pr-1 text-[10px]">
+                            {auditLog.map((log, i) => <div key={i} className="border-b border-zinc-700/50 pb-1"><span className="text-zinc-600 font-mono">[{log.agent}]</span> <span className={log.type === 'error' ? 'text-red-400' : log.type === 'success' ? 'text-emerald-400' : 'text-zinc-400'}>{log.msg}</span></div>)}
                         </div>
                     </div>
-
-                    {/* USER WALLET MINI */}
-                    {apiKey && (
-                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                            <h3 className="text-xs font-bold text-slate-400 uppercase mb-3 flex items-center gap-2">
-                                <Wallet size={14} /> Billetera Líquida
-                            </h3>
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-xs text-slate-500">Oro</span>
-                                <span className="font-bold text-sm">{userData.wallet[1] ? formatGold(userData.wallet[1]) : '0'}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-xs text-slate-500">Spirit Shards</span>
-                                <span className="font-bold text-sm text-purple-600">{userData.wallet[23] || 0}</span>
-                            </div>
+                    {apiKey && <div className="bg-zinc-800 p-4 rounded-xl border border-zinc-700"><h3 className="text-[10px] font-bold text-zinc-500 uppercase mb-2 flex items-center gap-1"><Wallet size={12} /> {t.wallet}</h3><div className="flex justify-between text-xs"><span className="text-zinc-500">{t.gold}</span><span className="font-bold">{formatGold(userData.wallet[1])}</span></div><div className="flex justify-between text-xs mt-1"><span className="text-zinc-500">{t.shards}</span><span className="font-bold text-purple-400">{userData.wallet[23] || 0}</span></div></div>}
+                    {apiKey && liquidatorData.length > 0 && (
+                        <div className="bg-red-950/30 p-4 rounded-xl border border-red-900/50">
+                            <h3 className="text-[10px] font-bold text-red-400 uppercase mb-1 flex items-center gap-1"><Trash2 size={12} /> {t.liquidator}</h3>
+                            <p className="text-[9px] text-red-300/70 mb-2">{t.liquidatorSub}</p>
+                            <div className="space-y-1">{liquidatorData.map((item, i) => <div key={i} className="flex justify-between text-[10px]"><a href={getWikiUrl(ITEM_DATA[item.id]?.wiki)} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-amber-400 truncate flex-1 flex items-center gap-1">{item.count}x {getItemName(item.id, lang)} <ExternalLink size={9} className="text-zinc-600" /></a><span className="font-bold text-emerald-400 ml-2">{formatGold(item.value)}</span></div>)}</div>
+                            <div className="mt-2 pt-2 border-t border-red-900/50 text-right"><span className="text-[10px] text-red-300 font-bold">{t.total}: {formatGold(liquidatorData.reduce((a, c) => a + c.value, 0))}</span></div>
                         </div>
                     )}
                 </div>
 
-                {/* CENTER COL - OPPORTUNITIES */}
-                <div className="lg:col-span-6 space-y-5">
-                    <div className="flex items-center justify-between mb-1">
-                        <h2 className="text-lg font-bold flex items-center gap-2 text-slate-800">
-                            <Activity className="text-blue-600" size={20} />
-                            Oportunidades en Vivo
-                        </h2>
-                        <span className="text-xs font-bold bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-100">
-                            {opportunities.length} FLIPS ACTIVOS
-                        </span>
-                    </div>
-
-                    <div className="space-y-3">
-                        {opportunities.length === 0 ? (
-                            <div className="bg-white p-12 text-center rounded-xl border border-slate-200 shadow-sm opacity-70">
-                                <AlertTriangle className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                                <p className="text-slate-500 font-medium">Esperando datos del mercado...</p>
-                            </div>
-                        ) : (
-                            opportunities.map((opp) => (
-                                <div key={opp.id} className="bg-white p-4 rounded-xl border border-slate-200 hover:border-blue-400 shadow-sm hover:shadow-md transition-all group cursor-pointer relative overflow-hidden">
-                                    <div className="flex items-center justify-between relative z-10">
-                                        <div className="flex items-center gap-4">
-                                            <div className="relative">
-                                                <img
-                                                    src={`https://render.guildwars2.com/file/${opp.item.icon}/64.png`}
-                                                    alt={opp.item.name}
-                                                    className="w-12 h-12 rounded-lg bg-slate-100 shadow-inner p-1"
-                                                    onError={(e) => e.target.style.display = 'none'}
-                                                />
-                                                {/* INVENTORY BADGE */}
-                                                {userData.materials[opp.t5Id] > 50 && (
-                                                    <div className="absolute -top-2 -left-2 bg-blue-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold shadow-sm border border-white">
-                                                        Tienes Mats
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div>
-                                                <h3 className="font-bold text-slate-800 text-base">{opp.item.name}</h3>
-                                                <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
-                                                    T5: {prices[opp.t5Id]?.buys.unit_price ? formatGold(prices[opp.t5Id].buys.unit_price) : '...'}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="text-right">
-                                            <div className="flex items-center gap-1.5 justify-end text-emerald-600 font-black text-lg">
-                                                <ArrowUpRight size={20} className="text-emerald-500" />
-                                                {opp.roi.toFixed(1)}%
-                                            </div>
-                                            <p className="text-xs text-slate-400 font-medium mt-0.5">
-                                                Profit: {formatGold(opp.profit)}
-                                            </p>
+                {/* CENTER */}
+                <div className="lg:col-span-6 space-y-4">
+                    {smartRoute && (
+                        <div className="bg-indigo-950/30 rounded-xl p-4 border border-indigo-900/50">
+                            <div className="flex justify-between items-center mb-2"><h3 className="text-xs font-bold text-indigo-300 flex items-center gap-1"><PieChart size={14} /> {t.smartRoute}</h3><span className="text-[9px] bg-indigo-900/50 px-1.5 py-0.5 rounded text-indigo-400 font-bold">{t.diversify}</span></div>
+                            <div className="flex h-2 rounded-full overflow-hidden mb-2">{smartRoute.map((item, i) => <div key={i} style={{ width: `${item.allocation}%` }} className={`h-full ${i === 0 ? 'bg-blue-500' : i === 1 ? 'bg-emerald-500' : 'bg-purple-500'}`}></div>)}</div>
+                            <div className="grid grid-cols-3 gap-1">{smartRoute.map((item, i) => <div key={i} className="text-center"><p className={`text-[10px] font-bold ${i === 0 ? 'text-blue-400' : i === 1 ? 'text-emerald-400' : 'text-purple-400'}`}>{item.allocation}%</p><a href={getWikiUrl(item.item.wiki)} target="_blank" rel="noopener noreferrer" className="text-[9px] text-zinc-400 hover:text-amber-400 truncate block">{getItemName(item.id, lang)}</a></div>)}</div>
+                        </div>
+                    )}
+                    <div className="flex items-center justify-between"><h2 className="text-base font-bold flex items-center gap-1 text-zinc-200"><Activity className="text-amber-500" size={18} /> {t.opportunities}</h2><span className="text-[10px] font-bold bg-amber-900/30 text-amber-400 px-2 py-0.5 rounded-full border border-amber-800/50">{opportunities.length} {t.flips}</span></div>
+                    <div className="space-y-2">
+                        {opportunities.length === 0 ? <div className="bg-zinc-800 p-10 text-center rounded-xl border border-zinc-700"><AlertTriangle className="w-8 h-8 text-zinc-600 mx-auto mb-2" /><p className="text-zinc-500 text-sm">{loading ? t.loading : 'No data'}</p></div> : opportunities.map((opp) => (
+                            <div key={opp.id} className={`bg-zinc-800 rounded-xl border transition-all cursor-pointer ${expandedId === opp.id ? 'border-amber-600 ring-1 ring-amber-900' : 'border-zinc-700 hover:border-zinc-600'}`} onClick={() => setExpandedId(expandedId === opp.id ? null : opp.id)}>
+                                <div className="p-3 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-zinc-700 rounded-lg flex items-center justify-center text-lg font-bold text-amber-500">{getItemName(opp.id, lang).charAt(0)}</div>
+                                        <div>
+                                            <h3 className="font-bold text-zinc-200 text-sm flex items-center gap-1.5">
+                                                <a href={getWikiUrl(opp.item.wiki)} target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>{getItemName(opp.id, lang)} <ExternalLink size={10} className="text-zinc-600" /></a>
+                                                {opp.trend === 'up' && <TrendingUp size={12} className="text-emerald-400" />}
+                                                {opp.trend === 'down' && <TrendingDown size={12} className="text-red-400" />}
+                                            </h3>
+                                            <span className="text-[9px] text-zinc-500 font-mono">T5: {formatGold(prices[opp.t5Id]?.buys?.unit_price)}</span>
                                         </div>
                                     </div>
+                                    <div className="text-right flex items-center gap-3">
+                                        <div><div className="flex items-center gap-1 justify-end text-emerald-400 font-black text-base"><ArrowUpRight size={16} />{opp.roi.toFixed(1)}%</div><p className="text-[10px] text-zinc-500">{formatGold(opp.profit)} /u</p></div>
+                                        {expandedId === opp.id ? <ChevronUp size={14} className="text-zinc-500" /> : <ChevronDown size={14} className="text-zinc-500" />}
+                                    </div>
                                 </div>
-                            ))
-                        )}
+                                {expandedId === opp.id && (
+                                    <div className="px-3 pb-3" onClick={(e) => e.stopPropagation()}>
+                                        <div className="bg-zinc-900 rounded-lg p-3 border border-zinc-700 text-xs">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div><p className="font-bold text-zinc-400 flex items-center gap-1 mb-1"><FlaskConical size={11} className="text-purple-400" /> {t.recipe}:</p><ul className="pl-3 space-y-0.5 text-zinc-500 font-mono text-[10px]"><li>50x T5</li><li>1x T6</li><li>5x Dust</li><li>5x Stones</li></ul></div>
+                                                <div className="text-right"><p className="font-bold text-zinc-400 flex items-center justify-end gap-1 mb-1"><Calculator size={11} className="text-blue-400" /> {t.iterations}:</p><div className="flex items-center gap-1 justify-end"><input type="number" className="w-14 text-center bg-zinc-800 border border-zinc-600 rounded px-1 py-0.5 text-xs font-bold text-zinc-100" value={customIterations[opp.id] !== undefined ? customIterations[opp.id] : opp.maxCrafts} onChange={(e) => handleIterChange(opp.id, e.target.value)} min="0" /><span className="text-[9px] text-zinc-500">/ {opp.maxCrafts} {t.max}</span></div><p className="text-[9px] text-amber-500 font-bold mt-1">{t.limit}: {opp.limitReason}</p></div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-zinc-700"><div className="text-center bg-zinc-800 p-2 rounded"><p className="text-[9px] text-zinc-500 uppercase font-bold">{t.totalCost}</p><p className="font-mono font-bold text-red-400 text-sm">{formatGold(opp.totalCost)}</p></div><div className="text-center bg-emerald-950/30 p-2 rounded"><p className="text-[9px] text-zinc-500 uppercase font-bold">{t.profit}</p><p className="font-mono font-bold text-emerald-400 text-sm">{formatGold(opp.potentialProfit)}</p></div></div>
+                                            <div className="mt-2 pt-2 border-t border-zinc-700/50"><p className="text-[9px] text-indigo-400 italic flex items-center gap-1"><Puzzle size={10} /> {t.why} {t.whyPromo}</p></div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                {/* RIGHT COL - TRADING GUIDE */}
-                <div className="lg:col-span-3 space-y-6">
-                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="bg-slate-50 px-5 py-3 border-b border-slate-100 flex justify-between items-center">
-                            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-widest flex items-center gap-2">
-                                <Clock size={14} className="text-blue-600" /> Protocolo de Trading
-                            </h3>
-                            <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold">BAZAR ONLY</span>
-                        </div>
-
-                        <div className="p-2">
-                            {[
-                                {
-                                    task: "Promoción T6 (Spirit Shards)",
-                                    status: userData.wallet[23] > 0 ? `${userData.wallet[23]} Shards Disp.` : "Sin Shards",
-                                    profit: opportunities.length > 0 ? opportunities[0].profit : 0,
-                                    active: userData.wallet[23] > 0
-                                },
-                                {
-                                    task: "Flip de Ectoplasmas",
-                                    status: `Stock: ${userData.materials[ESSENTIALS.ECTO] || 0}`,
-                                    profit: ectoFlip ? ectoFlip.profit : 0,
-                                    active: true
-                                },
-                                {
-                                    task: "Arbitraje Mon. Místicas",
-                                    status: `Stock: ${userData.materials[ESSENTIALS.MYSTIC_COIN] || 0}`,
-                                    profit: prices[ESSENTIALS.MYSTIC_COIN] ? (prices[ESSENTIALS.MYSTIC_COIN].sells.unit_price * 0.85) - prices[ESSENTIALS.MYSTIC_COIN].buys.unit_price : 0,
-                                    active: true
-                                }
-                            ].sort((a, b) => b.profit - a.profit).map((item, idx) => (
-                                <div key={idx} className={`flex items-start gap-3 p-3 rounded-lg transition-colors border-b border-slate-50 last:border-0 ${item.active ? 'opacity-100 hover:bg-slate-50 cursor-pointer' : 'opacity-50'}`}>
-                                    <div className={`mt-1 w-2 h-2 rounded-full ${item.profit > 1000 ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
-                                    <div className="flex-1">
-                                        <div className="flex justify-between">
-                                            <p className="text-xs font-bold text-slate-700">{item.task}</p>
-                                            {item.profit > 0 && (
-                                                <span className="text-[10px] font-mono text-emerald-600 bg-emerald-50 px-1 rounded">
-                                                    {formatGold(item.profit)}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <p className="text-[10px] text-slate-400 mt-0.5 font-mono">
-                                            {item.status}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {!apiKey && (
-                            <div className="p-4 bg-yellow-50 text-[10px] text-yellow-800 text-center border-t border-yellow-100">
-                                <Lock size={12} className="inline mr-1" />
-                                Vincula tu API Key arriba para ver tu inventario real.
-                            </div>
-                        )}
+                {/* RIGHT */}
+                <div className="lg:col-span-3 space-y-4">
+                    <div className="bg-zinc-800 rounded-xl border border-zinc-700 overflow-hidden">
+                        <div className="bg-zinc-900 px-4 py-2 border-b border-zinc-700"><h3 className="text-[10px] font-bold text-zinc-400 uppercase flex items-center gap-1"><Clock size={12} className="text-amber-500" /> {t.protocol}</h3></div>
+                        <div className="p-2">{[{ task: "Promo T6", status: `${userData.wallet[23] || 0} Shards`, profit: opportunities[0]?.profit || 0 }, { task: "Flip Ectos", status: `${userData.materials[ESSENTIALS.ECTO] || 0}x`, profit: prices[ESSENTIALS.ECTO] ? (prices[ESSENTIALS.ECTO].sells.unit_price * 0.85) - prices[ESSENTIALS.ECTO].buys.unit_price : 0 }].sort((a, b) => b.profit - a.profit).map((item, i) => <div key={i} className="flex items-center gap-2 p-2 rounded hover:bg-zinc-700/30"><div className={`w-1.5 h-1.5 rounded-full ${item.profit > 1000 ? 'bg-emerald-500' : 'bg-zinc-600'}`}></div><div className="flex-1"><div className="flex justify-between"><span className="text-[10px] font-bold text-zinc-300">{item.task}</span><span className="text-[9px] font-mono text-emerald-400">{formatGold(item.profit)}</span></div><p className="text-[9px] text-zinc-500">{item.status}</p></div></div>)}</div>
+                        {!apiKey && <div className="p-3 bg-amber-950/20 text-[9px] text-amber-400/70 text-center border-t border-zinc-700"><Lock size={10} className="inline mr-1" /> {t.link} API</div>}
                     </div>
-
-                    <div className="mt-6 p-5 rounded-xl bg-orange-50 border border-orange-100">
-                        <h4 className="text-xs font-bold text-orange-600 uppercase mb-2 flex items-center gap-1">
-                            Consejo Especulativo
-                        </h4>
-                        <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                            Concéntrate en el flipping de alta velocidad de <strong className="text-slate-800">Ectoplasmas</strong> durante el fin de semana.
-                        </p>
-                    </div>
+                    <div className="p-4 rounded-xl bg-zinc-800 border border-zinc-700"><h4 className="text-[10px] font-bold text-amber-500 uppercase mb-1">{t.tip}</h4><p className="text-[10px] text-zinc-400">{t.tipText}</p></div>
                 </div>
             </div>
-
-            {/* FOOTER */}
-            <footer className="mt-16 pt-8 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-400 font-mono uppercase tracking-widest">
-                <span>ACE_161914 // LOCAL_HOST</span>
-                <span>{apiKey ? 'MODO: VINCULADO' : 'MODO: OBSERVADOR'}</span>
-            </footer>
+            <footer className="mt-10 pt-6 border-t border-zinc-800 flex justify-between items-center text-[9px] text-zinc-600 font-mono uppercase"><span>ACE_161914 // V8.0</span><span>{apiKey ? t.linked.toUpperCase() : 'OBSERVER'}</span></footer>
         </div>
     );
 };

@@ -103,13 +103,13 @@ const DiversificationHub = ({ strategies, onSelect }: { strategies: AnuuStrategy
   const profitable = strategies.filter(s => s.roi > 0);
 
   // Relámpago: High liquidity + positive ROI
-  const hot = [...profitable].sort((a, b) => b.supplyQty - a.supplyQty).slice(0, 3);
+  const hot = [...profitable].sort((a, b) => b.supplyQty - a.supplyQty).slice(0, 6);
 
   // Equilibrado: Best overall score (ROI + liquidity + stability)
-  const balanced = [...profitable].sort((a, b) => b.score - a.score).slice(0, 3);
+  const balanced = [...profitable].sort((a, b) => b.score - a.score).slice(0, 6);
 
   // Sniper: Maximum ROI with minimum supply threshold
-  const maxProfit = [...profitable].filter(s => s.supplyQty > 1000).sort((a, b) => b.roi - a.roi).slice(0, 3);
+  const maxProfit = [...profitable].filter(s => s.supplyQty > 1000).sort((a, b) => b.roi - a.roi).slice(0, 6);
 
   const profiles = [
     { id: 'hot', title: 'Relámpago', icon: <Zap className="text-zinc-100" size={18} />, items: hot, desc: 'Alta liquidez.', color: 'border-indigo-500/20' },
@@ -273,7 +273,12 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack, isEng }: {
                     <div><div className="text-[9px] text-indigo-400 font-black uppercase mb-1 tracking-widest font-display">Buy Order</div><GoldDisplay amount={item.priceOrder} size="sm" /></div>
                     <div className="bg-black/40 px-6 py-4 rounded-2xl border border-indigo-500/20 shadow-inner min-w-[140px] col-span-2 lg:col-span-1">
                       <div className="text-[9px] text-indigo-400 font-black uppercase mb-1 flex items-center gap-2 justify-end font-display">{isEng ? 'Quantity' : 'Cantidad'} <TrendingUp size={10} /></div>
-                      <div className="text-2xl font-black text-white font-display">{item.buy.toLocaleString()} <span className="text-[12px] text-zinc-600 font-mono">u.</span></div>
+                      <div className="text-2xl font-black text-white font-display leading-none mb-1">{item.buy.toLocaleString()} <span className="text-[12px] text-zinc-600 font-mono">u.</span></div>
+                      {item.supply > 50000 && (
+                        <div className="text-[7px] text-emerald-400 font-black uppercase tracking-[0.2em] animate-pulse">
+                          {isEng ? '✦ SMART START: 1-10 units suggested (Auto-renewable)' : '✦ INICIO INTELIGENTE: 1-10 unidades sugeridas (Auto-generable)'}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -406,6 +411,20 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack, isEng }: {
               </div>
             </div>
           </div>
+
+          {/* Refresh Market Button */}
+          <div className="mt-6">
+            <button
+              onClick={() => {
+                onBack(); // Calls the onBack prop from the parent
+                // This will trigger fetchData in the parent component
+              }}
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-indigo-900/30 active:scale-95 transition-all font-display flex items-center justify-center gap-3"
+            >
+              <RefreshCcw size={16} className="animate-spin-slow" />
+              {isEng ? 'Refresh Market & Find New Routes' : 'Releer Mercado y Buscar Nuevas Rutas'}
+            </button>
+          </div>
         </div>
       )}
 
@@ -537,7 +556,7 @@ function App() {
             <motion.div key="dash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
               <DiversificationHub strategies={strategies} onSelect={handleMultiSelect} />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredStrategies.map(s => <StrategyCard key={s.targetId} strategy={s} onClick={() => handleStrategySelect(s)} />)}
+                {filteredStrategies.slice(0, 30).map(s => <StrategyCard key={s.targetId} strategy={s} onClick={() => handleStrategySelect(s)} />)}
               </div>
             </motion.div>
           ) : multiStrategy ? (

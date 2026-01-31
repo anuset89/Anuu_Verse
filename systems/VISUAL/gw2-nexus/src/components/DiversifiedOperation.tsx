@@ -75,13 +75,41 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
     }, [] as { id: number, name: string, count: number, type: string, price: number }[]);
 
     const totalOrderGold = logistics.reduce((sum, l) => sum + (l.price * l.count), 0);
-    const hasWork = list.some(i => i.batchSize > 0);
+    // cleaningInventory: Are we processing existing stock?
+    const cleaningInventory = list.some(i => i.ownedSource >= i.neededSource && i.batchSize > 0);
 
-    // SMART START: If we have work to do but no money to spend, start at Step 2 (Synthesis)
-    const [currentStep, setCurrentStep] = useState(() => {
-        if (hasWork && totalOrderGold === 0) return 2;
-        return 1;
-    });
+    const [currentStep, setCurrentStep] = useState(1); // Default to 1, let effect handle jump
+
+    // SMART START / AUTO-JUMP: 
+    // If we have inventory work (cleaningInventory), we prioritize Step 2 (Synthesis).
+    // This responds to initial load AND cycle refreshes.
+    useEffect(() => {
+        if (cleaningInventory) {
+            setCurrentStep(2);
+        } else {
+            // Only force Step 1 if we strictly have NO inventory work and need to buy.
+            // We don't want to reset to 1 if user is manually browsing back and forth, 
+            // so we might need a guard. 
+            // Better heuristic: If we enter a "fresh" state (cycle changed or first load).
+            // But here, simply: If we have work to do from inventory, GO TO CRAFT.
+            setCurrentStep(2);
+        }
+    }, [cleaningInventory]); // React WHENEVER the nature of our work changes (e.g. after refresh)
+
+    // Actually, simply forcing it on 'cleaningInventory' might send user to step 2 when they want to check step 1.
+    // Let's rely on a "Just Refreshed" flag or the logic that "Crafting takes precedence".
+    // If cleaningInventory is true, Step 1 is mostly "Buying Wine/Dust". 
+    // The user prefers to see the Craft screen first.
+    // So enforcing Step 2 when cleaningInventory is true is aligned with "Craft First".
+    // If they need to check logistics, they can click "Back".
+
+    // Refined Logic to avoid strict locking:
+    // We only Auto-Jump if we are at Step 1.
+    useEffect(() => {
+        if (cleaningInventory && currentStep === 1) {
+            setCurrentStep(2);
+        }
+    }, [cleaningInventory]);
 
     const [manualCompleted, setManualCompleted] = useState<Set<string>>(new Set());
     const [isSyncing, setIsSyncing] = useState(false); // Visual state for sync button
@@ -534,6 +562,9 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
 
                                     // Ready Pulse Logic: Do we have Source + Dust in bag?
                                     const isReady = (sourceItem?.ownedSource || 0) >= (sourceItem?.neededSource || 0) && (sourceItem?.ownedDust || 0) >= (sourceItem?.neededDust || 0);
+                                    // Missing Reagents? (Wine/Dust/Seeds)
+                                    // Use optional chaining carefully since sourceItem can be undefined
+                                    const missingReagents = ((sourceItem?.buyDust || 0) > 0 || (sourceItem?.buyWine || 0) > 0 || (sourceItem?.buyTarget || 0) > 0);
 
                                     const isDone = isTaskDone(`craft-${a.id}`, a.id, expectedCount);
 
@@ -559,6 +590,12 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                                         <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${isDone ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300' : 'bg-black/40 border-white/5 text-zinc-500'}`}>{a.batches} {isEng ? 'BATCHES' : 'OPS'}</span>
                                                         <span className="text-[9px] text-indigo-400 font-bold italic">{a.recipe}</span>
                                                     </div>
+                                                    {missingReagents && !isDone && (
+                                                        <div onClick={(e) => { e.stopPropagation(); setCurrentStep(1); }} className="mt-2 flex items-center gap-1 text-[8px] font-black uppercase text-red-400 bg-red-500/10 px-2 py-1 rounded border border-red-500/20 hover:bg-red-500 hover:text-white transition-colors">
+                                                            <span>{isEng ? 'MISSING REAGENTS' : 'FALTAN REACTIVOS'}</span>
+                                                            <ArrowLeft size={8} />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className={`p-2 transition-colors ${isDone ? 'text-emerald-500' : 'text-indigo-500/20 group-hover:text-indigo-500/40'}`}>
@@ -614,8 +651,14 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                 setCycleCount(prev => prev + 1);
                                 setManualCompleted(new Set()); // Reset checks for new cycle
 
-                                // Reset step to 1 (Logistics)
-                                setCurrentStep(1);
+                                // We DO NOT force Step 1 here anymore.
+                                // We let the new data arrive. 
+                                // If the new data says "You have mats", the useEffect will bump us to Step 2.
+                                // If the new data says "Empty", the useEffect (or default) stays/goes to 1.
+                                // Actually, we should probably set to 1 temporarily to "Reset" visual state while loading?
+                                // No, let's leave it. If we finish step 3 (Liquidation), we naturally loop.
+                                // But to be safe against stale state, let's set 1, and the Effect will bump to 2 if needed.
+
 
                                 // Trigger data refresh to update Wallet/Inventory
                                 if (onRefresh) {

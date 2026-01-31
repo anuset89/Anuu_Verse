@@ -142,18 +142,21 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                         {list.map((item, idx) => {
                                             const yieldAmount = item.strategy.type === 'FINE' ? item.batchSize * 7 : item.strategy.type === 'COMMON' ? item.batchSize * 22 : item.batchSize;
                                             return (
-                                                <div key={idx} className="flex flex-col gap-2 p-4 bg-black/60 rounded-2xl border border-white/5 shadow-2xl">
+                                                <div key={idx} className="flex flex-col gap-2 p-5 bg-black/60 rounded-3xl border border-white/5 shadow-2xl group hover:border-indigo-500/30 transition-all">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="text-2xl drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{getItemIcon(item.strategy.name)}</div>
-                                                        <span className="text-[10px] font-black text-white uppercase tracking-tight truncate leading-tight">
-                                                            {getTranslatedName(item.strategy.targetId, item.strategy.name, isEng)}
-                                                        </span>
+                                                        <div className="text-3xl drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] group-hover:scale-110 transition-transform">{getItemIcon(item.strategy.name)}</div>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[11px] font-black text-white uppercase tracking-tight truncate leading-tight">
+                                                                {getTranslatedName(item.strategy.targetId, item.strategy.name, isEng)}
+                                                            </span>
+                                                            <span className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest">{item.strategy.type} OPS</span>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex items-baseline gap-1">
-                                                        <span className="text-2xl font-black text-indigo-400">+{yieldAmount}</span>
+                                                    <div className="flex items-baseline gap-1.5 mt-2">
+                                                        <span className="text-3xl font-black text-indigo-400">+{yieldAmount}</span>
                                                         <span className="text-[10px] text-zinc-600 font-black uppercase tracking-widest">u.</span>
                                                     </div>
-                                                    <div className="text-[8px] text-zinc-500 font-bold uppercase tracking-widest mt-1 border-t border-white/5 pt-2 italic">
+                                                    <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-2 border-t border-white/5 pt-3 italic opacity-80">
                                                         {item.strategy.recipe}
                                                     </div>
                                                 </div>
@@ -163,95 +166,117 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                 </div>
                             </div>
 
-                            {/* PRE-FLIGHT: INVENTORY WITHDRAWAL */}
-                            {list.some(item => item.ownedSource > 0 || item.ownedDust > 0) && (
-                                <div className="matte-card bg-amber-500/5 border-amber-500/30 p-6 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Package size={80} /></div>
-                                    <h4 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
-                                        <Package size={14} /> {isEng ? 'Pre-Flight: Inventory Withdrawal' : 'Pre-Vuelo: Retirada de Inventario'}
-                                    </h4>
-                                    <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-4">
-                                        {isEng ? 'Withdraw these items from your Bank or Material Storage before proceeding:' : 'Retira estos objetos de tu Banco o Almacén de Materiales antes de proceder:'}
-                                    </p>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* TACTICAL EXECUTION SEQUENCE */}
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-4 border-b border-white/5 pb-4">
+                                    <div className="w-10 h-10 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-black font-display">0</div>
+                                    <div>
+                                        <h4 className="text-[11px] font-black text-white uppercase tracking-widest">{isEng ? 'Protocol Zero: Inventory Clearance' : 'Protocolo Cero: Limpieza de Inventario'}</h4>
+                                        <p className="text-[10px] text-zinc-500 uppercase tracking-widest leading-relaxed">
+                                            {isEng ? 'Extract materials already detected in your storage to minimize capital risk.' : 'Extrae materiales ya detectados en tus almacenes para minimizar el riesgo de capital.'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {list.some(item => item.ownedSource > 0 || item.ownedDust > 0) ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         {list.map((item, idx) => (
                                             (item.ownedSource > 0 || item.ownedDust > 0) && (
-                                                <div key={idx} className="space-y-2">
-                                                    {item.ownedSource > 0 && (
-                                                        <div className="flex justify-between items-center p-3 bg-black/40 rounded-xl border border-amber-500/20">
-                                                            <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-300">
-                                                                <span>{getItemIcon(item.strategy.sourceName)}</span>
-                                                                <span className="uppercase truncate max-w-[120px]">{getTranslatedName(item.strategy.sourceId, item.strategy.sourceName, isEng)}</span>
+                                                <div key={idx} className="matte-card bg-amber-500/5 border-amber-500/20 p-5 group hover:border-amber-500/40 transition-all flex flex-col gap-4">
+                                                    <div className="flex justify-between items-start">
+                                                        <div className="text-[9px] font-black text-amber-500 uppercase tracking-[0.2em]">{isEng ? 'BANK WITHDRAWAL' : 'RETIRAR DEL BANCO'}</div>
+                                                        <Package size={14} className="text-amber-500/40" />
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        {item.ownedSource > 0 && (
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-3">
+                                                                    <span className="text-2xl">{getItemIcon(item.strategy.sourceName)}</span>
+                                                                    <span className="text-[10px] font-black text-white uppercase truncate max-w-[140px] leading-tight">{getTranslatedName(item.strategy.sourceId, item.strategy.sourceName, isEng)}</span>
+                                                                </div>
+                                                                <div className="text-xl font-black text-amber-400">x{Math.min(item.ownedSource, item.neededSource)}</div>
                                                             </div>
-                                                            <div className="text-amber-500 font-black text-xs">x{Math.min(item.ownedSource, item.neededSource)}</div>
-                                                        </div>
-                                                    )}
-                                                    {item.ownedDust > 0 && (
-                                                        <div className="flex justify-between items-center p-3 bg-black/40 rounded-xl border border-amber-500/20">
-                                                            <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-300">
-                                                                <span>✨</span>
-                                                                <span className="uppercase">{isEng ? 'Crystalline Dust' : 'Polvo Cristalino'}</span>
+                                                        )}
+                                                        {item.ownedDust > 0 && (
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-3">
+                                                                    <span className="text-2xl">✨</span>
+                                                                    <span className="text-[10px] font-black text-white uppercase">{isEng ? 'Crystalline Dust' : 'Polvo Cristalino'}</span>
+                                                                </div>
+                                                                <div className="text-xl font-black text-amber-400">x{Math.min(item.ownedDust, item.neededDust)}</div>
                                                             </div>
-                                                            <div className="text-amber-500 font-black text-xs">x{Math.min(item.ownedDust, item.neededDust)}</div>
-                                                        </div>
-                                                    )}
+                                                        )}
+                                                    </div>
                                                 </div>
                                             )
                                         ))}
                                     </div>
-                                </div>
-                            )}
-
-                            <div className="border-l-2 border-emerald-500 pl-4">
-                                <h4 className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">{isEng ? 'Phase 1: Market Accumulation' : 'Fase 1: Acumulación de Mercado'}</h4>
-                                <p className="text-xs text-zinc-400 leading-relaxed max-w-2xl">
-                                    {isEng ? 'Secure remaining raw materials using Buy Orders. This ensures maximum profit margins by avoiding the "Insta-Buy" premium.' : 'Asegura las materias primas restantes usando Órdenes de Compra. Esto garantiza márgenes de beneficio máximos al evitar el sobrecoste de "Compra Instantánea".'}
-                                </p>
+                                ) : (
+                                    <div className="p-6 rounded-2xl border border-white/5 bg-white/5 text-center flex flex-col items-center gap-2 opacity-60">
+                                        <Package size={24} className="text-zinc-600" />
+                                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{isEng ? 'NO OWNED MATERIALS DETECTED' : 'NO SE DETECTARON MATERIALES EN PROPIEDAD'}</span>
+                                    </div>
+                                )}
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {logistics.length === 0 ? (
-                                    <div className="p-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 text-center flex flex-col items-center gap-4">
-                                        <div className="p-4 bg-emerald-500/10 rounded-full"><Package size={32} /></div>
-                                        <div>
-                                            <h4 className="text-sm font-black uppercase mb-1">{isEng ? 'Inventory Optimized' : 'Inventario Optimizado'}</h4>
-                                            <p className="text-[10px] opacity-70 uppercase tracking-widest">{isEng ? 'All required materials detected in storage.' : 'Todos los materiales detectados en almacén.'}</p>
-                                        </div>
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-4 border-b border-white/5 pb-4">
+                                    <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-black font-display">1</div>
+                                    <div>
+                                        <h4 className="text-[11px] font-black text-white uppercase tracking-widest">{isEng ? 'Protocol One: Market Accumulation' : 'Protocolo Uno: Acumulación de Mercado'}</h4>
+                                        <p className="text-[10px] text-zinc-500 uppercase tracking-widest leading-relaxed max-w-2xl">
+                                            {isEng ? 'Secure REMAINING raw materials using Buy Orders. This ensures maximum profit margins by avoiding the "Insta-Buy" premium.' : 'Asegura las materias primas RESTANTES usando Órdenes de Compra. Esto garantiza márgenes de beneficio máximos al evitar el sobrecoste.'}
+                                        </p>
                                     </div>
-                                ) : (
-                                    logistics.map((l, i) => (
-                                        <div key={i} className={`flex justify-between items-center p-4 rounded-xl bg-white/5 border relative group transition-colors ${l.type === 'npc' || l.type === 'shard' ? 'border-amber-500/20 hover:border-amber-500/40' : 'border-white/5 hover:border-emerald-500/30'}`}>
-                                            <div className="flex items-center gap-3">
-                                                <div className={`p-2 rounded-lg ${l.type === 'dust' ? 'bg-indigo-500/20 text-indigo-300' : l.type === 'npc' ? 'bg-amber-500/10 text-amber-500' : 'bg-black/40 text-zinc-300'}`}>
-                                                    {l.type === 'npc' ? '🍷' : l.type === 'shard' ? '🧊' : getItemIcon(l.name)}
-                                                </div>
-                                                <div>
-                                                    <span className={`font-bold uppercase tracking-tight text-xs block ${l.type === 'dust' ? 'text-indigo-300' : l.type === 'npc' ? 'text-amber-400' : 'text-zinc-300'}`}>{l.name}</span>
-                                                    <span className="text-[8px] text-zinc-600 font-black uppercase tracking-widest leading-tight">
-                                                        {l.type === 'npc' ? (isEng ? 'Buy from Miyani (25s 60c)' : 'Miyani (25s 60c)') :
-                                                            l.type === 'shard' ? (isEng ? 'Miyani (Spirit Shards)' : 'Miyani (Exc. Shards)') :
-                                                                (isEng ? 'Buy Order' : 'Orden de Compra')}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <span className="text-white font-mono font-black text-xl block leading-none">{l.count}</span>
-                                                {l.count >= 250 && (
-                                                    <span className="text-[9px] text-indigo-400 font-black uppercase tracking-tighter block mb-0.5">
-                                                        {Math.floor(l.count / 250)} STACK{Math.floor(l.count / 250) > 1 ? 'S' : ''}
-                                                        {l.count % 250 > 0 ? ` + ${l.count % 250}` : ''}
-                                                    </span>
-                                                )}
-                                                {materials[l.id] && materials[l.id].total > 0 && (
-                                                    <div className="text-[7px] text-zinc-600 font-black uppercase flex flex-col items-end opacity-60">
-                                                        {materials[l.id].storage > 0 && <span>{isEng ? 'Storage' : 'Almacén'}: {materials[l.id].storage}</span>}
-                                                        {materials[l.id].bank > 0 && <span className="text-indigo-500">{isEng ? 'Bank' : 'Banco'}: {materials[l.id].bank}</span>}
-                                                    </div>
-                                                )}
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {logistics.length === 0 ? (
+                                        <div className="p-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 text-center flex flex-col items-center gap-4">
+                                            <div className="p-4 bg-emerald-500/10 rounded-full"><Package size={32} /></div>
+                                            <div>
+                                                <h4 className="text-sm font-black uppercase mb-1">{isEng ? 'Inventory Optimized' : 'Inventario Optimizado'}</h4>
+                                                <p className="text-[10px] opacity-70 uppercase tracking-widest">{isEng ? 'All required materials detected in storage.' : 'Todos los materiales detectados en almacén.'}</p>
                                             </div>
                                         </div>
-                                    ))
-                                )}
+                                    ) : (
+                                        logistics.map((l, i) => (
+                                            <div key={i} className={`flex justify-between items-center p-5 rounded-2xl bg-white/5 border relative group transition-colors shadow-xl ${l.type === 'npc' || l.type === 'shard' ? 'border-amber-500/20 hover:border-amber-500/40 bg-amber-500/5' : 'border-white/5 hover:border-emerald-500/30'}`}>
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`p-3 rounded-2xl ${l.type === 'dust' ? 'bg-indigo-500/20 text-indigo-300' : l.type === 'npc' || l.type === 'shard' ? 'bg-amber-500/10 text-amber-500' : 'bg-black/40 text-zinc-300'}`}>
+                                                        {l.type === 'npc' ? '🍷' : l.type === 'shard' ? '🧊' : getItemIcon(l.name)}
+                                                    </div>
+                                                    <div>
+                                                        <span className={`font-black uppercase tracking-tight text-xs block mb-0.5 ${l.type === 'dust' ? 'text-indigo-300' : l.type === 'npc' || l.type === 'shard' ? 'text-amber-400' : 'text-zinc-200'}`}>{l.name}</span>
+                                                        <span className="text-[8px] text-zinc-600 font-black uppercase tracking-widest leading-tight flex items-center gap-2">
+                                                            {l.type === 'npc' ? (isEng ? 'NPX Vendor (25s 60c)' : 'Vendedor NPC (25s 60c)') :
+                                                                l.type === 'shard' ? (isEng ? 'Miyani (Spirit Shards)' : 'Miyani (Exc. Shards)') :
+                                                                    (isEng ? 'Market Acquire (Buy Order)' : 'Adquirir en Mercado (Orden Compra)')}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="flex items-center gap-2 justify-end">
+                                                        <span className="text-[8px] text-zinc-700 font-black uppercase">{isEng ? 'REMAINING' : 'PENDIENTE'}</span>
+                                                        <span className="text-white font-mono font-black text-2xl block leading-none">{l.count}</span>
+                                                    </div>
+                                                    {l.count >= 250 && (
+                                                        <span className="text-[9px] text-indigo-300 font-black uppercase tracking-tighter block mt-1">
+                                                            {Math.floor(l.count / 250)} STACK{Math.floor(l.count / 250) > 1 ? 'S' : ''}
+                                                            {l.count % 250 > 0 ? ` + ${l.count % 250}` : ''}
+                                                        </span>
+                                                    )}
+                                                    {materials[l.id] && materials[l.id].total > 0 && (
+                                                        <div className="text-[7px] text-zinc-600 font-black uppercase flex flex-col items-end opacity-60 mt-1">
+                                                            {materials[l.id].storage > 0 && <span>{isEng ? 'In Storage' : 'En Almacén'}: {materials[l.id].storage}</span>}
+                                                            {materials[l.id].bank > 0 && <span className="text-indigo-500">{isEng ? 'In Bank' : 'En Banco'}: {materials[l.id].bank}</span>}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
                             </div>
                         </motion.div>
                     )}

@@ -3,29 +3,10 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Cpu, ShoppingCart, Hammer, Coins, CheckCircle, Package } from 'lucide-react';
 import type { AnuuStrategy, MarketItem } from '../engine/calculator';
-import { IDS } from '../engine/calculator';
+import { IDS, getTranslatedName } from '../engine/calculator';
 
 
-const getItemIcon = (name: string) => {
-    if (name.includes('Blood')) return "🩸";
-    if (name.includes('Bone')) return "🦴";
-    if (name.includes('Claw')) return "🦅";
-    if (name.includes('Fang')) return "🦷";
-    if (name.includes('Scale')) return "🛡️";
-    if (name.includes('Totem')) return "🗿";
-    if (name.includes('Venom')) return "🐍";
-    if (name.includes('Dust')) return "✨";
-    if (name.includes('Lodestone') || name.includes('Core')) return "💎";
-    if (name.includes('Rune')) return "🔮";
-    if (name.includes('Sigil')) return "⚔️";
-    if (name.includes('Wood')) return "🌲";
-    if (name.includes('Ore') || name.includes('Ingot')) return "⛏️";
-    if (name.includes('Leather')) return "🧵";
-    if (name.includes('Cloth') || name.includes('Scrap')) return "🧶";
-    if (name.includes('Ecto')) return "👻";
-    if (name.includes('Coin')) return "🪙";
-    return "📦";
-};
+import { getItemIcon } from '../utils/icons';
 
 interface ShoppingListItem {
     strategy: AnuuStrategy;
@@ -43,28 +24,32 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet }: { lis
     // 1. Logistics: Consolidate Shopping List
     const logistics = list.reduce((acc, item) => {
         if (item.buySource > 0) {
-            const existing = acc.find((x) => x.name === item.strategy.sourceName);
+            const name = getTranslatedName(item.strategy.sourceId, item.strategy.sourceName, isEng);
+            const existing = acc.find((x) => x.name === name);
             if (existing) existing.count += item.buySource;
-            else acc.push({ name: item.strategy.sourceName, count: item.buySource, type: 'source' });
+            else acc.push({ id: item.strategy.sourceId, name, count: item.buySource, type: 'source' });
         }
         if (item.buyDust > 0) {
-            const existing = acc.find((x) => x.name === 'Crystalline Dust');
+            const name = getTranslatedName(IDS.DUST, 'Crystalline Dust', isEng);
+            const existing = acc.find((x) => x.name === name);
             if (existing) existing.count += item.buyDust;
-            else acc.push({ name: 'Crystalline Dust', count: item.buyDust, type: 'dust' });
+            else acc.push({ id: IDS.DUST, name, count: item.buyDust, type: 'dust' });
         }
         if (item.buyTarget > 0) {
-            const existing = acc.find((x) => x.name === item.strategy.name);
+            const name = getTranslatedName(item.strategy.targetId, item.strategy.name, isEng);
+            const existing = acc.find((x) => x.name === name);
             if (existing) existing.count += item.buyTarget;
-            else acc.push({ name: item.strategy.name, count: item.buyTarget, type: 'target' });
+            else acc.push({ id: item.strategy.targetId, name, count: item.buyTarget, type: 'target' });
         }
         return acc;
-    }, [] as { name: string, count: number, type: string }[]);
+    }, [] as { id: number, name: string, count: number, type: string }[]);
 
     // 2. Assembly: Forge Recipes
     const assembly = list.filter(item => item.batchSize > 0).map(item => ({
-        name: item.strategy.name,
+        id: item.strategy.targetId,
+        name: getTranslatedName(item.strategy.targetId, item.strategy.name, isEng),
         batches: item.batchSize,
-        recipe: item.strategy.recipe || "Standard Conversion"
+        recipe: item.strategy.recipe || (isEng ? "Standard Conversion" : "Conversión Estándar")
     }));
 
     const steps = [
@@ -253,8 +238,8 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
     onBack: () => void;
     isEng: boolean;
 }) => {
-    const [budgetGold, setBudgetGold] = useState(100); // 100g total budget
     const availableGold = (wallet[1] || 0) / 10000; // Convert copper to gold
+    const [budgetGold, setBudgetGold] = useState(availableGold >= 1 ? Math.floor(availableGold) : 100);
 
     // Use all provided strategies for maximum diversification
     const activeStrategies = strategies;
@@ -264,29 +249,35 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
 
     const shoppingList = activeStrategies.map((s) => {
         const allocatedGold = budgetGold * weightPerStrategy;
-        const sourcePriceGold = (prices[s.sourceId]?.buys?.unit_price || 0) / 10000;
 
-        // Cost per craft (approx)
-        const costPerCraft = (s.type === 'LODE' ? 2 : (s.type === 'RUNE' ? 10 : (s.type === 'COMMON' ? 250 : 50))) * sourcePriceGold;
+        // Prices in gold for calculation
+        const pSource = (prices[s.sourceId]?.buys?.unit_price || 0) / 10000;
+        const pDust = (prices[IDS.DUST]?.buys?.unit_price || 0) / 10000;
+        const pTarget = (prices[s.targetId]?.buys?.unit_price || 0) / 10000;
+        const pWine = 0.2560; // 25s 60c
 
-        // How many crafts fit in budget?
-        const possibleCrafts = costPerCraft > 0 ? Math.floor(allocatedGold / costPerCraft) : 0;
-        const batchSize = Math.max(1, possibleCrafts);
+        // Requirements per craft
+        const qSource = s.type === 'LODE' ? 2 : (s.type === 'RUNE' ? 10 : (s.type === 'COMMON' ? 250 : 50));
+        const qDust = s.type === 'LODE' ? 1 : (s.type === 'RUNE' ? 0 : 5);
+        const qWine = s.type === 'LODE' ? 1 : 0;
+        // For fine/common we need 1 existing T6 as seed. For 1000 crafts, we still only need 1-5 seeds.
+        const qTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : 0.01; // Amortized seed cost
 
-        // Calculate needs
-        const sourcePerCraft = s.type === 'LODE' ? 2 : (s.type === 'RUNE' ? 10 : (s.type === 'COMMON' ? 250 : 50));
-        const dustPerCraft = s.type === 'LODE' ? 1 : 5;
-        const usesDust = s.type !== 'RUNE';
+        // TOTAL cost per craft in gold
+        const costPerCraft = (qSource * pSource) + (qDust * pDust) + (qWine * pWine) + (qTarget * pTarget);
+
+        // How many crafts fit in budget? 
+        // We floor it to stay strictly under allocated budget.
+        const batchSize = costPerCraft > 0 ? Math.max(1, Math.floor(allocatedGold / costPerCraft)) : 1;
 
         // Auto-Tracker: Check inventory
         const ownedSource = materials[s.sourceId] || 0;
         const ownedDust = materials[IDS.DUST] || 0;
         const ownedTarget = materials[s.targetId] || 0;
 
-        const neededSource = sourcePerCraft * batchSize;
-        const neededDust = (usesDust ? dustPerCraft : 0) * batchSize;
-        // Seed logic for promotions: Strictly 1 unit is enough to start the chain (output becomes input for next)
-        const neededTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : (batchSize > 0 ? 1 : 0);
+        const neededSource = qSource * batchSize;
+        const neededDust = qDust * batchSize;
+        const neededTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : Math.min(batchSize, 5); // Seed logic
 
         // Calculate purchase mandates (Buy = Need - Have)
         const buySource = Math.max(0, neededSource - ownedSource);
@@ -369,7 +360,7 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="text-3xl bg-black/40 p-3 rounded-2xl border border-white/5">{getItemIcon(item.strategy.name)}</div>
                                     <div>
-                                        <h3 className="font-bold text-white uppercase text-xs font-display">{item.strategy.name}</h3>
+                                        <h3 className="font-bold text-white uppercase text-xs font-display">{getTranslatedName(item.strategy.targetId, item.strategy.name, isEng)}</h3>
                                         <div className="text-[9px] text-zinc-500 uppercase tracking-wide">{isEng ? 'Route' : 'Ruta'}: {item.strategy.type}</div>
                                         {item.strategy.recipe && (
                                             <div className="mt-2 text-[7px] text-zinc-600 leading-tight border-t border-white/5 pt-1">
@@ -381,7 +372,7 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
 
                                 <div className="bg-black/40 rounded-xl p-4 space-y-3 border border-white/5">
                                     <div className="flex justify-between items-center text-[10px]">
-                                        <span className="text-zinc-500 font-bold uppercase">{isEng ? 'Buy Source' : 'Comprar Fuente'}</span>
+                                        <span className="text-zinc-500 font-bold uppercase">{isEng ? 'Buy' : 'Comprar'} {getTranslatedName(item.strategy.sourceId, item.strategy.sourceName, isEng)}</span>
                                         <div className="text-right">
                                             <span className={`font-black ${item.buySource < item.neededSource ? 'text-emerald-400' : 'text-white'}`}>{item.buySource} u.</span>
                                             {item.ownedSource > 0 && <div className="text-[7px] text-zinc-500 uppercase tracking-tight">{isEng ? 'Have' : 'Tienes'}: {item.ownedSource}</div>}

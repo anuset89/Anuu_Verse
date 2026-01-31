@@ -1,678 +1,20 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { analyzeMarket, IDS } from './engine/calculator';
 import type { AnuuStrategy, MarketItem } from './engine/calculator';
 import { gw2 } from './api/gw2';
 import { AnimatePresence, motion } from 'framer-motion';
+import { RefreshCcw, Settings, Star, Database } from 'lucide-react';
+
+// Divided Components
 import { DiversifiedOperation } from './components/DiversifiedOperation';
-import { Brain, RefreshCcw, Cpu, Settings, Package, FlaskConical, Database, Zap, Scale, ArrowLeft, ShoppingCart, TrendingUp, Sparkles, MapPin, Gavel, Clock, Star, Crosshair, ArrowRight } from 'lucide-react';
-
-// --- HELPER: Gold Formatter ---
-const GoldDisplay = ({ amount, size = "md" }: { amount: number, size?: "sm" | "md" | "lg" | "xl" }) => {
-  const isNegative = amount < 0;
-  const absAmount = Math.abs(amount);
-  const g = Math.floor(absAmount / 10000);
-  const s = Math.floor((absAmount % 10000) / 100);
-  const c = Math.floor(absAmount % 100);
-  const sizeClasses = { "sm": "text-[10px]", "md": "text-[10px] md:text-sm", "lg": "text-xl", "xl": "text-3xl" };
-  return (
-    <div className={`font-mono font-bold flex items-baseline gap-1 ${sizeClasses[size]} ${isNegative ? 'text-red-400' : ''}`}>
-      {isNegative && <span>-</span>}
-      <span className={isNegative ? 'text-red-400' : 'text-amber-400'}>{g}g</span>
-      <span className="text-zinc-400">{s}s</span>
-      {size !== "xl" && <span className="text-amber-700">{c}c</span>}
-    </div>
-  );
-};
-
-// --- ICON RESOLVER ---
-const getItemIcon = (name: string) => {
-  const n = name.toLowerCase();
-  if (n.includes("blood")) return "🩸";
-  if (n.includes("bone")) return "☠️";
-  if (n.includes("claw")) return "🦅";
-  if (n.includes("fang")) return "🦷";
-  if (n.includes("scale")) return "🛡️";
-  if (n.includes("totem")) return "🗿";
-  if (n.includes("venom")) return "🐍";
-  if (n.includes("dust") || n.includes("lucent")) return "✨";
-  if (n.includes("ore") || n.includes("mithril") || n.includes("orichalcum")) return "⛏️";
-  if (n.includes("wood")) return "🪵";
-  if (n.includes("leather")) return "🐄";
-  if (n.includes("silk") || n.includes("cloth") || n.includes("gossamer")) return "🧵";
-  if (n.includes("rune") || n.includes("shard")) return "💠";
-  return "📦";
-};
-
-// --- COMPONENTS ---
-
-const AnuuMediator = ({ thought, status, onReload }: { thought: string, status: 'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE', onReload?: () => void }) => (
-  <motion.div
-    initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
-    className={`relative overflow-hidden matte-card p-6 transition-all duration-500 mb-8 ${status === 'THINKING' ? 'border-indigo-500/40' : status === 'ALERT' ? 'border-red-500/40' : 'border-white/5'}`}
-  >
-    <div className="absolute top-0 right-0 p-4 opacity-5"><Brain size={120} /></div>
-    <div className="flex items-start gap-5 relative z-10">
-      <div onClick={onReload} className={`p-4 rounded-2xl border cursor-pointer hover:scale-110 transition-transform ${status === 'THINKING' ? 'border-indigo-500/40 bg-indigo-500/5' : 'border-zinc-800 bg-black/20'}`}>
-        <Cpu size={28} className={status === 'THINKING' ? 'text-indigo-400' : 'text-zinc-500'} />
-      </div>
-      <div className="flex-1">
-        <div className="flex justify-between items-center mb-1">
-          <h2 className="text-[10px] font-black tracking-[0.3em] text-zinc-500 uppercase font-display">Anuu Nexus Core</h2>
-          <span className={`text-[8px] px-2 py-0.5 rounded-full font-mono ${status === 'THINKING' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-zinc-800/50 text-zinc-500'}`}>{status === 'THINKING' ? 'PROCESSING' : 'ONLINE'}</span>
-        </div>
-        <p className={`text-lg md:text-xl font-medium leading-relaxed font-display text-matte-accent`}>{thought}</p>
-      </div>
-    </div>
-  </motion.div>
-);
-
-// --- DIVERSIFICATION HUB (PROFILE SELECTOR & ORACLE) ---
-const DiversificationHub = ({ strategies, onSelect, isEng, walletGold }: { strategies: AnuuStrategy[], onSelect: (strats: AnuuStrategy[], profile: string) => void, isEng: boolean, walletGold: number }) => {
-  // Estimate cost per 10 batches (approximate minimal viable run)
-  const getEstCost = (s: AnuuStrategy) => (s.profitPerCraft * 10) / (Math.max(s.roi, 1) / 100);
-
-  const affordable = strategies.filter(s => getEstCost(s) <= (walletGold || 9999999));
-  const candidatePool = affordable.length > 0 ? affordable : strategies;
-
-  const bestStrategy = candidatePool.length > 0
-    ? candidatePool.reduce((prev, current) => (current.roi > prev.roi ? current : prev), candidatePool[0])
-    : strategies[0];
-
-  const profiles = [
-    {
-      id: 'hot',
-      title: isEng ? 'Lightning Proc' : 'Velocidad',
-      icon: <Zap className="text-cyan-400" size={24} />,
-      items: strategies.filter(s => s.type === 'COMMON' && s.roi > 15).slice(0, 3),
-      desc: isEng ? 'High velocity trading. Prioritizes turnover.' : 'Alta velocidad. Prioriza rotación rápida.',
-      stats: { roi: 'HIGH', risk: 'LOW', speed: 'FAST' },
-      color: 'border-cyan-500/20 hover:border-cyan-500/40'
-    },
-    {
-      id: 'balanced',
-      title: isEng ? 'Balanced Flow' : 'Equilibrado',
-      icon: <Scale className="text-emerald-400" size={24} />,
-      items: strategies.filter(s => s.roi > 20 && s.roi < 40).slice(0, 3),
-      desc: isEng ? 'Stable growth with minimized risk.' : 'Crecimiento estable con riesgo minimizado.',
-      stats: { roi: 'MED', risk: 'MIN', speed: 'MED' },
-      color: 'border-emerald-500/20 hover:border-emerald-500/40'
-    },
-    {
-      id: 'sniper',
-      title: isEng ? 'Sniper Elite' : 'Francotirador',
-      icon: <Crosshair className="text-rose-400" size={24} />,
-      items: strategies.filter(s => s.roi > 40).slice(0, 3),
-      desc: isEng ? 'Maximum profit for high-value targets.' : 'Máximo beneficio para objetivos de alto valor.',
-      stats: { roi: 'MAX', risk: 'MED', speed: 'SLOW' },
-      color: 'border-rose-500/20 hover:border-rose-500/40'
-    }
-  ];
-
-  return (
-    <div className="space-y-8 mb-12">
-      {/* ORACLE RECOMMENDATION (BEST FLIP) */}
-      {bestStrategy && (
-        <div className="matte-card p-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl relative overflow-hidden shadow-[0_0_50px_rgba(99,102,241,0.3)]">
-          <div className="bg-black/90 p-8 rounded-[14px] flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-            <div className="flex items-center gap-6">
-              <div className="p-4 bg-indigo-500/20 rounded-2xl border border-indigo-500/30 text-indigo-400 animate-pulse">
-                <Sparkles size={32} />
-              </div>
-              <div>
-                <h3 className="text-2xl font-black text-white italic uppercase font-display tracking-tight mb-1">
-                  {isEng ? 'Oracle Recommendation' : 'Recomendación del Oráculo'}
-                </h3>
-                <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest mb-2">
-                  {isEng ? 'Optimized for your current wallet' : 'Optimizado para tu cartera actual'}
-                </p>
-                <div className="flex items-center gap-4 text-[10px] font-black uppercase text-indigo-300 bg-indigo-500/10 px-3 py-1.5 rounded-lg border border-indigo-500/20 w-fit">
-                  <span>{bestStrategy.name}</span>
-                  <span className="w-1 h-1 bg-indigo-500 rounded-full"></span>
-                  <span className="text-emerald-400">ROI: +{bestStrategy.roi.toFixed(1)}%</span>
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={() => onSelect([bestStrategy], `Oracle: ${bestStrategy.name}`)}
-              className="w-full md:w-auto px-8 py-4 bg-white text-black font-black uppercase tracking-widest hover:scale-105 transition-transform rounded-xl shadow-xl shadow-white/10 flex items-center justify-center gap-3 group"
-            >
-              {isEng ? 'Execute Operation' : 'Ejecutar Operación'} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-          {/* Background Glow */}
-          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-indigo-500/30 blur-[100px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
-        </div>
-      )}
-
-      {/* STANDARD PROFILES */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {profiles.map(p => (
-          <button
-            key={p.id}
-            onClick={() => onSelect(p.items.length > 0 ? p.items : strategies.slice(0, 3), p.title)}
-            className={`matte-card p-6 text-left group transition-all duration-300 hover:-translate-y-1 border ${p.color} relative overflow-hidden`}
-          >
-            <div className="absolute top-0 right-0 p-3 opacity-10 blur-sm group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500">{p.icon}</div>
-
-            <div className="flex justify-between items-start mb-4 relative z-10">
-              <div className="p-3 bg-black/40 rounded-xl border border-white/5 group-hover:border-white/20 transition-colors">{p.icon}</div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-zinc-500 bg-black/40 px-2 py-1 rounded border border-white/5">
-                {p.stats.risk === 'LOW' ? (isEng ? 'Low Risk' : 'Riesgo Bajo') : p.stats.risk === 'MED' ? (isEng ? 'Med Risk' : 'Riesgo Medio') : (isEng ? 'High Yield' : 'Alto Rendimiento')}
-              </div>
-            </div>
-
-            <h3 className="text-xl font-black text-white uppercase italic font-display mb-2 group-hover:text-indigo-400 transition-colors">{p.title}</h3>
-            <p className="text-[11px] text-zinc-500 font-bold mb-6 leading-relaxed h-12">{p.desc}</p>
-
-            <div className="space-y-2 border-t border-white/5 pt-4">
-              <div className="flex justify-between text-[9px] font-black uppercase tracking-widest">
-                <span className="text-zinc-600">Avg. ROI</span>
-                <span className="text-emerald-400">~{p.items.length > 0 ? (p.items.reduce((a, b) => a + b.roi, 0) / p.items.length).toFixed(1) : '0'}%</span>
-              </div>
-              <div className="flex justify-between text-[9px] font-black uppercase tracking-widest">
-                <span className="text-zinc-600">{isEng ? 'Speed' : 'Velocidad'}</span>
-                <span className="text-indigo-400">{p.stats.speed}</span>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// --- NEXUS CODEX (KNOWLEDGE BASE) ---
-const StrategyGrimoire = ({ strategies, onSelectSingle, isEng }: {
-  strategies: AnuuStrategy[],
-  onSelectSingle: (strat: AnuuStrategy) => void,
-  isEng: boolean
-}) => {
-  const [filter, setFilter] = useState<'all' | 'profitable' | 'lodestone' | 't6'>('profitable');
-
-  const getIcon = (name: string) => {
-    if (name.toLowerCase().includes('lodestone')) return '💎';
-    if (name.toLowerCase().includes('blood') || name.toLowerCase().includes('claw') || name.toLowerCase().includes('fang') || name.toLowerCase().includes('scale') || name.toLowerCase().includes('venom') || name.toLowerCase().includes('totem') || name.toLowerCase().includes('bone')) return '🧪';
-    return '✨';
-  };
-
-  const filteredStrategies = strategies.filter(s => {
-    if (filter === 'all') return true;
-    if (filter === 'profitable') return s.roi > 0;
-    if (filter === 'lodestone') return s.type === 'LODE';
-    if (filter === 't6') return s.type === 'FINE' || s.type === 'COMMON';
-    return true;
-  });
-
-  return (
-    <div className="matte-card p-8 md:p-12 border-white/5 bg-black/20 mt-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-        <div className="flex items-center gap-4">
-          <Brain className="text-indigo-500" size={24} />
-          <div>
-            <h3 className="text-xl font-black text-white uppercase tracking-[0.2em] font-display">{isEng ? 'Strategy Grimoire' : 'Grimorio de Rutas'}</h3>
-            <p className="text-[9px] text-zinc-500 uppercase tracking-widest">{isEng ? 'Click any route for Single Focus Mode' : 'Pulsa cualquier ruta para Modo Enfocado'}</p>
-          </div>
-        </div>
-
-        <div className="flex gap-2">
-          {(['profitable', 'all', 't6', 'lodestone'] as const).map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${filter === f ? 'bg-indigo-600 text-white' : 'bg-black/40 text-zinc-500 hover:text-white'}`}
-            >
-              {f === 'profitable' ? (isEng ? 'Profitable' : 'Rentables') :
-                f === 'all' ? (isEng ? 'All' : 'Todas') :
-                  f === 't6' ? 'T6' :
-                    'Lodestones'}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {filteredStrategies.length === 0 ? (
-        <div className="text-center py-12 text-zinc-600 text-sm">
-          {isEng ? 'No routes match current filter' : 'No hay rutas con este filtro'}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredStrategies.map((strat, idx) => (
-            <motion.button
-              key={idx}
-              onClick={() => onSelectSingle(strat)}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className={`text-left p-4 rounded-xl border transition-all group relative overflow-hidden ${strat.roi > 20 ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-400' :
-                strat.roi > 0 ? 'bg-black/40 border-white/10 hover:border-indigo-500' :
-                  'bg-black/20 border-red-500/20 hover:border-red-400'
-                }`}
-            >
-              <div className="absolute top-0 right-0 p-2 opacity-30 text-2xl">{getIcon(strat.name)}</div>
-
-              <div className="relative z-10">
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="text-xs font-black text-white uppercase tracking-wide pr-8">{strat.name}</h4>
-                </div>
-
-                <div className="flex items-center gap-2 mb-3">
-                  <span className={`text-[9px] px-2 py-0.5 rounded font-bold uppercase ${strat.type === 'LODE' ? 'bg-amber-500/20 text-amber-400' : 'bg-violet-500/20 text-violet-400'
-                    }`}>{strat.type === 'LODE' ? 'Lodestone' : 'T6 Mat'}</span>
-                </div>
-
-                <div className="flex items-end justify-between">
-                  <div>
-                    <div className="text-[8px] text-zinc-600 uppercase tracking-wider mb-1">{isEng ? 'Profit/Op' : 'Beneficio/Op'}</div>
-                    <GoldDisplay amount={strat.profitPerCraft} size="sm" />
-                  </div>
-                  <div className={`text-lg font-black ${strat.roi > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {strat.roi > 0 ? '+' : ''}{strat.roi.toFixed(1)}%
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/5 transition-colors pointer-events-none"></div>
-            </motion.button>
-          ))}
-        </div>
-      )}
-
-      <div className="mt-8 pt-6 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-6 text-[9px]">
-        <div>
-          <h4 className="font-black text-white uppercase tracking-widest mb-2 flex items-center gap-2">
-            <FlaskConical size={12} className="text-violet-400" /> T5 → T6
-          </h4>
-          <p className="text-zinc-500 leading-relaxed">
-            {isEng ? '50 T5 + 1 T6 + 5 Dust + 5 Stones → ~7 T6' : '50 T5 + 1 T6 + 5 Polvo + 5 Piedras → ~7 T6'}
-          </p>
-        </div>
-        <div>
-          <h4 className="font-black text-white uppercase tracking-widest mb-2 flex items-center gap-2">
-            <Star size={12} className="text-amber-400" /> Lodestones
-          </h4>
-          <p className="text-zinc-500 leading-relaxed">
-            {isEng ? '2 Cores + 1 Dust + 1 Wine + 1 Crystal' : '2 Núcleos + 1 Polvo + 1 Vino + 1 Cristal'}
-          </p>
-        </div>
-        <div>
-          <h4 className="font-black text-white uppercase tracking-widest mb-2 flex items-center gap-2">
-            <Scale size={12} className="text-emerald-400" /> Fees
-          </h4>
-          <p className="text-zinc-500 leading-relaxed">
-            {isEng ? '15% TP tax included in all calculations' : '15% de tasas ya incluidas en cálculos'}
-          </p>
-        </div>
-        <div>
-          <h4 className="font-black text-white uppercase tracking-widest mb-2 flex items-center gap-2">
-            <Zap size={12} className="text-cyan-400" /> Shards
-          </h4>
-          <p className="text-zinc-500 leading-relaxed">
-            {isEng ? 'Buy Stones & Crystals from Miyani' : 'Compra Piedras y Cristales a Miyani'}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-
-const OperationMode = ({ strategy, materials, wallet, prices, onBack, isEng }: {
-  strategy: AnuuStrategy;
-  materials: Record<number, number>;
-  wallet: Record<number, number>;
-  prices: Record<number, MarketItem>;
-  onBack: () => void;
-  isEng: boolean;
-}) => {
-  const [step, setStep] = useState(1);
-  const [batchSize, setBatchSize] = useState(10);
-
-  // PRICES
-  const pSource = prices[strategy.sourceId];
-  const pDust = prices[IDS.DUST];
-  const pTarget = prices[strategy.targetId];
-
-  const priceOrderSource = pSource?.buys?.unit_price || 0;
-  const priceInstaSource = pSource?.sells?.unit_price || 0;
-  const priceOrderDust = pDust?.buys?.unit_price || 0;
-  const priceOrderTarget = pTarget?.buys?.unit_price || 0;
-  const priceInstaTarget = pTarget?.sells?.unit_price || 0;
-
-  const ownedSource = materials[strategy.sourceId] || 0;
-  const ownedDust = materials[IDS.DUST] || 0;
-  const ownedTarget = materials[strategy.targetId] || 0;
-  const ownedShards = wallet[23] || 0;
-  const availableGold = wallet[1] || 0;
-
-  const isCommon = strategy.type === 'COMMON';
-  const isRune = strategy.type === 'RUNE';
-  const isLode = strategy.type === 'LODE';
-
-  const sourcePerCraft = isLode ? 2 : (isRune ? 10 : (isCommon ? 250 : 50));
-  const yieldPerCraft = isLode ? 1 : (isRune ? 1 : (isCommon ? 22 : 7));
-  const usesDust = strategy.type !== 'RUNE';
-  const dustPerCraft = isLode ? 1 : 5;
-
-  const neededSource = sourcePerCraft * batchSize;
-  const neededDust = (usesDust ? dustPerCraft : 0) * batchSize;
-
-  // Seed logic: For material promotion (Fine/Common), we strictly need only a small fixed seed (e.g. 5 units)
-  // to start the Mystic Forge cycle, regardless of how many thousands of conversions we plan to do.
-  // Exception: If batchSize < 5, we only need batchSize.
-  const neededTarget = (isLode || isRune) ? 0 : Math.min(batchSize, 5);
-
-  const buySource = Math.max(0, neededSource - ownedSource);
-  const buyDust = Math.max(0, neededDust - ownedDust);
-  const buyTarget = (isLode || isRune) ? 0 : Math.max(0, neededTarget - ownedTarget);
-
-  const buyWine = isLode ? batchSize : 0;
-
-  const totalGoldCost = (buySource * priceOrderSource) + (buyDust * priceOrderDust) + (buyTarget * priceOrderTarget) + (buyWine * 2560);
-  // const totalInstaCost = (buySource * priceInstaSource) + (buyDust * (prices[IDS.DUST]?.sells.unit_price || 0)) + (buyTarget * priceInstaTarget) + (buyWine * 2560);
-  // const savings = totalInstaCost - totalGoldCost;
-
-  const neededStones = (isLode ? 0 : (isRune ? 0 : 5)) * batchSize;
-  const neededCrystals = isLode ? batchSize : 0;
-  const totalShardCost = (neededStones * 0.1) + (neededCrystals * 0.6);
-  const neededShards = Math.ceil(totalShardCost);
-
-  const isWeekend = [0, 5, 6].includes(new Date().getDay());
-  const multiplier = isWeekend ? (isCommon ? 0.05 : 0.25) : (isCommon ? 0.02 : 0.15);
-  const recommendedBatch = Math.floor(strategy.supplyQty * multiplier);
-
-  const costPerCraft = (sourcePerCraft * priceOrderSource) + (neededDust / batchSize * priceOrderDust) + (isLode || isRune ? 0 : priceOrderTarget) + (isLode ? 2560 : 0);
-  const maxByShards = totalShardCost > 0 ? Math.floor(ownedShards / (totalShardCost / batchSize)) : 10000;
-  const maxByGold = costPerCraft > 0 ? Math.floor(availableGold / costPerCraft) : 0;
-  const safeMax = Math.max(0, Math.min(maxByShards, maxByGold));
-
-  const shoppingList = [
-    { name: strategy.sourceName, icon: getItemIcon(strategy.sourceName), need: neededSource, have: ownedSource, buy: buySource, priceOrder: priceOrderSource, priceInsta: priceInstaSource, supply: pSource?.sells.quantity || 0 },
-    ...(usesDust ? [{ name: "Crystalline Dust", icon: "✨", need: neededDust, have: ownedDust, buy: buyDust, priceOrder: priceOrderDust, priceInsta: prices[IDS.DUST]?.sells.unit_price || 0, supply: pDust?.sells.quantity || 0 }] : []),
-    ...(isLode ? [{ name: "Elonian Wine", icon: "🍷", need: batchSize, have: 0, buy: batchSize, priceOrder: 2560, priceInsta: 2560, supply: 999999 }] : []),
-    ...(!isLode ? [{ name: strategy.name, icon: getItemIcon(strategy.name), need: neededTarget, have: ownedTarget, buy: buyTarget, priceOrder: priceOrderTarget, priceInsta: priceInstaTarget, supply: pTarget?.sells.quantity || 0 }] : []),
-  ];
-
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 pb-32">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <button onClick={onBack} className="matte-card px-5 py-3 text-zinc-500 text-[10px] hover:text-white transition-all uppercase tracking-[0.2em] font-black border-white/5 flex items-center gap-2 group">
-          <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> {isEng ? 'Back to Nexus' : 'Volver al Nexo'}
-        </button>
-        <div className="flex flex-col items-start md:items-end">
-          <h2 className="text-2xl md:text-3xl font-black text-white uppercase font-display tracking-tight">{strategy.name}</h2>
-          <span className={`text-[9px] font-black px-3 py-1 rounded bg-black/40 border border-white/5 uppercase tracking-widest ${strategy.type === 'RUNE' ? 'text-indigo-400' : 'text-zinc-500'}`}>{strategy.type} {isEng ? 'Analysis' : 'Análisis'}</span>
-        </div>
-      </div>
-
-      <div className="flex bg-black/40 p-1.5 rounded-[20px] border border-white/5 shadow-inner relative">
-        {[1, 2, 3].map(i => (
-          <button key={i} onClick={() => setStep(i)} className={`flex-1 py-4 rounded-[14px] text-[10px] font-black tracking-widest transition-all font-display ${step === i ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-900/40' : 'text-zinc-600 hover:text-zinc-300 uppercase'}`}>
-            {i}. {i === 1 ? (isEng ? 'ACQUISITION' : 'ADQUISICIÓN') : i === 2 ? (strategy.type === 'RUNE' ? (isEng ? 'PROCESS' : 'PROCESO') : (isEng ? 'FORGE' : 'FORJA')) : i === 3 ? (isEng ? 'SELL' : 'VENTA') : ''}
-          </button>
-        ))}
-      </div>
-
-      {step === 1 && (
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 matte-card p-8 flex flex-col gap-8">
-              <div className="flex items-center gap-8">
-                <div className="p-6 bg-black/40 rounded-3xl border border-white/5"><Package className="text-indigo-500" size={32} /></div>
-                <div className="flex-1">
-                  <h3 className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.3em] mb-3 font-display">{isEng ? 'Scale Operation' : 'Escalar Operación'}</h3>
-                  <div className="flex gap-3 items-center">
-                    <input type="number" value={batchSize} onChange={(e) => setBatchSize(Math.max(1, parseInt(e.target.value) || 0))} className="matte-input px-5 py-3.5 text-white font-mono w-full text-base focus:outline-none" />
-                    <button onClick={() => setBatchSize(safeMax)} className="text-[10px] bg-black/40 text-zinc-300 px-5 py-3.5 rounded-xl border border-white/5 hover:bg-zinc-800 transition-colors font-black font-display uppercase">MAX</button>
-                    <button onClick={() => setBatchSize(recommendedBatch)} className="text-[10px] bg-indigo-600/10 text-indigo-400 px-5 py-3.5 rounded-xl border border-indigo-500/20 hover:bg-indigo-500/20 transition-colors font-black font-display uppercase italic tracking-tighter">REC</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="matte-card p-8 flex flex-col justify-center relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-5"><TrendingUp size={64} className="text-indigo-500" /></div>
-              <div className="text-[10px] text-zinc-500 font-black mb-2 uppercase tracking-[0.2em] font-display">{isEng ? 'Budget' : 'Presupuesto'}</div>
-              <div className="flex flex-wrap items-center gap-4">
-                <GoldDisplay amount={totalGoldCost} size="lg" />
-                {neededShards > 0 && (
-                  <div className={`text-xs font-black flex items-center gap-2 px-3 py-1.5 rounded-xl bg-black/40 border ${ownedShards >= neededShards ? 'border-indigo-500/30 text-indigo-400' : 'border-red-500/30 text-red-400'}`}>
-                    <Database size={14} /><span>{neededShards} <span className="opacity-40">SHARDS</span></span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="matte-card overflow-hidden">
-            <div className="bg-white/2 p-6 border-b border-white/5 flex items-center gap-4">
-              <ShoppingCart size={20} className="text-indigo-500" />
-              <h3 className="text-xs font-black text-white uppercase tracking-[0.3em] font-display">{isEng ? 'Procurement Materials' : 'Materiales de Adquisición'}</h3>
-            </div>
-            <div className="divide-y divide-white/5">
-              {shoppingList.map((item, idx) => (
-                <div key={idx} className="p-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 hover:bg-white/2 transition-colors">
-                  <div className="flex items-center gap-6 flex-1 w-full">
-                    <div className="text-4xl bg-black/40 p-4 rounded-3xl border border-white/5 shadow-inner">{item.icon}</div>
-                    <div>
-                      <div className="text-base font-bold text-white uppercase font-display tracking-tight mb-1">{item.name}</div>
-                      <div className="flex gap-6">
-                        <div className="text-[10px] text-zinc-600 font-black uppercase flex items-center gap-2 font-display"><Database size={12} /> {item.have}</div>
-                        <div className="text-[10px] text-zinc-600 font-black uppercase flex items-center gap-2 font-display"><Clock size={12} /> {item.supply > 50000 ? (isEng ? 'HIGH' : 'ALTO') : (isEng ? 'STABLE' : 'ESTABLE')}</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-12 w-full lg:w-auto text-right">
-                    <div><div className="text-[9px] text-zinc-600 font-black uppercase mb-1 tracking-widest font-display opacity-60">Insta-Buy</div><GoldDisplay amount={item.priceInsta} size="sm" /></div>
-                    <div><div className="text-[9px] text-indigo-400 font-black uppercase mb-1 tracking-widest font-display">Buy Order</div><GoldDisplay amount={item.priceOrder} size="sm" /></div>
-                    <div className="bg-black/40 px-6 py-4 rounded-2xl border border-indigo-500/20 shadow-inner min-w-[140px] col-span-2 lg:col-span-1">
-                      <div className="text-[9px] text-indigo-400 font-black uppercase mb-1 flex items-center gap-2 justify-end font-display">{isEng ? 'Quantity' : 'Cantidad'} <TrendingUp size={10} /></div>
-                      <div className="text-2xl font-black text-white font-display leading-none mb-1">{item.buy.toLocaleString()} <span className="text-[12px] text-zinc-600 font-mono">u.</span></div>
-                      {item.supply > 50000 && (
-                        <div className="text-[7px] text-emerald-400 font-black uppercase tracking-[0.2em] animate-pulse">
-                          {isEng ? '✦ SMART START: 1-10 units suggested (Auto-renewable)' : '✦ INICIO INTELIGENTE: 1-10 unidades sugeridas (Auto-generable)'}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="space-y-8">
-          <div className={`matte-card p-4 flex items-center gap-3 bg-black/20 border-white/5`}>
-            <MapPin size={18} className="text-indigo-400" />
-            <div className={`text-[10px] font-bold uppercase tracking-widest text-zinc-500`}>
-              {isEng ? 'LOCATION' : 'UBICACIÓN'}: {strategy.type === 'RUNE' ? (isEng ? 'CRAFTING STATION (ARTIFICER 400)' : 'TALLER DE ARTESANÍA (ARTIFICIERO 400)') : (isEng ? 'MYSTIC FORGE' : 'FORJA MÍSTICA')}
-            </div>
-          </div>
-
-          <div className="matte-card p-12 text-center relative overflow-hidden">
-            <div className="absolute -top-10 -left-10 w-40 h-40 bg-indigo-500/10 blur-[80px] rounded-full"></div>
-            <div className="relative z-10">
-              <div className="w-16 h-16 bg-black/40 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/5 shadow-xl">
-                <FlaskConical size={32} className="text-indigo-400 animate-pulse" />
-              </div>
-              <h3 className="text-2xl font-black text-white uppercase tracking-[0.3em] mb-2 font-display">{strategy.type === 'RUNE' ? (isEng ? 'RECONSTRUCTION PROCESS' : 'PROCESO DE RECONSTRUCCIÓN') : (isEng ? 'FORGE PROTOCOL' : 'PROTOCOLO DE FORJA')}</h3>
-              <p className="text-zinc-600 font-mono text-[10px] max-w-md mx-auto mb-10 border-t border-white/5 pt-6 uppercase tracking-widest">
-                {isEng ? 'Repeat cycle' : 'Repetir ciclo'} <strong className="text-indigo-400 text-lg mx-1">{batchSize}</strong> {isEng ? 'times' : 'veces'}.
-              </p>
-
-              <div className="grid grid-cols-1 md:flex md:justify-center md:items-center gap-4 max-w-4xl mx-auto">
-                <div className="matte-card p-6 bg-black/40 min-w-[160px] border-white/5">
-                  <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">{getItemIcon(strategy.sourceName)}</div>
-                  <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Input' : 'Entrada'}</div>
-                  <div className="text-[10px] font-black text-white font-display uppercase tracking-tight">{sourcePerCraft}x {strategy.sourceName}</div>
-                </div>
-
-                {!isRune && !isLode && (
-                  <>
-                    <div className="text-zinc-800 font-black">+</div>
-                    <div className="matte-card p-6 bg-black/40 min-w-[160px] border-white/5">
-                      <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">{getItemIcon(strategy.name)}</div>
-                      <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Catalyst' : 'Catalizador'}</div>
-                      <div className="text-[10px] font-black text-indigo-400 font-display uppercase tracking-tight">1x {strategy.name}</div>
-                    </div>
-                    <div className="text-zinc-800 font-black">+</div>
-                    <div className="matte-card p-6 bg-black/40 min-w-[160px] border-white/5">
-                      <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">✨</div>
-                      <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Stabilizer' : 'Estabilizador'}</div>
-                      <div className="text-[10px] font-black text-white font-display uppercase tracking-tight">{isEng ? '5x Dust' : '5x Polvo'}</div>
-                    </div>
-                    <div className="text-zinc-800 font-black">+</div>
-                    <div className="matte-card p-6 bg-black/40 min-w-[160px] border-indigo-500/20">
-                      <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">💎</div>
-                      <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Exchange' : 'Canje'}</div>
-                      <div className="text-[10px] font-black text-indigo-300 font-display uppercase tracking-tight">{isEng ? '5x Philo Stones' : '5x Piedras Filosofales'}</div>
-                    </div>
-                  </>
-                )}
-
-                {isLode && (
-                  <>
-                    <div className="text-zinc-800 font-black">+</div>
-                    <div className="matte-card p-6 bg-black/40 min-w-[160px] border-white/5">
-                      <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">✨</div>
-                      <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Essence' : 'Esencia'}</div>
-                      <div className="text-[10px] font-black text-white font-display uppercase tracking-tight">{isEng ? '1x Dust' : '1x Polvo'}</div>
-                    </div>
-                    <div className="text-zinc-800 font-black">+</div>
-                    <div className="matte-card p-6 bg-black/40 min-w-[160px] border-white/5">
-                      <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">🍷</div>
-                      <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Blend' : 'Mezcla'}</div>
-                      <div className="text-[10px] font-black text-amber-500 font-display uppercase tracking-tight italic">{isEng ? '1x Wine' : '1x Vino'}</div>
-                    </div>
-                    <div className="text-zinc-800 font-black">+</div>
-                    <div className="matte-card p-6 bg-black/40 min-w-[160px] border-indigo-500/20">
-                      <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">🧊</div>
-                      <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Exchange' : 'Canje'}</div>
-                      <div className="text-[10px] font-black text-indigo-300 font-display uppercase tracking-tight">{isEng ? '1x Mystic Crystal' : '1x Cristal Místico'}</div>
-                    </div>
-                  </>
-                )}
-
-                {isRune && (
-                  <div className="flex flex-col items-center">
-                    <ArrowLeft className="rotate-180 text-indigo-500 my-4" />
-                    <div className="matte-card p-6 bg-black/40 min-w-[160px] border-indigo-500/30 shadow-indigo-900/10">
-                      <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">💠</div>
-                      <div className="text-[8px] text-indigo-400 font-black uppercase mb-1">{isEng ? 'Result' : 'Resultado'}</div>
-                      <div className="text-[10px] font-black text-white font-display uppercase tracking-tight">1x Lucent Shard</div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {neededShards > 0 && (
-                <div className="mt-12 p-5 bg-white/2 rounded-2xl border border-white/5 text-[10px] text-zinc-500 font-black uppercase tracking-widest inline-flex flex-col items-center gap-2 font-display">
-                  <div className="flex items-center gap-3">
-                    <Sparkles size={16} className="text-indigo-400" />
-                    <span>{isEng ? 'Shard Investment' : 'Inversión en Shards'}: <strong className="text-white">{neededShards}</strong></span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {step === 3 && (
-        <div className="space-y-6">
-          <div className="matte-card p-4 flex items-center gap-3 bg-black/20 border-white/5">
-            <MapPin size={18} className="text-emerald-400" />
-            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest font-display">{isEng ? 'RECOVERY: TRADING POST' : 'RECUPERACIÓN: BAZAR'}</div>
-          </div>
-
-          <div className="matte-card p-16 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent pointer-events-none"></div>
-            <div className="relative z-10">
-              <p className="text-zinc-600 mb-8 text-[11px] font-black uppercase tracking-[0.5em] font-display">{isEng ? 'Estimated Liquidation' : 'Liquidación estimada'}</p>
-              <GoldDisplay amount={strategy.sellPrice * batchSize * yieldPerCraft} size="xl" />
-              <div className="mt-12 flex flex-col items-center gap-6">
-                <div className="bg-emerald-500/10 text-emerald-400 px-8 py-4 rounded-2xl border border-emerald-500/20 text-[10px] font-black uppercase tracking-[0.2em] shadow-lg font-display">
-                  {isEng ? 'Yield' : 'Rendimiento'} x{yieldPerCraft.toFixed(1)} {isEng ? 'Applied' : 'Aplicado'}
-                </div>
-                <div className="bg-black/40 p-6 rounded-3xl border border-white/5 max-w-sm">
-                  <h4 className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-3 flex items-center justify-center gap-2 font-display"><Gavel size={12} /> Sell Listing</h4>
-                  <p className="text-[11px] text-zinc-500 font-medium leading-relaxed font-display">
-                    {isEng ? 'Do not sell blindly. List your items and wait for the market. Patience is rewarded in gold.' : 'No vendas a ciegas. Publica un listado de venta y espera la respuesta del mercado. La paciencia se paga en oro.'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Refresh Market Button */}
-          <div className="mt-6">
-            <button
-              onClick={() => {
-                onBack(); // Calls the onBack prop from the parent
-                // This will trigger fetchData in the parent component
-              }}
-              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-indigo-900/30 active:scale-95 transition-all font-display flex items-center justify-center gap-3"
-            >
-              <RefreshCcw size={16} className="animate-spin-slow" />
-              {isEng ? 'Refresh Market & Find New Routes' : 'Releer Mercado y Buscar Nuevas Rutas'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className="p-6 bg-black/20 border-t border-white/5 text-[9px] text-zinc-600 font-black uppercase text-center tracking-widest font-display">
-        {isEng ? 'Place orders' : 'Poner órdenes'} <strong className="text-zinc-400">1 {isEng ? 'copper above' : 'cobre por encima'}</strong> {isEng ? 'of current bid. Don\'t sell freedom for laziness.' : 'de la puja actual. No vendas libertad por pereza.'}
-      </div>
-    </motion.div>
-  );
-};
-
-// --- SETTINGS MODAL ---
-const SettingsModal = ({ isOpen, onClose, currentKey, onSave, isEng }: { isOpen: boolean, onClose: () => void, currentKey: string, onSave: (key: string) => void, isEng: boolean }) => {
-  const [key, setKey] = useState(currentKey);
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        className="matte-card w-full max-w-md p-8 border-indigo-500/30 shadow-[0_0_50px_rgba(79,70,229,0.2)] relative"
-      >
-        <button onClick={onClose} className="absolute top-4 right-4 text-zinc-500 hover:text-white"><ArrowLeft className="rotate-180" size={20} /></button>
-
-        <div className="flex items-center gap-4 mb-6">
-          <div className="p-3 bg-indigo-500/20 rounded-xl text-indigo-400"><Settings size={24} /></div>
-          <h3 className="text-xl font-black text-white uppercase font-display italic">{isEng ? 'System Configuration' : 'Configuración del Sistema'}</h3>
-        </div>
-
-        <div className="space-y-6">
-          <div>
-            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 block">Guild Wars 2 API Key</label>
-            <input
-              type="password"
-              value={key}
-              onChange={(e) => setKey(e.target.value)}
-              placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXXXXXXXXX"
-              className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-zinc-300 focus:border-indigo-500 focus:outline-none font-mono text-xs shadow-inner"
-            />
-            <p className="text-[10px] text-zinc-600 mt-2 leading-relaxed">
-              {isEng ? 'Permissions required: account, wallet, inventories. Key is stored locally in your browser.' : 'Permisos requeridos: account, wallet, inventories. La clave se guarda localmente en tu navegador.'}
-            </p>
-          </div>
-
-          <button
-            onClick={() => onSave(key)}
-            className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-900/40 flex justify-center items-center gap-2"
-          >
-            <Database size={16} /> {isEng ? 'Connect Nexus Link' : 'Conectar Nexus Link'}
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  );
-};
+import { OperationMode } from './components/OperationMode';
+import { AnuuMediator } from './components/AnuuMediator';
+import { DiversificationHub } from './components/DiversificationHub';
+import { StrategicLab } from './components/StrategicLab';
+import { StrategyGrimoire } from './components/StrategyGrimoire';
+import { SettingsModal } from './components/SettingsModal';
+import { GoldDisplay } from './components/common/GoldDisplay';
 
 // --- APP COMPONENT ---
 function App() {
@@ -687,38 +29,30 @@ function App() {
   const isEng = lang === 'en';
   const [thought, setThought] = useState(isEng ? "Projecting trade routes..." : "Proyectando rutas comerciales...");
   const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE'>('IDLE');
-  const [showSettings, setShowSettings] = useState(false); // Modal State
+  const [showSettings, setShowSettings] = useState(false);
 
   const fetchData = useCallback(async () => {
     setStatus('THINKING');
     setThought(isEng ? 'Connecting to Nexus...' : 'Conectando con Nexus...');
 
     try {
-      // 1. Fetch Market Prices (No auth needed)
+      // 1. Fetch Market Prices
       const allIds = Object.values(IDS).filter((x): x is number => typeof x === 'number');
       const priceData = await gw2.getPrices(allIds);
       const priceMap: Record<number, MarketItem> = {};
       priceData.forEach((p: MarketItem) => { priceMap[p.id] = p; });
       setPrices(priceMap);
-      console.log('[Nexus] Prices loaded:', Object.keys(priceMap).length, 'items');
 
-      // 2. If API Key exists, fetch account data
+      // 2. Fetch account data if API Key exists
       if (apiKey && apiKey.length > 10) {
-        console.log('[Nexus] API Key detected, verifying...');
-
-        // Verify token permissions first
         const tokenInfo = await gw2.getTokenInfo(apiKey);
-        console.log('[Nexus] Token permissions:', tokenInfo?.permissions);
-
         const hasWalletPerm = tokenInfo?.permissions?.includes('wallet');
         const hasInventoriesPerm = tokenInfo?.permissions?.includes('inventories');
 
         if (!hasWalletPerm) {
-          console.warn('[Nexus] API Key missing "wallet" permission!');
-          setThought(isEng ? 'API Key missing "wallet" permission. Please regenerate key.' : 'La API Key no tiene permiso "wallet". Regenera la clave.');
+          setThought(isEng ? 'API Key missing "wallet" permission.' : 'La API Key no tiene permiso "wallet".');
         }
 
-        // Fetch Materials
         if (hasInventoriesPerm) {
           try {
             const mats = await gw2.getMaterials(apiKey);
@@ -726,14 +60,12 @@ function App() {
             if (Array.isArray(mats)) {
               mats.forEach((m: { id: number, count: number }) => { matMap[m.id] = m.count; });
               setMaterials(matMap);
-              console.log('[Nexus] Materials loaded:', Object.keys(matMap).length);
             }
           } catch (e) {
             console.error('[Nexus] Materials fetch failed:', e);
           }
         }
 
-        // Fetch Wallet
         if (hasWalletPerm) {
           try {
             const wData = await gw2.getWallet(apiKey);
@@ -741,14 +73,12 @@ function App() {
             if (Array.isArray(wData)) {
               wData.forEach((w: { id: number, value: number }) => { walletMap[w.id] = w.value; });
               setWallet(walletMap);
-              console.log('[Nexus] Wallet loaded. Gold (id=1):', walletMap[1], 'copper');
             }
           } catch (e) {
             console.error('[Nexus] Wallet fetch failed:', e);
           }
         }
       } else {
-        console.log('[Nexus] No API Key configured. Running in anonymous mode.');
         setThought(isEng ? 'No API Key. Add one in Settings for personalized recommendations.' : 'Sin API Key. Añade una en Configuración para recomendaciones personalizadas.');
       }
 
@@ -770,7 +100,6 @@ function App() {
   }, [apiKey, isEng]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchData();
   }, [fetchData]);
 
@@ -785,7 +114,7 @@ function App() {
     localStorage.setItem('gw2_api_key', cleaned);
     setApiKey(cleaned);
     setShowSettings(false);
-    window.location.reload(); // Reload to refresh data context
+    window.location.reload();
   };
 
   return (
@@ -855,7 +184,7 @@ function App() {
           {!activeStrategy && !multiStrategy ? (
             <motion.div key="dash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
               <DiversificationHub strategies={strategies} onSelect={handleMultiSelect} isEng={isEng} walletGold={wallet[1] || 0} />
-              {/* Removed raw strategy grid as per user feedback - Focus on Profiles & Codex */}
+              <StrategicLab strategies={strategies} isEng={isEng} onSelect={(s) => setActiveStrategy(s)} />
               <StrategyGrimoire strategies={strategies} onSelectSingle={(strat) => setActiveStrategy(strat)} isEng={isEng} />
             </motion.div>
           ) : multiStrategy ? (

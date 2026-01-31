@@ -146,39 +146,45 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
 
   const isCommon = strategy.type === 'COMMON';
   const isRune = strategy.type === 'RUNE';
+  const isLode = strategy.type === 'LODE';
 
-  const sourcePerCraft = isRune ? 10 : (isCommon ? 250 : 50);
-  const yieldPerCraft = isRune ? 1 : (isCommon ? 22 : 7);
+  const sourcePerCraft = isLode ? 2 : (isRune ? 10 : (isCommon ? 250 : 50));
+  const yieldPerCraft = isLode ? 1 : (isRune ? 1 : (isCommon ? 22 : 7));
   const usesDust = strategy.type !== 'RUNE';
+  const dustPerCraft = isLode ? 1 : 5;
 
   const neededSource = sourcePerCraft * batchSize;
-  const neededDust = (usesDust ? 5 : 0) * batchSize;
-  const neededTarget = 1 * batchSize;
+  const neededDust = (usesDust ? dustPerCraft : 0) * batchSize;
+  const neededTarget = isLode ? 0 : 1 * batchSize;
 
   const buySource = Math.max(0, neededSource - ownedSource);
   const buyDust = Math.max(0, neededDust - ownedDust);
-  const buyTarget = Math.max(0, neededTarget - ownedTarget);
+  const buyTarget = isLode ? 0 : Math.max(0, neededTarget - ownedTarget);
+  const buyWine = isLode ? batchSize : 0;
 
-  const totalGoldCost = (buySource * priceOrderSource) + (buyDust * priceOrderDust) + (buyTarget * priceOrderTarget);
-  const totalInstaCost = (buySource * priceInstaSource) + (buyDust * (prices[IDS.DUST]?.sells.unit_price || 0)) + (buyTarget * priceInstaTarget);
+  const totalGoldCost = (buySource * priceOrderSource) + (buyDust * priceOrderDust) + (buyTarget * priceOrderTarget) + (buyWine * 2560);
+  const totalInstaCost = (buySource * priceInstaSource) + (buyDust * (prices[IDS.DUST]?.sells.unit_price || 0)) + (buyTarget * priceInstaTarget) + (buyWine * 2560);
   const savings = totalInstaCost - totalGoldCost;
 
-  const neededStones = (usesDust ? 5 : 0) * batchSize;
-  const neededShards = Math.ceil(neededStones / 10);
+  const neededStones = (isLode ? 0 : (isRune ? 0 : 5)) * batchSize;
+  const neededCrystals = isLode ? batchSize : 0;
+  const totalShardCost = (neededStones * 0.1) + (neededCrystals * 0.6);
+  const neededShards = Math.ceil(totalShardCost);
 
   const isWeekend = [0, 5, 6].includes(new Date().getDay());
   const multiplier = isWeekend ? (isCommon ? 0.05 : 0.25) : (isCommon ? 0.02 : 0.15);
   const recommendedBatch = Math.floor(strategy.supplyQty * multiplier);
 
-  const costPerCraft = (sourcePerCraft * priceOrderSource) + (neededDust / batchSize * priceOrderDust) + (1 * priceOrderTarget);
-  const maxByShards = neededStones > 0 ? Math.floor(ownedShards / 0.5) : 10000;
+  const costPerCraft = (sourcePerCraft * priceOrderSource) + (neededDust / batchSize * priceOrderDust) + (isLode ? 0 : priceOrderTarget) + (isLode ? 2560 : 0);
+  const maxByShards = totalShardCost > 0 ? Math.floor(ownedShards / (totalShardCost / batchSize)) : 10000;
   const maxByGold = costPerCraft > 0 ? Math.floor(availableGold / costPerCraft) : 0;
   const safeMax = Math.max(0, Math.min(maxByShards, maxByGold));
 
   const shoppingList = [
     { name: strategy.sourceName, icon: getItemIcon(strategy.sourceName), need: neededSource, have: ownedSource, buy: buySource, priceOrder: priceOrderSource, priceInsta: priceInstaSource, supply: pSource?.sells.quantity || 0 },
     ...(usesDust ? [{ name: "Crystalline Dust", icon: "✨", need: neededDust, have: ownedDust, buy: buyDust, priceOrder: priceOrderDust, priceInsta: prices[IDS.DUST]?.sells.unit_price || 0, supply: pDust?.sells.quantity || 0 }] : []),
-    { name: strategy.name, icon: getItemIcon(strategy.name), need: neededTarget, have: ownedTarget, buy: buyTarget, priceOrder: priceOrderTarget, priceInsta: priceInstaTarget, supply: pTarget?.sells.quantity || 0 },
+    ...(isLode ? [{ name: "Elonian Wine", icon: "🍷", need: batchSize, have: 0, buy: batchSize, priceOrder: 2560, priceInsta: 2560, supply: 999999 }] : []),
+    ...(!isLode ? [{ name: strategy.name, icon: getItemIcon(strategy.name), need: neededTarget, have: ownedTarget, buy: buyTarget, priceOrder: priceOrderTarget, priceInsta: priceInstaTarget, supply: pTarget?.sells.quantity || 0 }] : []),
   ];
 
   return (
@@ -302,7 +308,7 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
                   <div className="text-xs font-black text-white">{sourcePerCraft}x {strategy.sourceName}</div>
                 </div>
 
-                {!isRune && (
+                {!isRune && !isLode && (
                   <>
                     <div className="text-zinc-700 font-black">+</div>
                     <div className="bg-gradient-to-b from-zinc-800 to-zinc-950 p-5 rounded-2xl border border-zinc-700 shadow-xl transition-all hover:scale-105 min-w-[140px]">
@@ -317,10 +323,33 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
                       <div className="text-xs font-black text-white">5x Dust</div>
                     </div>
                     <div className="text-zinc-700 font-black">+</div>
-                    <div className="bg-gradient-to-b from-zinc-800 to-zinc-950 p-5 rounded-2xl border border-zinc-700 shadow-xl transition-all hover:scale-105 border-indigo-500/30 shadow-indigo-900/20 min-w-[140px]">
+                    <div className="bg-gradient-to-b from-zinc-800 to-zinc-950 p-5 rounded-2xl border border-zinc-700 shadow-xl border-indigo-500/30 min-w-[140px]">
                       <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">💎</div>
                       <div className="text-[8px] text-zinc-500 font-black uppercase mb-1">Canje</div>
                       <div className="text-xs font-black text-indigo-300 uppercase">5x Piedra Filosofal</div>
+                    </div>
+                  </>
+                )}
+
+                {isLode && (
+                  <>
+                    <div className="text-zinc-700 font-black">+</div>
+                    <div className="bg-gradient-to-b from-zinc-800 to-zinc-950 p-5 rounded-2xl border border-zinc-700 shadow-xl transition-all hover:scale-105 min-w-[140px]">
+                      <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">✨</div>
+                      <div className="text-[8px] text-zinc-500 font-black uppercase mb-1">Esencia</div>
+                      <div className="text-xs font-black text-white">1x Dust</div>
+                    </div>
+                    <div className="text-zinc-700 font-black">+</div>
+                    <div className="bg-gradient-to-b from-zinc-800 to-zinc-950 p-5 rounded-2xl border border-zinc-700 shadow-xl transition-all hover:scale-105 min-w-[140px]">
+                      <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">🍷</div>
+                      <div className="text-[8px] text-zinc-500 font-black uppercase mb-1">Mezcla</div>
+                      <div className="text-xs font-black text-amber-500 italic">1x Elonian Wine</div>
+                    </div>
+                    <div className="text-zinc-700 font-black">+</div>
+                    <div className="bg-gradient-to-b from-zinc-800 to-zinc-950 p-5 rounded-2xl border border-zinc-700 shadow-xl border-indigo-500/30 min-w-[140px]">
+                      <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">🧊</div>
+                      <div className="text-[8px] text-zinc-500 font-black uppercase mb-1">Canje</div>
+                      <div className="text-xs font-black text-indigo-300 uppercase">1x Mystic Crystal</div>
                     </div>
                   </>
                 )}
@@ -391,7 +420,7 @@ function App() {
   const [prices, setPrices] = useState<Record<number, MarketItem>>({});
   const [thought, setThought] = useState("Proyectando rutas comerciales...");
   const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE'>('IDLE');
-  const [category, setCategory] = useState<'ALL' | 'FINE' | 'COMMON' | 'RUNE'>('ALL');
+  const [category, setCategory] = useState<'ALL' | 'FINE' | 'COMMON' | 'LODE' | 'RUNE'>('ALL');
 
   const fetchData = async () => {
     setStatus('THINKING');
@@ -454,9 +483,9 @@ function App() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 bg-zinc-900/50 p-1.5 rounded-2xl border border-zinc-800">
-            {['ALL', 'FINE', 'COMMON', 'RUNE'].map(cat => (
+            {['ALL', 'FINE', 'COMMON', 'LODE', 'RUNE'].map(cat => (
               <button key={cat} onClick={() => setCategory(cat as any)} className={`px-4 py-2 rounded-xl text-[9px] font-black tracking-[0.2em] transition-all ${category === cat ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-600 hover:text-white'}`}>
-                {cat === 'ALL' ? 'NEXO' : cat === 'FINE' ? 'ESENCIAS' : cat === 'COMMON' ? 'GRANDE' : 'RUNAS'}
+                {cat === 'ALL' ? 'NEXO' : cat === 'FINE' ? 'ESENCIAS' : cat === 'COMMON' ? 'GRANDE' : cat === 'LODE' ? 'LODAS' : 'RUNAS'}
               </button>
             ))}
           </div>

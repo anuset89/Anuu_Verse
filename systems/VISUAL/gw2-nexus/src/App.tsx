@@ -98,36 +98,147 @@ const StrategyCard = ({ strategy, onClick }: { strategy: AnuuStrategy, onClick: 
 };
 
 // --- DIVERSIFICATION HUB ---
-const DiversificationHub = ({ strategies, onSelect }: { strategies: AnuuStrategy[], onSelect: (strats: AnuuStrategy[], profile: string) => void }) => {
-  // Filter for profitable routes only
+const DiversificationHub = ({ strategies, onSelect, isEng }: { strategies: AnuuStrategy[], onSelect: (strats: AnuuStrategy[], profile: string) => void, isEng: boolean }) => {
   const profitable = strategies.filter(s => s.roi > 0);
 
-  // Relámpago: High liquidity + positive ROI
+  // Relámpago: High liquidity
   const hot = [...profitable].sort((a, b) => b.supplyQty - a.supplyQty).slice(0, 6);
+  const hotRoi = hot.reduce((acc, s) => acc + s.roi, 0) / (hot.length || 1);
 
-  // Equilibrado: Best overall score (ROI + liquidity + stability)
+  // Equilibrado: Best score
   const balanced = [...profitable].sort((a, b) => b.score - a.score).slice(0, 6);
+  const balRoi = balanced.reduce((acc, s) => acc + s.roi, 0) / (balanced.length || 1);
 
-  // Sniper: Maximum ROI with minimum supply threshold
+  // Sniper: Max ROI
   const maxProfit = [...profitable].filter(s => s.supplyQty > 1000).sort((a, b) => b.roi - a.roi).slice(0, 6);
+  const snipRoi = maxProfit.reduce((acc, s) => acc + s.roi, 0) / (maxProfit.length || 1);
 
   const profiles = [
-    { id: 'hot', title: 'Relámpago', icon: <Zap className="text-zinc-100" size={18} />, items: hot, desc: 'Alta liquidez.', color: 'border-indigo-500/20' },
-    { id: 'balanced', title: 'Equilibrado', icon: <Scale className="text-zinc-100" size={18} />, items: balanced, desc: 'Óptimo.', color: 'border-zinc-800' },
-    { id: 'profit', title: 'Sniper', icon: <Target className="text-zinc-100" size={18} />, items: maxProfit, desc: 'Máximo ROI.', color: 'border-white/5' }
+    {
+      id: 'hot',
+      title: isEng ? 'Lightning Proc' : 'Relámpago',
+      icon: <Zap className="text-cyan-400" size={24} />,
+      items: hot,
+      desc: isEng ? 'High velocity trading. Prioritizes items with massive supply and demand for quick turnover.' : 'Comercio de alta velocidad. Prioriza ítems con oferta y demanda masiva para rotación rápida.',
+      stats: { roi: hotRoi, risk: 'LOW', speed: 'FAST' },
+      color: 'border-cyan-500/20 hover:border-cyan-500/40'
+    },
+    {
+      id: 'balanced',
+      title: isEng ? 'Balanced Core' : 'Equilibrado',
+      icon: <Scale className="text-violet-400" size={24} />,
+      items: balanced,
+      desc: isEng ? 'Optimal stability. The perfect mix of profit margin, safety, and market depth.' : 'Estabilidad óptima. La mezcla perfecta de margen de beneficio, seguridad y profundidad de mercado.',
+      stats: { roi: balRoi, risk: 'MED', speed: 'MED' },
+      color: 'border-violet-500/20 hover:border-violet-500/40'
+    },
+    {
+      id: 'profit',
+      title: isEng ? 'Sniper Elite' : 'Sniper',
+      icon: <Target className="text-amber-400" size={24} />,
+      items: maxProfit,
+      desc: isEng ? 'Maximum yield. Focuses on highest ROI opportunities, ignoring volatility. Patience required.' : 'Máximo rendimiento. Se enfoca en el ROI más alto, ignorando la volatilidad. Requiere paciencia.',
+      stats: { roi: snipRoi, risk: 'HIGH', speed: 'SLOW' },
+      color: 'border-amber-500/20 hover:border-amber-500/40'
+    }
   ];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
       {profiles.map(p => (
-        <motion.div key={p.id} whileHover={{ y: -4 }} onClick={() => onSelect(p.items, p.title)} className={`matte-card p-6 cursor-pointer matte-card-hover relative overflow-hidden group border-white/5`}>
-          <div className="flex items-center gap-3 mb-4"><div className="p-2.5 bg-black/40 rounded-xl border border-white/5">{p.icon}</div><h3 className="font-black text-white uppercase tracking-[0.2em] text-[10px] font-display">{p.title}</h3></div>
-          <p className="text-[9px] font-black text-zinc-600 mb-6 uppercase tracking-widest">{p.desc}</p>
-          <div className="space-y-3">{p.items.map(item => (<div key={item.targetId} className="flex justify-between items-center text-[10px]"><span className="text-zinc-400 font-medium truncate w-32 tracking-tight">/ {item.name}</span><span className={item.roi > 0 ? 'text-indigo-400 font-black' : 'text-zinc-600'}>{item.roi.toFixed(1)}%</span></div>))}</div>
+        <motion.div
+          key={p.id}
+          whileHover={{ y: -4 }}
+          onClick={() => onSelect(p.items, p.title)}
+          className={`matte-card p-6 cursor-pointer relative overflow-hidden group border ${p.color}`}
+        >
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            {p.icon}
+          </div>
+
+          <div className="flex items-center gap-4 mb-4">
+            <div className={`p-3 bg-black/40 rounded-xl border border-white/5`}>{p.icon}</div>
+            <div>
+              <h3 className="font-black text-white uppercase tracking-[0.2em] text-[12px] font-display">{p.title}</h3>
+              <div className="text-[9px] font-gray-500 font-mono mt-1 text-zinc-500">AVG ROI: <span className="text-white">+{p.stats.roi.toFixed(1)}%</span></div>
+            </div>
+          </div>
+
+          <p className="text-[10px] font-medium text-zinc-500 mb-6 leading-relaxed border-b border-white/5 pb-4 min-h-[60px]">
+            {p.desc}
+          </p>
+
+          <div className="space-y-2">
+            {p.items.slice(0, 3).map(item => (
+              <div key={item.targetId} className="flex justify-between items-center text-[9px] group/item">
+                <span className="text-zinc-500 group-hover/item:text-zinc-300 transition-colors uppercase tracking-tight flex items-center gap-2">
+                  <span className="w-1 h-1 rounded-full bg-zinc-700"></span> {item.name}
+                </span>
+                <span className={item.roi > 10 ? 'text-emerald-400 font-bold' : 'text-zinc-500'}>{item.roi.toFixed(1)}%</span>
+              </div>
+            ))}
+            {p.items.length > 3 && (
+              <div className="text-[8px] text-zinc-700 uppercase tracking-widest text-center pt-2 italic">
+                + {p.items.length - 3} {isEng ? 'more routes' : 'rutas más'}
+              </div>
+            )}
+          </div>
         </motion.div>
       ))}
     </div>
   );
 };
+
+// --- NEXUS CODEX (KNOWLEDGE BASE) ---
+const NexusCodex = ({ isEng }: { isEng: boolean }) => {
+  return (
+    <div className="matte-card p-8 md:p-12 border-white/5 bg-black/20 mt-16">
+      <div className="flex items-center gap-4 mb-8">
+        <Brain className="text-indigo-500" size={24} />
+        <h3 className="text-xl font-black text-white uppercase tracking-[0.3em] font-display">{isEng ? 'Nexus Codex' : 'Códice Nexus'}</h3>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="space-y-3">
+          <h4 className="text-[10px] font-black text-white uppercase tracking-widest border-b border-white/10 pb-2 mb-2 flex items-center gap-2">
+            <FlaskConical size={12} className="text-violet-400" /> T5 → T6 Protocol
+          </h4>
+          <p className="text-[10px] text-zinc-500 leading-relaxed">
+            {isEng ? 'Combine 50 T5 materials + 1 T6 material + 5 Crystalline Dust + 5 Philosopher\'s Stones in the Mystic Forge. Yields 5-12 T6 materials (Avg ~7).' : 'Combina 50 materiales T5 + 1 material T6 + 5 Polvos Cristalinos + 5 Piedras Filosofales. Genera 5-12 materiales T6 (Media ~7).'}
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <h4 className="text-[10px] font-black text-white uppercase tracking-widest border-b border-white/10 pb-2 mb-2 flex items-center gap-2">
+            <Star size={12} className="text-amber-400" /> Lodestones
+          </h4>
+          <p className="text-[10px] text-zinc-500 leading-relaxed">
+            {isEng ? '2 Cores + 1 Crystalline Dust + 1 Elonian Wine + 1 Mystic Crystal. Essential for Legendary crafting. High value, lower velocity.' : '2 Núcleos + 1 Polvo Cristalino + 1 Vino Eloniano + 1 Cristal Místico. Esencial para legendarias. Alto valor, menor velocidad.'}
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <h4 className="text-[10px] font-black text-white uppercase tracking-widest border-b border-white/10 pb-2 mb-2 flex items-center gap-2">
+            <Scale size={12} className="text-emerald-400" /> Tax & Fees
+          </h4>
+          <p className="text-[10px] text-zinc-500 leading-relaxed">
+            {isEng ? 'Trading Post takes 15% total (5% listing fee + 10% exchange fee). All Nexus calculations include this deduction for TRUE net profit.' : 'El Bazar cobra un 15% total (5% listado + 10% intercambio). Nexus ya descuenta esto para mostrar el beneficio neto REAL.'}
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <h4 className="text-[10px] font-black text-white uppercase tracking-widest border-b border-white/10 pb-2 mb-2 flex items-center gap-2">
+            <Zap size={12} className="text-cyan-400" /> Spirit Shards
+          </h4>
+          <p className="text-[10px] text-zinc-500 leading-relaxed">
+            {isEng ? 'The core currency for profit. Obtained by XP gain after lvl 80. Used to buy Philosopher\'s Stones and Mystic Crystals from Miyani.' : 'La moneda base del beneficio. Se gana con XP tras nivel 80. Usada para comprar Piedras Filosofales y Cristales Místicos a Miyani.'}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const OperationMode = ({ strategy, materials, wallet, prices, onBack, isEng }: {
   strategy: AnuuStrategy;
@@ -565,10 +676,11 @@ function App() {
         <AnimatePresence mode="wait">
           {!activeStrategy && !multiStrategy ? (
             <motion.div key="dash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-              <DiversificationHub strategies={strategies} onSelect={handleMultiSelect} />
+              <DiversificationHub strategies={strategies} onSelect={handleMultiSelect} isEng={isEng} />
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredStrategies.slice(0, 30).map(s => <StrategyCard key={s.targetId} strategy={s} onClick={() => handleStrategySelect(s)} />)}
               </div>
+              <NexusCodex isEng={isEng} />
             </motion.div>
           ) : multiStrategy ? (
             <DiversifiedOperation

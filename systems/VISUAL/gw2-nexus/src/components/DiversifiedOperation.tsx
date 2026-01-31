@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Cpu } from 'lucide-react';
 import type { AnuuStrategy, MarketItem } from '../engine/calculator';
+import { IDS } from '../engine/calculator';
+
 
 const getItemIcon = (name: string) => {
     if (name.includes('Blood')) return "🩸";
@@ -93,7 +95,11 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, onBack, isEng
         };
     });
 
-    const totalProjectedProfit = shoppingList.reduce((acc, item) => acc + item.profit, 0);
+    const totalInvested = shoppingList.reduce((acc, item) => acc + (item.neededSource * (prices[item.strategy.sourceId]?.buys?.unit_price || 0)) + (item.neededDust * (prices[IDS.DUST]?.buys?.unit_price || 0)) + (item.neededTarget * (prices[item.strategy.targetId]?.buys?.unit_price || 0)), 0);
+    const totalGrossSales = shoppingList.reduce((acc, item) => acc + (item.batchSize * (prices[item.strategy.targetId]?.sells?.unit_price || 0) * (item.strategy.type === 'COMMON' ? (item.strategy.name.includes('Ecto') ? 0.9 : 22) : (item.strategy.type === 'FINE' ? 7 : 1))), 0);
+    const tpFees = totalGrossSales * 0.15;
+    const netProfit = totalGrossSales - tpFees - totalInvested;
+    const roiPercentage = totalInvested > 0 ? (netProfit / totalInvested) * 100 : 0;
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 pb-32">
@@ -111,10 +117,12 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, onBack, isEng
                 </div>
             </div>
 
-            {/* Budget Control */}
-            <div className="matte-card p-8 flex flex-col md:flex-row gap-8 items-center justify-between bg-gradient-to-r from-indigo-900/10 to-purple-900/10 border-indigo-500/20">
+            {/* Budget & Financial Breakdown */}
+            <div className="matte-card p-8 flex flex-col md:flex-row gap-8 items-start justify-between bg-gradient-to-r from-indigo-900/10 to-purple-900/10 border-indigo-500/20">
+
+                {/* Left: Input */}
                 <div>
-                    <h3 className="text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">{isEng ? 'Total Investment Limit' : 'Límite de Inversión Total'}</h3>
+                    <h3 className="text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">{isEng ? 'Investment Budget' : 'Presupuesto de Inversión'}</h3>
                     <div className="flex items-end gap-2">
                         <input
                             type="number"
@@ -125,18 +133,40 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, onBack, isEng
                         <span className="text-xl font-black text-amber-500 mb-1">GOLD</span>
                     </div>
                     <p className="text-[9px] text-zinc-600 mt-2 uppercase tracking-wide">
-                        {isEng ? 'Available:' : 'Disponible:'} <span className="text-zinc-400 font-bold">{Math.floor(availableGold)}g</span>
+                        {isEng ? 'Wallet Available:' : 'Disponible en Cartera:'} <span className="text-zinc-400 font-bold">{Math.floor(availableGold)}g</span>
                     </p>
                 </div>
 
-                <div className="text-right">
-                    <h3 className="text-zinc-600 text-[8px] font-black uppercase tracking-[0.3em] mb-2">{isEng ? 'Projected Profit' : 'Ganancia Proyectada'}</h3>
-                    <GoldDisplay amount={totalProjectedProfit} size="xl" />
-                    <div className="text-[9px] text-emerald-500 font-black uppercase tracking-widest mt-2">
-                        +{(totalProjectedProfit / ((budgetGold || 1) * 10000) * 100).toFixed(1)}% ROI
+                {/* Right: Detailed Breakdown */}
+                <div className="text-right space-y-1">
+                    <h3 className="text-zinc-600 text-[8px] font-black uppercase tracking-[0.3em] mb-3 border-b border-white/5 pb-1">{isEng ? 'Financial Projection' : 'Proyección Financiera'}</h3>
+
+                    <div className="flex justify-end gap-4 text-[10px] items-center">
+                        <span className="text-zinc-500 uppercase tracking-wide">{isEng ? 'Est. Total Investment' : 'Inversión Total Est.'}</span>
+                        <GoldDisplay amount={totalInvested} size="sm" />
                     </div>
-                    <div className="text-[7px] text-zinc-600 font-black uppercase tracking-widest mt-1 opacity-60">
-                        {isEng ? 'Values include 15% TP Tax deduction' : 'Valores incluyen deducción del 15% TP'}
+
+                    <div className="flex justify-end gap-4 text-[10px] items-center">
+                        <span className="text-zinc-500 uppercase tracking-wide">{isEng ? 'Est. Gross Sales' : 'Ventas Brutas Est.'}</span>
+                        <span className="font-mono font-bold text-zinc-300">
+                            {Math.floor(totalGrossSales / 10000)}g <span className="text-[9px] text-zinc-600">BRUTO</span>
+                        </span>
+                    </div>
+
+                    <div className="flex justify-end gap-4 text-[10px] items-center">
+                        <span className="text-red-400/60 uppercase tracking-wide">{isEng ? 'Trading Post Fees (15%)' : 'Tasas Trading Post (15%)'}</span>
+                        <span className="font-mono font-bold text-red-400/80">-{Math.floor(tpFees / 10000)}g</span>
+                    </div>
+
+                    <div className="border-t border-white/10 pt-2 mt-2 flex justify-end gap-4 items-center">
+                        <div className="flex flex-col items-end">
+                            <span className="text-[9px] text-emerald-500/80 uppercase tracking-widest">{isEng ? 'Net Profit' : 'Beneficio Neto'}</span>
+                            <GoldDisplay amount={netProfit} size="lg" />
+                        </div>
+                    </div>
+
+                    <div className="text-[12px] text-emerald-400 font-black uppercase tracking-widest pt-1 font-display text-glow">
+                        +{roiPercentage.toFixed(1)}% ROI
                     </div>
                 </div>
             </div>

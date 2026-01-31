@@ -26,14 +26,14 @@ const GoldDisplay = ({ amount, size = "md" }: { amount: number, size?: "sm" | "m
 
 // --- COMPONENTS ---
 
-const AnuuMediator = ({ thought, status }: { thought: string, status: 'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE' }) => (
+const AnuuMediator = ({ thought, status, onReload }: { thought: string, status: 'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE', onReload?: () => void }) => (
   <motion.div
     initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
     className={`relative overflow-hidden rounded-2xl p-6 border transition-all duration-500 mb-8 ${status === 'THINKING' ? 'bg-zinc-900 border-fuchsia-500/50 shadow-lg shadow-fuchsia-900/20' : status === 'ALERT' ? 'bg-zinc-900 border-emerald-500/50 shadow-lg shadow-emerald-900/20' : status === 'GUIDE' ? 'bg-zinc-900 border-indigo-500/50 shadow-lg shadow-indigo-900/20' : 'bg-zinc-950 border-zinc-800'}`}
   >
     <div className="absolute top-0 right-0 p-4 opacity-10"><Brain size={120} /></div>
     <div className="flex items-start gap-5 relative z-10">
-      <div className={`p-3 rounded-full border-2 ${status === 'THINKING' ? 'border-fuchsia-500 bg-fuchsia-500/10 animate-pulse' : status === 'ALERT' ? 'border-emerald-500 bg-emerald-500/10' : status === 'GUIDE' ? 'border-indigo-500 bg-indigo-500/10' : 'border-zinc-700 bg-zinc-800'}`}>
+      <div onClick={onReload} className={`p-3 rounded-full border-2 cursor-pointer hover:scale-110 transition-transform ${status === 'THINKING' ? 'border-fuchsia-500 bg-fuchsia-500/10 animate-pulse' : status === 'ALERT' ? 'border-emerald-500 bg-emerald-500/10' : status === 'GUIDE' ? 'border-indigo-500 bg-indigo-500/10' : 'border-zinc-700 bg-zinc-800'}`}>
         <Cpu size={32} className={status === 'THINKING' ? 'text-fuchsia-400' : status === 'ALERT' ? 'text-emerald-400' : status === 'GUIDE' ? 'text-indigo-400' : 'text-zinc-500'} />
       </div>
       <div className="flex-1">
@@ -67,7 +67,7 @@ const StrategyCard = ({ strategy, onClick }: { strategy: AnuuStrategy, onClick: 
       </div>
       <div className="grid grid-cols-2 gap-2 text-xs text-zinc-500 mt-2 pt-3 border-t border-white/5">
         <div className="col-span-2 flex justify-between bg-zinc-950/50 p-1.5 rounded">
-          <span className="font-bold text-zinc-400 uppercase">Beneficio x Tirada</span>
+          <span className="font-bold text-zinc-400 uppercase text-[9px] tracking-widest">Beneficio x Forja</span>
           <GoldDisplay amount={strategy.profitPerCraft} size="sm" />
         </div>
       </div>
@@ -143,10 +143,10 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <div className="flex justify-between items-center">
-        <button onClick={onBack} className="bg-zinc-900 px-4 py-2 rounded-lg border border-zinc-800 text-zinc-400 text-xs">← Volver</button>
+        <button onClick={onBack} className="bg-zinc-900 px-4 py-2 rounded-lg border border-zinc-800 text-zinc-400 text-xs hover:text-white">← Volver</button>
         <div className="text-right">
           <h2 className="text-xl font-bold text-white">{strategy.name}</h2>
-          <p className="text-[10px] text-emerald-400 font-mono">STOCK: {strategy.supplyQty}</p>
+          <p className="text-[10px] text-emerald-400 font-mono italic">STOCK ACTUAL: {strategy.supplyQty}</p>
         </div>
       </div>
       <div className="flex bg-zinc-900 p-1 rounded-xl border border-zinc-800">
@@ -159,24 +159,24 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
               <div className="flex items-center gap-4">
                 <Package className="text-indigo-400" size={32} />
                 <div className="flex-1">
-                  <h3 className="font-bold text-white text-sm">Configurar Lote {isWeekend && <span className="text-[10px] bg-emerald-900 text-emerald-300 px-1 rounded ml-2">BOOST FINDE</span>}</h3>
+                  <h3 className="font-bold text-white text-sm uppercase tracking-tighter">Preparar Inversión {isWeekend && <span className="text-[10px] bg-emerald-900 text-emerald-300 px-1.5 rounded-full ml-2">FINDE BOOST</span>}</h3>
                   <div className="flex gap-2 items-center mt-2">
-                    <input type="number" value={batchSize} onChange={(e) => setBatchSize(Math.max(1, parseInt(e.target.value) || 0))} className="bg-black border border-zinc-700 rounded-lg px-3 py-1.5 text-white font-mono w-20 text-xs" />
-                    <button onClick={() => setBatchSize(safeMax)} className="text-[10px] bg-zinc-800 text-indigo-100 px-2 py-1.5 rounded border border-zinc-700">MAX ({safeMax})</button>
-                    <button onClick={() => setBatchSize(recommendedBatch)} className="text-[10px] bg-emerald-900/30 text-emerald-300 px-2 py-1.5 rounded border border-emerald-500/30">REC ({recommendedBatch})</button>
+                    <input type="number" value={batchSize} onChange={(e) => setBatchSize(Math.max(1, parseInt(e.target.value) || 0))} className="bg-black border border-zinc-700 rounded-lg px-3 py-1.5 text-white font-mono w-24 text-xs" />
+                    <button onClick={() => setBatchSize(safeMax)} className="text-[10px] bg-zinc-800 text-indigo-100 px-3 py-1.5 rounded border border-zinc-700 hover:bg-zinc-700 transition-colors">MAX ({safeMax})</button>
+                    <button onClick={() => setBatchSize(recommendedBatch)} className="text-[10px] bg-emerald-900/30 text-emerald-300 px-3 py-1.5 rounded border border-emerald-500/30 hover:bg-emerald-900/50 transition-colors">REC ({recommendedBatch})</button>
                   </div>
                 </div>
               </div>
             </div>
             <div className={`p-6 rounded-xl border ${canAfford ? 'bg-emerald-950/10 border-emerald-500/20' : 'bg-red-950/10 border-red-500/20'} flex flex-col justify-center`}>
-              <div className="text-[10px] text-zinc-500 font-bold mb-1 uppercase tracking-tighter">Coste Faltante</div>
+              <div className="text-[10px] text-zinc-500 font-bold mb-1 uppercase tracking-tighter">Líquido Necesario</div>
               <GoldDisplay amount={totalGoldCost} size="lg" />
             </div>
           </div>
         </div>
       )}
-      {step === 2 && <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-12 text-center text-zinc-500"><FlaskConical size={64} className="mb-4 text-indigo-500 mx-auto animate-pulse" /><p>Opera {batchSize} veces.</p></div>}
-      {step === 3 && <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-12 text-center text-zinc-300"><p className="text-zinc-500 mb-4 text-xs font-bold">VALOR ESTIMADO DE VENTA (~7x yield)</p><GoldDisplay amount={strategy.sellPrice * batchSize * 7} size="xl" /></div>}
+      {step === 2 && <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-12 text-center text-zinc-500"><FlaskConical size={64} className="mb-4 text-indigo-500 mx-auto animate-pulse" /><p className="font-mono text-xs">Ejecuta la receta {batchSize} veces en la Forja Mística.</p></div>}
+      {step === 3 && <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-12 text-center text-zinc-300"><p className="text-zinc-500 mb-4 text-[10px] font-bold uppercase tracking-[0.2em]">Estimación de Retorno (~7x)</p><GoldDisplay amount={strategy.sellPrice * batchSize * 7} size="xl" /></div>}
     </motion.div>
   );
 };
@@ -205,19 +205,25 @@ function App() {
       setPrices(priceMap);
 
       if (apiKey) {
-        gw2.getMaterials(apiKey).then(mats => {
+        // Brute force fetch authenticated data
+        const matsPromise = gw2.getMaterials(apiKey).then(mats => {
           const matMap: Record<number, number> = {};
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           mats.forEach((m: any) => { matMap[m.id] = m.count; });
-          setMaterials(matMap);
-        }).catch(() => { });
-        gw2.getWallet(apiKey).then(wData => {
+          return matMap;
+        });
+        const walletPromise = gw2.getWallet(apiKey).then(wData => {
           const walletMap: Record<number, number> = {};
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           wData.forEach((w: any) => { walletMap[w.id] = w.value; });
-          setWallet(walletMap);
-        }).catch(() => { });
+          return walletMap;
+        });
+
+        const [mResult, wResult] = await Promise.allSettled([matsPromise, walletPromise]);
+        if (mResult.status === 'fulfilled') setMaterials(mResult.value);
+        if (wResult.status === 'fulfilled') setWallet(wResult.value);
       }
+
       const strats = analyzeMarket(priceMap);
       setStrategies(strats);
 
@@ -228,17 +234,18 @@ function App() {
         setThought(strats[0] && strats[0].roi > 0 ? `Análisis completado. Oportunidad: ${strats[0].name}.` : "Mercado escaneado. Resultados cargados.");
       }
       setStatus('IDLE');
-    } catch { setStatus('ALERT'); setThought("Fallo en conexión."); }
+    } catch { setStatus('ALERT'); setThought("Fallo en conexión. Revisa tu clave API."); }
   };
 
   useEffect(() => {
-    if (apiKey) fetchData(); // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchData(); // Run scan regardless of key, but key enables wallet
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleStrategySelect = (strategy: AnuuStrategy) => {
     setActiveStrategy(strategy);
     setStatus('GUIDE');
-    setThought(`Protocolo unitario activo.`);
+    setThought(`Protocolo unitario activo. Configura tu lote para ${strategy.name}.`);
   };
 
   const handleMultiSelect = (strats: AnuuStrategy[], title: string) => {
@@ -249,51 +256,55 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-300 p-4 md:p-8 font-sans">
+    <div className="min-h-screen bg-[#050505] text-zinc-300 p-4 md:p-8 font-sans selection:bg-indigo-500/30">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           {apiKey && (
-            <div className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 p-2 rounded-xl">
+            <div className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 p-2.5 rounded-2xl shadow-inner cursor-pointer hover:bg-zinc-800 transition-colors" onClick={fetchData}>
               <div className="flex items-center gap-2 px-2">
-                <span className="text-[10px] text-zinc-500 font-bold uppercase">ORO:</span>
-                {wallet[1] !== undefined ? <GoldDisplay amount={wallet[1]} size="md" /> : "..."}
+                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">ORO:</span>
+                {wallet[1] !== undefined ? <GoldDisplay amount={wallet[1]} size="md" /> : <span className="text-zinc-600 animate-pulse text-xs">...</span>}
               </div>
               <div className="w-px h-6 bg-zinc-800"></div>
               <div className="flex items-center gap-2 px-2">
-                <Database size={14} className="text-pink-400" /><span className="text-zinc-300 font-mono font-bold">{wallet[23] || 0}</span>
+                <Database size={14} className="text-pink-500" /><span className="text-zinc-200 font-mono font-bold">{wallet[23] || 0}</span>
               </div>
             </div>
           )}
-          <div className="ml-auto"><button onClick={() => { const k = prompt("API Key:", apiKey); if (k) { localStorage.setItem('gw2_api_key', k.trim()); window.location.reload(); } }} className="bg-zinc-800 p-2 rounded-lg border border-zinc-700 hover:text-white"><Settings size={16} /></button></div>
+          <div className="ml-auto flex gap-2">
+            <button onClick={fetchData} className="bg-zinc-900 border border-zinc-700 p-2.5 rounded-xl hover:text-white transition-colors" title="Forzar Recarga"><RefreshCcw size={16} className={status === 'THINKING' ? 'animate-spin' : ''} /></button>
+            <button onClick={() => { const k = prompt("API Key:", apiKey); if (k) { localStorage.setItem('gw2_api_key', k.trim()); window.location.reload(); } }} className="bg-zinc-900 p-2.5 rounded-xl border border-zinc-700 hover:text-white transition-colors"><Settings size={16} /></button>
+          </div>
         </div>
 
-        <AnuuMediator thought={thought} status={status} />
+        <AnuuMediator thought={thought} status={status} onReload={fetchData} />
 
         <AnimatePresence mode="wait">
           {!activeStrategy && !multiStrategy ? (
             <motion.div key="dash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <div className="mb-4 text-xs font-bold text-zinc-500 uppercase tracking-widest flex items-center gap-2"><Zap size={14} /> Estrategia Divisional</div>
+              <div className="mb-4 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-2 ml-1"><Zap size={14} className="text-indigo-400" /> Estrategia Divisional</div>
               <DiversificationHub strategies={strategies} onSelect={handleMultiSelect} />
-              <button onClick={fetchData} className="w-full bg-zinc-100 hover:bg-white text-black font-bold py-4 rounded-xl mb-12 flex items-center justify-center gap-2 transition-all"><RefreshCcw size={20} className={status === 'THINKING' ? 'animate-spin' : ''} /> RE-ESCANEAR</button>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {strategies.map(s => <StrategyCard key={s.targetId} strategy={s} onClick={() => handleStrategySelect(s)} />)}
               </div>
             </motion.div>
           ) : multiStrategy ? (
-            <motion.div key="multi" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-              <div className="flex justify-between items-center"><button onClick={() => setMultiStrategy(null)} className="flex items-center gap-2 text-zinc-500 font-bold uppercase text-[10px] tracking-widest"><ArrowLeft size={16} /> Volver</button><h2 className="text-2xl font-bold">{multiTitle}</h2></div>
+            <motion.div key="multi" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+              <div className="flex justify-between items-center"><button onClick={() => setMultiStrategy(null)} className="flex items-center gap-2 text-zinc-500 font-bold uppercase text-[10px] tracking-widest hover:text-white transition-colors"><ArrowLeft size={16} /> Volver al Nexo</button><h2 className="text-2xl font-bold bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent">{multiTitle}</h2></div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-8">
                 {multiStrategy.map(s => (
-                  <div key={s.targetId} className="bg-zinc-900 p-4 rounded-xl border border-zinc-800 hover:border-indigo-500/50 transition-all cursor-pointer" onClick={() => handleStrategySelect(s)}>
-                    <h3 className="font-bold text-zinc-200 mb-2">{s.name}</h3>
-                    <div className="flex justify-between items-center"><span className="text-[10px] text-zinc-500 uppercase">ROI:</span><span className={s.roi > 0 ? 'text-emerald-400' : 'text-red-400'}>{s.roi > 0 ? '+' : ''}{s.roi.toFixed(1)}%</span></div>
-                    <div className="mt-4"><button className="w-full bg-indigo-600/20 text-indigo-400 py-2 rounded-lg text-[10px] font-bold uppercase tracking-tighter">Preparar Forja</button></div>
-                  </div>
+                  <motion.div whileHover={{ y: -5 }} key={s.targetId} className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 hover:border-indigo-500/50 transition-all cursor-pointer group" onClick={() => handleStrategySelect(s)}>
+                    <h3 className="font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">{s.name}</h3>
+                    <div className="flex justify-between items-center"><span className="text-[10px] text-zinc-500 uppercase font-mono">ROI POTENCIAL:</span><span className={s.roi > 0 ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}>{s.roi > 0 ? '+' : ''}{s.roi.toFixed(1)}%</span></div>
+                    <div className="mt-6"><button className="w-full bg-indigo-600/10 text-indigo-400 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest group-hover:bg-indigo-600 group-hover:text-white transition-all">Sincronizar Forja</button></div>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
           ) : (
-            <motion.div key="op" initial={{ opacity: 0 }} animate={{ opacity: 1 }}><OperationMode strategy={activeStrategy!} materials={materials} wallet={wallet} prices={prices} onBack={() => { setActiveStrategy(null); }} /></motion.div>
+            <motion.div key="op" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+              <OperationMode strategy={activeStrategy!} materials={materials} wallet={wallet} prices={prices} onBack={() => { setActiveStrategy(null); }} />
+            </motion.div>
           )}
         </AnimatePresence>
       </div>

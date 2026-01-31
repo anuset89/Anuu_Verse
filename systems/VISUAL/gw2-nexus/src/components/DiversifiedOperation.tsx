@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Cpu, ShoppingCart, Hammer, Coins, CheckCircle, Package, Sparkles } from 'lucide-react';
 import type { AnuuStrategy, MarketItem } from '../engine/calculator';
@@ -459,7 +459,16 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
     icons: Record<number, string>;
 }) => {
     const availableGold = (wallet[1] || 0) / 10000; // Convert copper to gold
-    const [budgetGold, setBudgetGold] = useState(availableGold >= 1 ? Math.floor(availableGold) : 100);
+    const [budgetGold, setBudgetGold] = useState(availableGold > 0 ? Math.floor(availableGold) : 10);
+    const [hasInitialBudget, setHasInitialBudget] = useState(false);
+
+    // Sync budget with wallet on first load when data arrives
+    useEffect(() => {
+        if (!hasInitialBudget && availableGold > 0) {
+            setBudgetGold(Math.floor(availableGold));
+            setHasInitialBudget(true);
+        }
+    }, [availableGold, hasInitialBudget]);
 
     // 1. Pre-calculate inventory scores to determine priority
     const prioritizedStrategies = [...strategies].map(s => {

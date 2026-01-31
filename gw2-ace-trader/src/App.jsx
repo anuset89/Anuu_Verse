@@ -657,13 +657,18 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
 
     // Investment calculation based on mode
     const investmentRatios = { safe: 0.1, balanced: 0.25, aggro: 0.5 }; // 10%, 25%, 50% of gold
-    const investmentAmount = Math.floor(gold * investmentRatios[mode]);
+    const investmentAmount = Math.floor((gold || 0) * investmentRatios[mode]);
 
-    // Calculate how many crafts we can do with this investment
-    const unitCost = (top.totalCost || 1) / (top.chosen || 1); // Cost per single craft
-    const craftableUnits = unitCost > 0 ? Math.max(1, Math.floor(investmentAmount / unitCost) || 1) : 1;
-    const actualCost = Math.floor(craftableUnits * unitCost) || 0;
-    const expectedProfit = Math.floor(((top.potentialProfit || 0) / (top.chosen || 1)) * craftableUnits) || 0;
+    // Validate: totalCost should be > 1000 copper (10s minimum for real crafts)
+    const hasValidData = top.totalCost > 1000 && top.chosen > 0;
+    const unitCost = hasValidData ? top.totalCost / top.chosen : 0;
+    const unitProfit = hasValidData ? (top.potentialProfit || 0) / top.chosen : 0;
+
+    // Limit to max 250 crafts per session (reasonable T6 crafting limit)
+    const rawCrafts = unitCost > 0 ? Math.floor(investmentAmount / unitCost) : 0;
+    const craftableUnits = hasValidData ? Math.min(250, Math.max(1, rawCrafts)) : 0;
+    const actualCost = Math.floor(craftableUnits * unitCost);
+    const expectedProfit = Math.floor(craftableUnits * unitProfit);
 
     const t5Name = getItemName(top.t5Id, lang);
     const t6Name = getItemName(top.id, lang);

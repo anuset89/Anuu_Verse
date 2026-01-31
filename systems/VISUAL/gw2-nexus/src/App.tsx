@@ -212,43 +212,53 @@ function App() {
   const fetchData = async () => {
     setStatus('THINKING');
     try {
+      console.log("DEBUG: Iniciando Scan...");
       const allIds = Object.values(IDS).filter(x => typeof x === 'number');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const priceData: any[] = await gw2.getPrices(allIds) as any[];
+      console.log("DEBUG: Precios recibidos:", priceData.length);
+
       const priceMap: Record<number, MarketItem> = {};
       priceData.forEach((p) => { priceMap[p.id] = p; });
       setPrices(priceMap);
 
       if (apiKey) {
+        console.log("DEBUG: Fetching Account Data...");
         gw2.getMaterials(apiKey).then(mats => {
           const matMap: Record<number, number> = {};
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           mats.forEach((m: any) => { matMap[m.id] = m.count; });
           setMaterials(matMap);
-        }).catch(() => { });
+        }).catch(e => console.error("Mats failed", e));
+
         gw2.getWallet(apiKey).then(wData => {
           const walletMap: Record<number, number> = {};
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           wData.forEach((w: any) => { walletMap[w.id] = w.value; });
           setWallet(walletMap);
-        }).catch(() => { });
+        }).catch(e => console.error("Wallet failed", e));
       }
+
       const strats = analyzeMarket(priceMap);
       setStrategies(strats);
 
-      // WEEKEND AWARENESS
       const isWeekend = [0, 5, 6].includes(new Date().getDay());
       if (isWeekend) {
         setThought("Fin de semana detectado: El nexo registra alta rotación en Tyria. He aumentado los lotes recomendados (+60%).");
       } else {
-        setThought(strats[0] ? `Oportunidad: ${strats[0].name}. ¿Prefieres diversificar para mayor seguridad?` : "Analizando...");
+        setThought(strats[0] ? `Análisis completado. Oportunidad: ${strats[0].name}.` : "Mercado escaneado. Selecciona una operación.");
       }
       setStatus('IDLE');
-    } catch { setStatus('ALERT'); setThought("Fallo en conexión."); }
+    } catch (err) {
+      console.error("DEBUG: Scan Error:", err);
+      setStatus('ALERT');
+      setThought("Fallo en la conexión con la red GW2. Reintenta.");
+    }
   };
 
   useEffect(() => {
-    if (apiKey) fetchData(); // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleStrategySelect = (strategy: AnuuStrategy) => {

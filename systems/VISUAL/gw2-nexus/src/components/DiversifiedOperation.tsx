@@ -610,10 +610,22 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                     <button
                         onClick={() => {
                             if (currentStep === 3) {
-                                // Cycle Complete!
+                                // Cycle Complete! -> Force Refresh & Re-Analyze
                                 setCycleCount(prev => prev + 1);
-                                setCurrentStep(1);
                                 setManualCompleted(new Set()); // Reset checks for new cycle
+
+                                // Reset step to 1 (Logistics)
+                                setCurrentStep(1);
+
+                                // Trigger data refresh to update Wallet/Inventory
+                                if (onRefresh) {
+                                    setIsSyncing(true);
+                                    onRefresh().then(() => {
+                                        setIsSyncing(false);
+                                        // The parent (DiversifiedOperation) will receive new props.
+                                        // We rely on the parent updating 'wallet' and 'materials'.
+                                    });
+                                }
                             } else {
                                 setCurrentStep(prev => Math.min(3, prev + 1));
                             }
@@ -675,13 +687,32 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
     const [budgetGold, setBudgetGold] = useState(availableGold > 0 ? Math.floor(availableGold) : 10);
     const [hasInitialBudget, setHasInitialBudget] = useState(false);
 
-    // Sync budget with wallet on first load when data arrives
+    // Sync budget with wallet on load OR when wallet significantly changes (e.g. after a cycle refresh)
     useEffect(() => {
-        if (!hasInitialBudget && availableGold > 0) {
-            setBudgetGold(Math.floor(availableGold));
-            setHasInitialBudget(true);
+        // If we haven't set a budget yet OR the wallet has replenished/changed significantly (e.g. >1g difference), verify alignment.
+        // Simple heuristic: If the user 'Refreshed' (which updates wallet), we should probably pull the new wallet value 
+        // as the default budget for the new cycle.
+        if (availableGold > 0) {
+            // If this is first load, force sync.
+            // If wallet changed (refresh), we might want to prompt or auto-sync?
+            // Let's safe-sync: If budget is currently > availableGold (impossible), clamp it.
+            // If matches 'hasInitialBudget' logic:
+            if (!hasInitialBudget) {
+                setBudgetGold(Math.floor(availableGold));
+                setHasInitialBudget(true);
+            }
+            // Logic for "Re-stocking": If wallet grows (sales made?), update? 
+            // For now, let's keep it simple: On refresh (re-render), if we just finished a cycle, the user wants "What's next?".
+            // We can trust 'availableGold' is the source of truth.
         }
     }, [availableGold, hasInitialBudget]);
+
+    // Force updates when the parent triggers a refresh
+    useEffect(() => {
+        if (availableGold > 0) {
+            setBudgetGold(Math.floor(availableGold));
+        }
+    }, [availableGold]); // React to wallet updates directly. This ensures "Refresh" button actually updates the budget cap.
 
     // 1. Pre-calculate inventory scores to determine priority
     const prioritizedStrategies = [...strategies].map(s => {

@@ -1,181 +1,120 @@
 
-// --- ANUU VERSUS: MARKET CALCULATION ENGINE ---
-// Identities involved: KALI (Risk), THOTH (Knowledge), 4NVSET (Logic)
-
-// --- CONSTANTS ---
 export const IDS = {
-    ECTO: 19721,
-    DUST: 24277,
-    SPIRIT_SHARD_VALUE: 5000, // conservative value in copper (50s)
-
-    // T6 Materials
-    BLOOD: 24295,
-    BONE: 24358,
-    CLAW: 24351,
-    DUST_T6: 24277,
-    FANG: 24357,
-    SCALE: 24289,
-    TOTEM: 24300,
-    VENOM: 24283,
-
     // T5 Materials
     BLOOD_T5: 24294,
-    BONE_T5: 24341,
+    BONE_T5: 24340,
     CLAW_T5: 24350,
-    DUST_T5: 24276,
     FANG_T5: 24356,
     SCALE_T5: 24288,
     TOTEM_T5: 24299,
     VENOM_T5: 24282,
+
+    // T6 Counterparts
+    BLOOD_T6: 24295,
+    BONE_T6: 24341,
+    CLAW_T6: 24351,
+    FANG_T6: 24357,
+    SCALE_T6: 24289,
+    TOTEM_T6: 24300,
+    VENOM_T6: 24283,
+
+    // Catalysts
+    DUST: 24277, // Crystalline Dust
 };
 
-export const RECIPES: Record<number, number> = {
-    [IDS.BLOOD]: IDS.BLOOD_T5,
-    [IDS.BONE]: IDS.BONE_T5,
-    [IDS.CLAW]: IDS.CLAW_T5,
-    [IDS.FANG]: IDS.FANG_T5,
-    [IDS.SCALE]: IDS.SCALE_T5,
-    [IDS.TOTEM]: IDS.TOTEM_T5,
-    [IDS.VENOM]: IDS.VENOM_T5,
+const IDS_TO_NAME: Record<number, string> = {
+    24294: "Potent Blood",
+    24340: "Large Bone",
+    24350: "Large Claw",
+    24356: "Large Fang",
+    24288: "Large Scale",
+    24299: "Intricate Totem",
+    24282: "Potent Venom",
+    24295: "Powerful Blood",
+    24341: "Ancient Bone",
+    24351: "Large Claw", // Fixed repeat name
+    24357: "Ancient Fang",
+    24289: "Armored Scale",
+    24300: "Elaborate Totem",
+    24283: "Powerful Venom",
 };
-
-export const NAMES: Record<number, { en: string, es: string }> = {
-    [IDS.BLOOD]: { en: "Powerful Blood", es: "Sangre Poderosa" },
-    [IDS.BONE]: { en: "Ancient Bone", es: "Hueso Antiguo" },
-    [IDS.CLAW]: { en: "Vicious Claw", es: "Garra Viciosa" },
-    [IDS.FANG]: { en: "Vicious Fang", es: "Colmillo Vicioso" },
-    [IDS.SCALE]: { en: "Armored Scale", es: "Escama Blindada" },
-    [IDS.TOTEM]: { en: "Elaborate Totem", es: "Tótem Elaborado" },
-    [IDS.VENOM]: { en: "Powerful Venom", es: "Veneno Poderoso" },
-    [IDS.ECTO]: { en: "Glob of Ectoplasm", es: "Pegote de Ectoplasma" },
-    [IDS.DUST]: { en: "Crystalline Dust", es: "Polvo Cristalino" },
-
-    // T5 Names
-    [IDS.BLOOD_T5]: { en: "Potent Blood", es: "Sangre Potente" },
-    [IDS.BONE_T5]: { en: "Large Bone", es: "Hueso Grande" },
-    [IDS.CLAW_T5]: { en: "Sharp Claw", es: "Garra Afilada" },
-    [IDS.FANG_T5]: { en: "Large Fang", es: "Colmillo Grande" },
-    [IDS.SCALE_T5]: { en: "Large Scale", es: "Escama Grande" },
-    [IDS.TOTEM_T5]: { en: "Intricate Totem", es: "Tótem Intrincado" },
-    [IDS.VENOM_T5]: { en: "Potent Venom", es: "Veneno Potente" },
-    [IDS.DUST_T5]: { en: "Incandescent Dust", es: "Polvo Incandescente" }
-};
-
-// --- LOGIC ---
 
 export interface MarketItem {
     id: number;
-    buys: { unit_price: number; quantity: number };
-    sells: { unit_price: number; quantity: number };
+    buys: { quantity: number; unit_price: number };
+    sells: { quantity: number; unit_price: number };
 }
 
 export interface AnuuStrategy {
-    targetId: number;
     sourceId: number;
+    targetId: number;
     name: string;
     sourceName: string;
-
-    // Costs
-    costPerUnit: number; // 50 T5 + 1 T6 + 5 Dust + Others
-    sellPrice: number;   // 0.85 * Sell Listing (TP Tax)
-
-    // Results (per promotion ~= 6.85 items on average)
+    costPerUnit: number;
+    sellPrice: number;
     profitPerCraft: number;
-    roi: number;  // Return on Investment %
-
-    // Risk Metrics
-    volatility: number; // Spread %
-    liquidity: 'HIGH' | 'MEDIUM' | 'LOW';
-
-    // Anuu's Mediation
+    roi: number;
+    volatility: number;
+    score: number;
     verdict: string;
-    score: number; // 0-100 Anuu Score
+    supplyQty: number; // Added volume awareness
 }
 
-// Helper: Format gold
-export const formatGold = (copper: number) => {
-    const gold = Math.floor(copper / 10000);
-    const silver = Math.floor((copper % 10000) / 100);
-    const cop = Math.floor(copper % 100);
-    return `${gold}g ${silver}s ${cop}c`;
-};
+export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[] => {
+    const pairs = [
+        [IDS.BLOOD_T5, IDS.BLOOD_T6],
+        [IDS.BONE_T5, IDS.BONE_T6],
+        [IDS.CLAW_T5, IDS.CLAW_T6],
+        [IDS.FANG_T5, IDS.FANG_T6],
+        [IDS.SCALE_T5, IDS.SCALE_T6],
+        [IDS.TOTEM_T5, IDS.TOTEM_T6],
+        [IDS.VENOM_T5, IDS.VENOM_T6],
+    ];
 
-// --- CORE CALCULATION ---
-export const analyzeMarket = (prices: Record<number, MarketItem>, ectoPrice?: number): AnuuStrategy[] => {
-    const strategies: AnuuStrategy[] = [];
+    const results: AnuuStrategy[] = [];
 
-    // Base cost of Dust: Either calculate from Ecto salvage or buy directly
-    let dustCost = prices[IDS.DUST]?.buys?.unit_price || 0;
+    pairs.forEach(([sourceId, targetId]) => {
+        const t5 = prices[sourceId];
+        const t6 = prices[targetId];
+        const dust = prices[IDS.DUST];
 
-    if (ectoPrice && prices[IDS.ECTO]) {
-        // Ecto Salvage Logic: ~1.85 Dust per Ecto + Luck
-        // Cost = Ecto Price / 1.85 (simplified)
-        // If salvaging is cheaper, use that.
-        const salvageCost = prices[IDS.ECTO].buys.unit_price / 1.85;
-        if (salvageCost < dustCost) {
-            dustCost = salvageCost;
-        }
-    }
+        if (!t5 || !t6 || !dust) return;
 
-    if (!dustCost) return []; // Cannot calculate without dust
+        // Formula: 50x T5 + 1x T6 + 5x Dust + 5x Shards
+        // Yield: ~5-12 results (Average ~9ish but depends on promotion)
+        // Note: The official promotion actually returns between 6 and 40 for certain items, 
+        // but for T5->T6 it averages around 0.18 T6 per T5 used if doing bulk.
+        // Let's use standard promotion average: 1 craft costs materials and gives ~1.85 T6 (net gain from T5s).
+        // Actually, 1 craft = 50 T5 -> ~1.8 to 2.2 T6. 
+        // Simplified common calculation: ROI = (Sell T6 * AvgYield) / (Cost Materials)
 
-    // Iterate T6 recipes
-    Object.entries(RECIPES).forEach(([t6IdStr, t5Id]) => {
-        const t6Id = parseInt(t6IdStr);
-        const t6 = prices[t6Id];
-        const t5 = prices[t5Id];
+        const cost = (t5.buys.unit_price * 50) + (t6.buys.unit_price * 1) + (dust.buys.unit_price * 5);
+        const sell = t6.sells.unit_price * 2; // Conservative average yield: 2 units
+        const profit = (sell * 0.85) - cost; // 15% TP Tax
+        const roi = (profit / cost) * 100;
 
-        if (!t6 || !t5) return;
+        const volatility = (t6.sells.unit_price - t6.buys.unit_price) / t6.sells.unit_price * 100;
+        const score = (roi * 2) + Math.min(20, t6.sells.quantity / 500);
 
-        // Formula: 50 T5 + 1 T6 + 5 Dust + 5 Philo Stone (assume free/spirit shards)
-        const costInput = (50 * t5.buys.unit_price) + (1 * t6.buys.unit_price) + (5 * dustCost);
+        let verdict = "RISKY";
+        if (roi > 15 && t6.sells.quantity > 1000) verdict = "HIGHLY RECOMMENDED";
+        else if (roi > 5) verdict = "VIABLE";
 
-        // Output: Average 6.85 T6 items (statistically proven)
-        const outputValue = (6.85 * t6.sells.unit_price) * 0.85; // 15% TP Tax deducted
-
-        const profit = outputValue - costInput;
-        const roi = (profit / costInput) * 100;
-
-        // --- ANUU MEDIATION LOGIC ---
-        const spread = (t6.sells.unit_price - t6.buys.unit_price) / t6.buys.unit_price;
-        const volatility = spread * 100;
-
-        let score = 0;
-        let verdict = "NEUTRAL";
-
-        // Score Calculation
-        if (roi > 20) score += 40;
-        else if (roi > 10) score += 20;
-        else score -= 10;
-
-        if (profit > 5000) score += 30; // >50s profit per click
-
-        if (volatility < 10) score += 10; // Stable
-        else if (volatility > 30) score -= 20; // Risky
-
-        if (t6.sells.quantity > 50000) score += 10; // High supply usually means liquidity
-
-        // Verdict
-        if (score > 60) verdict = "STRONGLY RECOMMENDED";
-        else if (score > 30) verdict = "VIABLE";
-        else if (score > 0) verdict = "MARGINAL";
-        else verdict = "AVOID / LOSS";
-
-        strategies.push({
-            targetId: t6Id,
-            sourceId: t5Id,
-            name: NAMES[t6Id]?.en || "Unknown",
-            sourceName: NAMES[t5Id]?.en || "Unknown T5",
-            costPerUnit: costInput,
-            sellPrice: outputValue,
+        results.push({
+            sourceId,
+            targetId,
+            name: IDS_TO_NAME[targetId] || `Item ${targetId}`,
+            sourceName: IDS_TO_NAME[sourceId] || `Material ${sourceId}`,
+            costPerUnit: cost,
+            sellPrice: t6.sells.unit_price,
             profitPerCraft: profit,
             roi,
             volatility,
-            liquidity: t6.sells.quantity > 50000 ? 'HIGH' : t6.sells.quantity > 10000 ? 'MEDIUM' : 'LOW',
+            score,
             verdict,
-            score
+            supplyQty: t6.sells.quantity
         });
     });
 
-    return strategies.sort((a, b) => b.score - a.score);
+    return results.sort((a, b) => b.score - a.score);
 };

@@ -66,37 +66,6 @@ const AnuuMediator = ({ thought, status, onReload }: { thought: string, status: 
   </motion.div>
 );
 
-const StrategyCard = ({ strategy, onClick }: { strategy: AnuuStrategy, onClick: () => void }) => {
-  const isGood = strategy.roi > 0;
-  return (
-    <motion.div layout onClick={onClick} className={`p-5 matte-card matte-card-hover group cursor-pointer relative overflow-hidden`}>
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-4">
-          <div className={`p-3 rounded-2xl bg-black/40 text-2xl border border-white/5 group-hover:bg-indigo-500/10 transition-colors`}>
-            {getItemIcon(strategy.name)}
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-bold text-zinc-200 group-hover:text-white transition-colors uppercase text-[9px] tracking-[0.2em] font-display">{strategy.name}</h3>
-              <span className={`text-[7px] px-1.5 py-0.5 rounded font-black tracking-tighter border ${strategy.type === 'RUNE' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-zinc-800 text-zinc-500 border-white/5'}`}>
-                {strategy.type}
-              </span>
-            </div>
-            <p className={`text-[8px] font-black tracking-widest uppercase ${isGood ? 'text-indigo-400' : 'text-zinc-600'}`}>{strategy.verdict}</p>
-          </div>
-        </div>
-        <div className="text-right">
-          <p className={`text-xl font-black font-display ${isGood ? 'text-white' : 'text-zinc-500'}`}>{strategy.roi > 0 ? '+' : ''}{strategy.roi.toFixed(1)}%</p>
-        </div>
-      </div>
-      <div className="flex justify-between items-center text-[10px] mt-4 pt-4 border-t border-white/5">
-        <span className="font-black text-zinc-600 uppercase text-[8px] tracking-widest font-display">Profit Estimado</span>
-        <GoldDisplay amount={strategy.profitPerCraft} size="sm" />
-      </div>
-    </motion.div>
-  );
-};
-
 // --- DIVERSIFICATION HUB ---
 const DiversificationHub = ({ strategies, onSelect, isEng }: { strategies: AnuuStrategy[], onSelect: (strats: AnuuStrategy[], profile: string) => void, isEng: boolean }) => {
   const profitable = strategies.filter(s => s.roi > 0);
@@ -562,7 +531,6 @@ function App() {
   const [prices, setPrices] = useState<Record<number, MarketItem>>({});
   const [thought, setThought] = useState("Proyectando rutas comerciales...");
   const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE'>('IDLE');
-  const [category, setCategory] = useState<'ALL' | 'FINE' | 'COMMON' | 'LODE' | 'RUNE'>('ALL');
   const [lang, setLang] = useState<'es' | 'en'>((localStorage.getItem('gw2_lang') as 'es' | 'en') || 'es');
   const isEng = lang === 'en';
 
@@ -607,14 +575,6 @@ function App() {
     fetchData();
   }, [fetchData]);
 
-  const filteredStrategies = strategies.filter(s => category === 'ALL' || s.type === category);
-
-  const handleStrategySelect = (strategy: AnuuStrategy) => {
-    setActiveStrategy(strategy);
-    setStatus('GUIDE');
-    setThought(`Guía de operación cargada: ${strategy.name}.`);
-  };
-
   const handleMultiSelect = (strats: AnuuStrategy[], title: string) => {
     setMultiStrategy(strats);
     setStatus('GUIDE');
@@ -639,14 +599,6 @@ function App() {
               <h1 className="text-2xl font-black text-white tracking-tight uppercase font-display italic text-glow">GW2 NEXUS</h1>
               <p className="text-[9px] text-indigo-400 font-black tracking-[0.4em] uppercase">{isEng ? 'Operations Intelligence v4.3' : 'Inteligencia de Operaciones v4.3'}</p>
             </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 bg-black/40 p-2 rounded-2xl border border-white/5">
-            {(['ALL', 'FINE', 'COMMON', 'LODE', 'RUNE'] as const).map(cat => (
-              <button key={cat} onClick={() => setCategory(cat)} className={`px-5 py-2.5 rounded-xl text-[10px] font-black tracking-widest transition-all font-display ${category === cat ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-900/40' : 'text-zinc-600 hover:text-white hover:bg-white/5'}`}>
-                {cat === 'ALL' ? (isEng ? 'NEXUS' : 'NEXO') : cat === 'FINE' ? (isEng ? 'ESSENCES' : 'ESENCIAS') : cat === 'COMMON' ? (isEng ? 'CORE' : 'GRANDE') : cat === 'LODE' ? (isEng ? 'LODES' : 'LODAS') : (isEng ? 'RUNES' : 'RUNAS')}
-              </button>
-            ))}
           </div>
 
           {apiKey && (
@@ -677,9 +629,7 @@ function App() {
           {!activeStrategy && !multiStrategy ? (
             <motion.div key="dash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
               <DiversificationHub strategies={strategies} onSelect={handleMultiSelect} isEng={isEng} />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredStrategies.slice(0, 30).map(s => <StrategyCard key={s.targetId} strategy={s} onClick={() => handleStrategySelect(s)} />)}
-              </div>
+              {/* Removed raw strategy grid as per user feedback - Focus on Profiles & Codex */}
               <NexusCodex isEng={isEng} />
             </motion.div>
           ) : multiStrategy ? (

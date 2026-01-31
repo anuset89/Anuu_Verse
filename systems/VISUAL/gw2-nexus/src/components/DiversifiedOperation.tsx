@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Cpu } from 'lucide-react';
+import { ArrowLeft, Cpu, ShoppingCart, Hammer, Coins, MapPin, CheckCircle, Package } from 'lucide-react';
 import type { AnuuStrategy, MarketItem } from '../engine/calculator';
 import { IDS } from '../engine/calculator';
 
@@ -25,6 +25,118 @@ const getItemIcon = (name: string) => {
     if (name.includes('Ecto')) return "👻";
     if (name.includes('Coin')) return "🪙";
     return "📦";
+};
+
+interface ShoppingListItem {
+    strategy: AnuuStrategy;
+    buySource: number;
+    buyDust: number;
+    buyTarget: number;
+    batchSize: number;
+    // ... add other properties if needed
+}
+
+// --- NEXUS TRACKER (MISSION CONTROL) ---
+const NexusTracker = ({ list, isEng }: { list: ShoppingListItem[], isEng: boolean }) => {
+    // 1. Logistics: Consolidate Shopping List
+    const logistics = list.reduce((acc, item) => {
+        // Source
+        if (item.buySource > 0) {
+            const existing = acc.find((x) => x.name === item.strategy.sourceName);
+            if (existing) existing.count += item.buySource;
+            else acc.push({ name: item.strategy.sourceName, count: item.buySource, type: 'source' });
+        }
+        // Dust (Shared)
+        if (item.buyDust > 0) {
+            const existing = acc.find((x) => x.name === 'Crystalline Dust');
+            if (existing) existing.count += item.buyDust;
+            else acc.push({ name: 'Crystalline Dust', count: item.buyDust, type: 'dust' });
+        }
+        // Seed Target
+        if (item.buyTarget > 0) {
+            const existing = acc.find((x) => x.name === item.strategy.name); // Using strategy name as target name usually aligns
+            if (existing) existing.count += item.buyTarget;
+            else acc.push({ name: item.strategy.name, count: item.buyTarget, type: 'target' });
+        }
+        return acc;
+    }, [] as { name: string, count: number, type: string }[]);
+
+    // 2. Assembly: Forge Recipes
+    const assembly = list.filter(item => item.batchSize > 0).map(item => ({
+        name: item.strategy.name,
+        batches: item.batchSize,
+        recipe: item.strategy.recipe || "Standard Conversion"
+    }));
+
+    return (
+        <div className="mt-12 border-t border-white/5 pt-8">
+            <h3 className="text-xl font-black text-white uppercase tracking-[0.3em] font-display flex items-center gap-3 mb-8">
+                <MapPin className="text-emerald-500" /> {isEng ? 'Mission Tracker' : 'Rastreador de Misión'}
+            </h3>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* LOGISTICS */}
+                <div className="matte-card p-6 border-emerald-500/20 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-3 opacity-5 text-6xl rotate-12 group-hover:opacity-10 transition-opacity"><ShoppingCart /></div>
+                    <h4 className="flex items-center gap-3 text-emerald-400 font-black uppercase tracking-widest text-xs mb-6 border-b border-white/5 pb-4">
+                        <ShoppingCart size={14} /> {isEng ? 'Step 1: Logistics' : 'Paso 1: Logística'}
+                    </h4>
+                    <div className="space-y-3">
+                        {logistics.length === 0 ? <p className="text-zinc-500 text-[10px] italic">Inventory sufficient. No purchases needed.</p> : logistics.map((l: any, i: number) => (
+                            <div key={i} className="flex justify-between items-center text-[10px] group/item hover:bg-white/5 p-1 rounded">
+                                <span className={`font-bold uppercase tracking-tight flex items-center gap-2 ${l.type === 'dust' ? 'text-indigo-300' : 'text-zinc-400'}`}>
+                                    <span className="w-1 h-1 rounded-full bg-zinc-600"></span> {l.name}
+                                </span>
+                                <span className="text-white font-mono font-black border-b border-dashed border-zinc-700">{l.count}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* ASSEMBLY */}
+                <div className="matte-card p-6 border-amber-500/20 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-3 opacity-5 text-6xl rotate-12 group-hover:opacity-10 transition-opacity"><Hammer /></div>
+                    <h4 className="flex items-center gap-3 text-amber-400 font-black uppercase tracking-widest text-xs mb-6 border-b border-white/5 pb-4">
+                        <Hammer size={14} /> {isEng ? 'Step 2: Assembly' : 'Paso 2: Ensamblaje'}
+                    </h4>
+                    <div className="space-y-4">
+                        {assembly.map((task: any, i: number) => (
+                            <div key={i} className="text-[10px]">
+                                <div className="flex justify-between items-center mb-1">
+                                    <span className="text-white font-black uppercase tracking-tight">{task.name}</span>
+                                    <span className="text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded">{task.batches} {isEng ? 'batches' : 'lotes'}</span>
+                                </div>
+                                <div className="text-[8px] text-zinc-600 italic truncate">{task.recipe}</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* LIQUIDATION */}
+                <div className="matte-card p-6 border-indigo-500/20 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-3 opacity-5 text-6xl rotate-12 group-hover:opacity-10 transition-opacity"><Coins /></div>
+                    <h4 className="flex items-center gap-3 text-indigo-400 font-black uppercase tracking-widest text-xs mb-6 border-b border-white/5 pb-4">
+                        <Coins size={14} /> {isEng ? 'Step 3: Liquidation' : 'Paso 3: Liquidación'}
+                    </h4>
+                    <div className="space-y-3">
+                        {assembly.map((task: any, i: number) => (
+                            <div key={i} className="flex justify-between items-center text-[10px] group/item hover:bg-white/5 p-1 rounded">
+                                <span className="text-zinc-400 uppercase tracking-tight flex items-center gap-2">
+                                    <Package size={10} /> Sell {task.name}
+                                </span>
+                                <span className="text-white font-mono font-black flex items-center gap-1">
+                                    <CheckCircle size={10} className="text-emerald-500" /> {isEng ? 'List on TP' : 'Listar en Bazar'}
+                                </span>
+                            </div>
+                        ))}
+                        <div className="mt-6 pt-4 border-t border-white/5 text-[9px] text-zinc-500 text-center italic">
+                            {isEng ? 'Patience is key. Do not instant sell.' : 'La paciencia es clave. No vendas instantáneo.'}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 const GoldDisplay = ({ amount, size = "md" }: { amount: number, size?: "sm" | "md" | "lg" | "xl" }) => {
@@ -245,7 +357,9 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                 ))}
             </div>
 
-            <div className="p-6 bg-black/20 border-t border-white/5 text-[9px] text-zinc-600 font-black uppercase text-center tracking-widest font-display">
+            <NexusTracker list={shoppingList} isEng={isEng} />
+
+            <div className="p-6 bg-black/20 border-t border-white/5 text-[9px] text-zinc-600 font-black uppercase text-center tracking-widest font-display mt-8">
                 {isEng ? 'Diversification reduces risk. Execute all 3 orders simultaneously.' : 'La diversificación reduce el riesgo. Ejecuta las 3 órdenes simultáneamente.'}
             </div>
         </motion.div>

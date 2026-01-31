@@ -1,3 +1,4 @@
+import bgNexus from './assets/bg_nexus.png';
 
 import { useState, useEffect, useCallback } from 'react';
 import { analyzeMarket, IDS } from './engine/calculator';
@@ -512,8 +513,16 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050508] text-zinc-400 p-6 md:p-12 font-sans selection:bg-indigo-500/30 overflow-x-hidden relative">
-      <div className="stars"></div>
+    <div
+      className="min-h-screen bg-[#050508] text-zinc-400 p-6 md:p-12 font-sans selection:bg-indigo-500/30 overflow-x-hidden relative"
+      style={{
+        backgroundImage: `url(${bgNexus})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        backgroundBlendMode: 'overlay'
+      }}
+    >
       <div className="max-w-6xl mx-auto space-y-10 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-4">

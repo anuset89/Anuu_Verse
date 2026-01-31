@@ -13,9 +13,7 @@
 
 body {
   background-color: var(--bg-matte);
-  /* Subtle grain or very faint gradient for depth, but static */
-  background-image: radial-gradient(circle at 50% 0%, rgba(39, 39, 42, 0.4) 0%, transparent 60%);
-  background-attachment: fixed;
+  /* Background image applied in App.tsx */
   color: #e4e4e7;
   /* zinc-200 */
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;

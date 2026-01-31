@@ -38,128 +38,64 @@ function App() {
     setThought(isEng ? 'Connecting to Nexus...' : 'Conectando con Nexus...');
 
     try {
-      // 1. Fetch Market Prices
+      // MAJOR OPTIMIZATION: Parallelize ALL fetches
+      // 1. Market Data (Prices + Item Details) can run alongside Account Data
       const allIds = Object.values(IDS).filter((x): x is number => typeof x === 'number');
-      const priceData = await gw2.getPrices(allIds);
-      const priceMap: Record<number, MarketItem> = {};
-      priceData.forEach((p: MarketItem) => { priceMap[p.id] = p; });
-      setPrices(priceMap);
 
-      let matMapLocal: Record<number, { total: number, storage: number, bank: number }> = {};
+      // Prepare promises
+      const pricesPromise = gw2.getPrices(allIds);
+      const itemsPromise = gw2.getItems(allIds);
 
-      // 2. Fetch account data if API Key exists
+      // Account Logic
+      // Default empty if no API key
+      let accountPromise: Promise<any> = Promise.resolve([[], [], [], []]); // [mats, bank, chars, shared]
+      let walletPromise: Promise<any> = Promise.resolve([]);
+
+      let hasWalletPerm = false;
+      let hasInventoriesPerm = false;
+
       if (apiKey && apiKey.length > 10) {
+        // Token Info first (Fast/Cached)
         const tokenInfo = await gw2.getTokenInfo(apiKey);
-        const hasWalletPerm = tokenInfo?.permissions?.includes('wallet');
-        const hasInventoriesPerm = tokenInfo?.permissions?.includes('inventories');
+        hasWalletPerm = tokenInfo?.permissions?.includes('wallet');
+        hasInventoriesPerm = tokenInfo?.permissions?.includes('inventories');
 
         if (!hasWalletPerm) {
           setThought(isEng ? 'API Key missing "wallet" permission.' : 'La API Key no tiene permiso "wallet".');
+        } else {
+          walletPromise = gw2.getWallet(apiKey);
         }
 
         if (hasInventoriesPerm) {
-          try {
-            const [mats, bank, chars, shared] = await Promise.all([
-              gw2.getMaterials(apiKey),
-              gw2.getBank(apiKey),
-              gw2.getCharacters(apiKey),
-              gw2.getSharedInventory(apiKey)
-            ]);
-
-            const matMap: Record<number, { total: number, storage: number, bank: number, character: number }> = {};
-
-            if (Array.isArray(mats)) {
-              mats.forEach((m: { id: number, count: number }) => {
-                if (!matMap[m.id]) matMap[m.id] = { total: 0, storage: 0, bank: 0, character: 0 };
-                matMap[m.id].storage = m.count;
-                matMap[m.id].total += m.count;
-              });
-            }
-
-            if (Array.isArray(bank)) {
-              bank.forEach((slot: { id: number, count: number } | null) => {
-                if (slot) {
-                  if (!matMap[slot.id]) matMap[slot.id] = { total: 0, storage: 0, bank: 0, character: 0 };
-                  matMap[slot.id].bank += slot.count;
-                  matMap[slot.id].total += slot.count;
-                }
-              });
-            }
-            if (Array.isArray(chars)) {
-              chars.forEach((c: { bags?: { inventory: ({ id: number, count: number } | null)[] }[] }) => {
-                if (c.bags) {
-                  c.bags.forEach((bag) => {
-                    if (bag && bag.inventory) {
-                      bag.inventory.forEach((slot) => {
-                        if (slot) {
-                          if (!matMap[slot.id]) matMap[slot.id] = { total: 0, storage: 0, bank: 0, character: 0 };
-                          matMap[slot.id].character += slot.count;
-                          matMap[slot.id].total += slot.count;
-                        }
-                      });
-                    }
-                  });
-                }
-              });
-            }
-
-            if (Array.isArray(shared)) {
-              shared.forEach((slot: { id: number, count: number } | null) => {
-                if (slot) {
-                  if (!matMap[slot.id]) matMap[slot.id] = { total: 0, storage: 0, bank: 0, character: 0 };
-                  matMap[slot.id].character += slot.count; // Add to character/bag total for simplicity
-                  matMap[slot.id].total += slot.count;
-                }
-              });
-            }
-
-            setMaterials(matMap);
-            matMapLocal = matMap;
-          } catch (e) {
-            console.error('[Nexus] Inventories fetch failed:', e);
-          }
-        }
-
-        if (hasWalletPerm) {
-          try {
-            const wData = await gw2.getWallet(apiKey);
-            const walletMap: Record<number, number> = {};
-            if (Array.isArray(wData)) {
-              wData.forEach((w: { id: number, value: number }) => { walletMap[w.id] = w.value; });
-              setWallet(walletMap);
-            }
-          } catch (e) {
-            console.error('[Nexus] Wallet fetch failed:', e);
-          }
+          accountPromise = Promise.all([
+            gw2.getMaterials(apiKey),
+            gw2.getBank(apiKey),
+            gw2.getCharacters(apiKey),
+            gw2.getSharedInventory(apiKey)
+          ]);
         }
       } else {
         setThought(isEng ? 'No API Key. Add one in Settings for personalized recommendations.' : 'Sin API Key. Añade una en Configuración para recomendaciones personalizadas.');
       }
 
-      // 3. Analyze market strategies
-      const strats = analyzeMarket(priceMap);
+      // EXECUTE PARALLEL WAITING
+      const [priceData, itemDetails, accountData, walletData] = await Promise.all([
+        pricesPromise,
+        itemsPromise,
+        accountPromise,
+        walletPromise
+      ]);
 
-      // Calculate "Owned" status and "Score" for sorting
-      // Logic: ROI + Bonus for having materials (eliminates upfront gold risk)
-      // Use currentMaterials which is guaranteed to be initialized
-      const prioritizedStrats = [...strats].sort((a, b) => {
-        const aHoldings = matMapLocal[a.sourceId]?.total || 0;
-        const bHoldings = matMapLocal[b.sourceId]?.total || 0;
+      // --- PROCESS DATA ---
 
-        // Catalysts (Wine, Shards)
-        const hasWine = matMapLocal[19632]?.total > 0;
+      // 1. Prices
+      const priceMap: Record<number, MarketItem> = {};
+      if (Array.isArray(priceData)) {
+        priceData.forEach((p: MarketItem) => { priceMap[p.id] = p; });
+        setPrices(priceMap);
+      }
 
-        // Boost Score
-        // If we have materials, we effectively increase the "score" by 1000 to move it to the top, 
-        // while maintaining ROI order among owned items.
-        const aScore = a.roi + (aHoldings > 0 ? 1000 : 0) + (a.type === 'LODE' && hasWine ? 100 : 0);
-        const bScore = b.roi + (bHoldings > 0 ? 1000 : 0) + (b.type === 'LODE' && hasWine ? 100 : 0);
-
-        return bScore - aScore;
-      });
-
-      // 4. Fetch Item Details for Icons
-      const itemDetails = await gw2.getItems(allIds);
+      // 2. Icons
       const iconMap: Record<number, string> = {};
       if (Array.isArray(itemDetails)) {
         itemDetails.forEach((item: { id: number, icon: string }) => {
@@ -168,10 +104,89 @@ function App() {
         setIcons(iconMap);
       }
 
+      // 3. Wallet
+      if (Array.isArray(walletData)) {
+        const wMap: Record<number, number> = {};
+        walletData.forEach((c: { id: number, value: number }) => { wMap[c.id] = c.value; });
+        setWallet(wMap);
+      }
+
+      // 4. Materials (The Big One)
+      const [mats, bank, chars, shared] = accountData;
+      const matMap: Record<number, { total: number, storage: number, bank: number, character: number }> = {};
+
+      // Helper to init
+      const initMat = (id: number) => {
+        if (!matMap[id]) matMap[id] = { total: 0, storage: 0, bank: 0, character: 0 };
+      };
+
+      if (Array.isArray(mats)) {
+        mats.forEach((m: { id: number, count: number }) => {
+          initMat(m.id);
+          matMap[m.id].storage = m.count;
+          matMap[m.id].total += m.count;
+        });
+      }
+      if (Array.isArray(bank)) {
+        bank.forEach((slot: { id: number, count: number } | null) => {
+          if (slot) {
+            initMat(slot.id);
+            matMap[slot.id].bank += slot.count;
+            matMap[slot.id].total += slot.count;
+          }
+        });
+      }
+      if (Array.isArray(chars)) {
+        chars.forEach((c: { bags?: { inventory: ({ id: number, count: number } | null)[] }[] }) => {
+          if (c.bags) {
+            c.bags.forEach((bag) => {
+              if (bag && bag.inventory) {
+                bag.inventory.forEach((slot) => {
+                  if (slot) {
+                    initMat(slot.id);
+                    matMap[slot.id].character += slot.count;
+                    matMap[slot.id].total += slot.count;
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
+      if (Array.isArray(shared)) {
+        shared.forEach((slot: { id: number, count: number } | null) => {
+          if (slot) {
+            initMat(slot.id);
+            matMap[slot.id].character += slot.count; // Shared slots count as "Bag/Character" for simplicity
+            matMap[slot.id].total += slot.count;
+          }
+        });
+      }
+
+      setMaterials(matMap);
+      const matMapLocal = matMap; // Vital for downstream logic!
+
+      // --- LOGIC ENGINE ---
+
+      // 5. Analyze market strategies
+      const strats = analyzeMarket(priceMap);
+
+      // 6. Prioritize based on owned materials + ROI
+      const prioritizedStrats = [...strats].sort((a, b) => {
+        const aHoldings = matMapLocal[a.sourceId]?.total || 0;
+        const bHoldings = matMapLocal[b.sourceId]?.total || 0;
+        const hasWine = matMapLocal[19632]?.total > 0;
+
+        const aScore = a.roi + (aHoldings > 0 ? 1000 : 0) + (a.type === 'LODE' && hasWine ? 100 : 0);
+        const bScore = b.roi + (bHoldings > 0 ? 1000 : 0) + (b.type === 'LODE' && hasWine ? 100 : 0);
+
+        return bScore - aScore;
+      });
+
       setStrategies(prioritizedStrats);
 
+      // 7. Oracle Intelligence
       if (apiKey) {
-        // --- ORACLE INTELLIGENCE GENERATOR ---
         const topProfitable = prioritizedStrats.filter(s => s.roi > 0);
         const ownedItems = prioritizedStrats.filter(s => matMapLocal[s.sourceId]?.total > 0 && s.roi > 0);
 

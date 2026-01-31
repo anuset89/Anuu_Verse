@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { analyzeMarket, IDS } from './engine/calculator';
 import type { AnuuStrategy, MarketItem } from './engine/calculator';
 import { gw2 } from './api/gw2';
@@ -182,25 +182,15 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: Operatio
   const priceDust = prices[IDS.DUST]?.buys?.unit_price || 0;
   const priceT6 = prices[strategy.targetId]?.buys?.unit_price || 0;
 
-  // Cost if buying everything from scratch (conservative estimate)
-  // 50 T5 + 5 Dust + 1 T6
   const costPerCraft = (50 * priceT5) + (5 * priceDust) + (1 * priceT6);
-
-  // Max attempts by Shards
   const maxByShards = Math.floor(ownedShards / 5);
-
-  // Max attempts by Gold (ignoring materials owned, purely "how many could I buy")
   const maxByGold = costPerCraft > 0 ? Math.floor(availableGold / costPerCraft) : 9999;
-
-  // "Safe Max" (min of both)
   const safeMax = Math.min(maxByShards, maxByGold);
 
-  // Actual Gold Cost for CURRENT batch
   const costToBuyT5 = missingT5 * priceT5;
   const costToBuyDust = missingDust * priceDust;
   const costToBuyT6 = missingT6 * priceT6;
   const totalGoldCost = costToBuyT5 + costToBuyDust + costToBuyT6;
-
   const canAfford = availableGold >= totalGoldCost;
 
   const copyToClipboard = (text: string) => {
@@ -242,7 +232,6 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: Operatio
       {step === 1 && (
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8 space-y-8">
 
-          {/* CONFIG & SUMMARY */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="col-span-1 lg:col-span-2 flex items-center gap-4 bg-zinc-950 p-6 rounded-xl border border-indigo-500/20">
               <Package className="text-indigo-400" size={32} />
@@ -268,7 +257,6 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: Operatio
               </div>
             </div>
 
-            {/* FINANCIAL SUMMARY */}
             <div className={`col-span-1 flex flex-col justify-center p-6 rounded-xl border ${canAfford ? 'bg-emerald-950/10 border-emerald-500/20' : 'bg-red-950/10 border-red-500/20'}`}>
               <div className="text-zinc-500 text-xs font-bold uppercase mb-1">Coste Compra Faltante</div>
               <div className="flex items-center justify-between">
@@ -420,7 +408,6 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: Operatio
           <h3 className="text-xl font-bold text-white mb-8">Introduce en la Forja Mística</h3>
 
           <div className="flex gap-4 items-center mb-12">
-            {/* Slots */}
             <div className="w-24 h-24 bg-zinc-950 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center p-2 text-center">
               <span className="text-indigo-400 font-bold text-xl">50</span>
               <span className="text-[10px] text-zinc-500 mt-1">{strategy.sourceName}</span>
@@ -446,10 +433,6 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: Operatio
             <FlaskConical />
             <span className="font-bold">¡Ejecuta la transmutación {batchSize} veces!</span>
           </div>
-
-          <p className="text-zinc-500 text-sm max-w-md text-center">
-            La Forja Mística consumirá los materiales y te devolverá una cantidad variable de <span className="text-white">{strategy.name}</span> (5-12 unidades).
-          </p>
         </div>
       )}
 
@@ -459,7 +442,6 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: Operatio
           <div className="text-center">
             <CheckCircle size={64} className="mx-auto text-emerald-500 mb-4" />
             <h3 className="text-2xl font-bold text-white">Misión Cumplida</h3>
-            <p className="text-zinc-400">Ahora vende el resultado en el Trading Post.</p>
           </div>
 
           <div className="bg-zinc-950 p-6 rounded-xl border border-zinc-700 flex flex-col items-center">
@@ -467,9 +449,8 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: Operatio
             <div className="text-4xl font-bold text-white mb-2">
               <GoldDisplay amount={strategy.sellPrice} size="xl" />
             </div>
-            <p className="text-xs text-zinc-500 mb-4">Vende todo tu stock de {strategy.name}.</p>
             <div className="text-sm font-mono text-emerald-400 border-t border-white/5 pt-2">
-              Beneficio Neto Estimado: <span className="font-bold">+{Math.floor((strategy.profitPerCraft * batchSize) / 10000)}g {Math.floor(((strategy.profitPerCraft * batchSize) % 10000) / 100)}s</span>
+              Beneficio Estimado: <span className="font-bold">+{Math.floor((strategy.profitPerCraft * batchSize) / 10000)}g</span>
             </div>
           </div>
 
@@ -478,12 +459,11 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: Operatio
             className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-2"
           >
             <RefreshCcw size={20} />
-            FINALIZAR OPERACIÓN Y RE-ESCANEAR
+            FINALIZAR Y RE-ESCANEAR
           </button>
         </div>
       )}
 
-      {/* Actions Footer */}
       <div className="flex justify-end pt-4 mt-6 border-t border-zinc-800">
         {step < 3 && (
           <button
@@ -509,80 +489,68 @@ function App() {
   const [prices, setPrices] = useState<Record<number, MarketItem>>({});
   const [permissions, setPermissions] = useState<string[]>([]);
 
-  // Anuu Logic State
   const [thought, setThought] = useState("Sistema en espera. Inicia conexión.");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE'>('IDLE');
+
+  // Auto-fetch if key exists on mount
+  useEffect(() => {
+    if (apiKey) fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchData = async () => {
     setStatus('THINKING');
-    setThought("Sincronizando con la Red de Comercio y Bóveda del León Negro...");
+    setThought("Sincronizando con la Bóveda del León Negro...");
     setActiveStrategy(null);
 
     try {
       const allIds = Object.values(IDS).filter(x => typeof x === 'number');
-      setThought(`Descargando precios y analizando inventario...`);
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const priceData: any[] = await gw2.getPrices(allIds) as any[];
       const priceMap: Record<number, MarketItem> = {};
-
-      priceData.forEach((p) => {
-        priceMap[p.id] = p;
-      });
+      priceData.forEach((p) => { priceMap[p.id] = p; });
       setPrices(priceMap);
 
-      // Account Data (if API Key)
       if (apiKey) {
-        // Check Token Permissions
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        console.log("DEBUG: Validating Key...");
         const info: any = await gw2.getTokenInfo(apiKey);
+
         if (info && info.permissions) {
           setPermissions(info.permissions);
+          console.log("DEBUG: Permissions:", info.permissions);
 
-          if (info.permissions.includes('inventories')) {
+          // INDEPENDENT FETCHES (Don't let one fail the other)
+          try {
             const mats = await gw2.getMaterials(apiKey);
             const matMap: Record<number, number> = {};
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            mats.forEach((m: any) => {
-              matMap[m.id] = m.count;
-            });
+            mats.forEach((m: any) => { matMap[m.id] = m.count; });
             setMaterials(matMap);
-          }
+            console.log("DEBUG: Materials loaded:", mats.length);
+          } catch (e) { console.error("Materials Fetch Failed", e); }
 
-          if (info.permissions.includes('wallet')) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          try {
             const walletData: any[] = await gw2.getWallet(apiKey) as any[];
             const walletMap: Record<number, number> = {};
-            walletData.forEach(w => {
-              walletMap[w.id] = w.value;
-            });
+            walletData.forEach(w => { walletMap[w.id] = w.value; });
             setWallet(walletMap);
-          }
+            console.log("DEBUG: Wallet loaded. Gold:", walletMap[1]);
+          } catch (e) { console.error("Wallet Fetch Failed", e); }
+
         } else {
-          setThought("Error: API Key no válida o expirada.");
-          setStatus('ALERT');
+          console.error("DEBUG: Token info failed.");
+          setThought("Error: API Key no responde. ¿Es correcta?");
         }
       }
 
-      setThought("Calculando rutas optimizadas por recursos...");
       const strats = analyzeMarket(priceMap);
       setStrategies(strats);
 
       const best = strats[0];
-      if (apiKey) {
-        // If we reach here, we've successfully processed the API Key permissions and data.
-        setThought(`Sincronización completa. Inventario mapeado. Oportunidad óptima: ${best.name} (${best.roi.toFixed(1)}% ROI).`);
-      } else {
-        setThought(`Análisis completado. Oportunidad óptima detectada: ${best.name}. Conecta API Key para análisis de inventario.`);
-      }
-
-      if (best && best.score > 50) setStatus('ALERT');
-      else setStatus('IDLE');
+      setThought(`Análisis completo. ${best ? `Oportunidad: ${best.name}` : 'Mercado estable.'}`);
+      setStatus(best && best.score > 50 ? 'ALERT' : 'IDLE');
 
     } catch (err) {
       console.error(err);
-      setThought("Error crítico en la conexión API. Reintentando...");
+      setThought("Error de conexión. Reintentando...");
       setStatus('ALERT');
     }
   };
@@ -590,131 +558,84 @@ function App() {
   const handleStrategySelect = (strategy: AnuuStrategy) => {
     setActiveStrategy(strategy);
     setStatus('GUIDE');
-    setThought(`Protocolo ${strategy.name} iniciado. Verificando fondos y existencias...`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setThought(`Protocolo ${strategy.name} activo.`);
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-zinc-300 p-4 md:p-8 font-sans selection:bg-fuchsia-500/30">
+    <div className="min-h-screen bg-[#0a0a0a] text-zinc-300 p-4 md:p-8 font-sans">
       <div className="max-w-4xl mx-auto space-y-6">
 
-        {/* HEAD - API Key Input */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          {/* GLOBAL WALLET HEADER */}
           {apiKey && wallet[1] !== undefined ? (
             <div className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 p-2 rounded-xl shadow-lg">
               <div className="flex items-center gap-2 px-2">
-                <span className="text-xs text-zinc-500 font-bold uppercase">Liquidez:</span>
+                <span className="text-xs text-zinc-500 font-bold uppercase">Oro:</span>
                 <GoldDisplay amount={wallet[1]} size="md" />
               </div>
               <div className="w-px h-6 bg-zinc-800"></div>
               <div className="flex items-center gap-2 px-2">
                 <Database size={14} className="text-pink-400" />
-                <span className="text-zinc-300 font-mono font-bold">{wallet[23]}</span>
+                <span className="text-zinc-300 font-mono font-bold">{wallet[23] || 0}</span>
                 <span className="text-xs text-zinc-500">Shards</span>
               </div>
             </div>
           ) : apiKey ? (
-            <div className="text-xs text-zinc-500 bg-zinc-900/50 p-2 rounded border border-zinc-800">Esperando datos de Billetera...</div>
+            <div className="flex items-center gap-3 bg-zinc-900/50 p-2 rounded border border-zinc-800 animate-pulse">
+              <RefreshCcw size={14} className="animate-spin text-zinc-500" />
+              <span className="text-xs text-zinc-500">Sincronizando Billetera...</span>
+            </div>
           ) : <div></div>}
 
           <div className="flex justify-end gap-2 text-xs ml-auto items-center">
-            {!apiKey ? (
-              <div className="flex items-center gap-2 bg-red-900/20 text-red-400 px-3 py-1 rounded-full border border-red-900/50">
-                <AlertTriangle size={12} />
-                <span>API Key no configurada</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 bg-emerald-900/20 text-emerald-400 px-3 py-1 rounded-full border border-emerald-900/50 group relative cursor-help">
+            {apiKey && (
+              <div className="flex items-center gap-2 bg-emerald-900/20 text-emerald-400 px-3 py-1 rounded-full border border-emerald-900/50 group relative">
                 <ShieldCheck size={12} />
-                <span>Conexión Segura</span>
-                {/* Permissions Tooltip */}
-                <div className="absolute top-full right-0 mt-2 bg-black border border-zinc-700 p-2 rounded shadow-xl hidden group-hover:block w-48 z-50">
-                  <p className="font-bold text-zinc-300 mb-1">Permisos:</p>
-                  <div className="flex flex-col gap-1">
-                    <span className={permissions.includes('account') ? 'text-emerald-400' : 'text-red-400'}>• Account</span>
-                    <span className={permissions.includes('inventories') ? 'text-emerald-400' : 'text-red-400'}>• Inventories</span>
-                    <span className={permissions.includes('wallet') ? 'text-emerald-400' : 'text-red-400'}>• Wallet</span>
+                <span>API CONECTADA</span>
+                <div className="absolute top-full right-0 mt-2 bg-black border border-zinc-700 p-3 rounded shadow-2xl hidden group-hover:block w-48 z-50">
+                  <p className="font-bold text-zinc-300 mb-1 border-b border-zinc-800 pb-1">PERMISOS:</p>
+                  <div className="space-y-1 py-1">
+                    <div className="flex justify-between"><span>Account</span> <span className={permissions.includes('account') ? 'text-emerald-500' : 'text-red-500'}>{permissions.includes('account') ? '✓' : '✗'}</span></div>
+                    <div className="flex justify-between"><span>Wallet</span> <span className={permissions.includes('wallet') ? 'text-emerald-500' : 'text-red-500'}>{permissions.includes('wallet') ? '✓' : '✗'}</span></div>
+                    <div className="flex justify-between"><span>Inventories</span> <span className={permissions.includes('inventories') ? 'text-emerald-400' : 'text-red-400'}>{permissions.includes('inventories') ? '✓' : '✗'}</span></div>
                   </div>
+                  {!permissions.includes('wallet') && <p className="text-[10px] text-red-400 mt-2 leading-tight">⚠️ Tu clave no permite ver el ORO.</p>}
                 </div>
               </div>
             )}
             <button
               onClick={() => {
-                const k = prompt("Introduce tu GW2 API Key (permissions: wallet, unlock, inventories):", apiKey);
+                const k = prompt("GW2 API Key:", apiKey);
                 if (k !== null) {
                   setApiKey(k);
                   localStorage.setItem('gw2_api_key', k);
+                  window.location.reload(); // Force hard reload for clean state
                 }
               }}
-              className="text-zinc-500 hover:text-zinc-300"
+              className="bg-zinc-800 p-2 rounded-lg text-zinc-400 hover:text-white border border-zinc-700"
             >
-              <Settings size={14} />
+              <Settings size={16} />
             </button>
           </div>
         </div>
 
-        {/* ANUU MEDIATOR ZONE */}
         <AnuuMediator thought={thought} status={status} />
 
-        {/* MAIN CONTENT SWAP */}
         <AnimatePresence mode="wait">
           {!activeStrategy ? (
-            <motion.div
-              key="dashboard"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-            >
-              {/* ACTION BAR */}
-              <div className="flex gap-4 mb-8">
-                <button
-                  onClick={fetchData}
-                  className="flex-1 bg-zinc-100 hover:bg-white text-black font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all active:scale-95"
-                >
-                  <RefreshCcw size={20} className={status === 'THINKING' ? 'animate-spin' : ''} />
-                  {strategies.length > 0 ? "RE-ESCANEAR MERCADO" : "INICIAR ESCANEO"}
-                </button>
-              </div>
-
-              {/* STRATEGIES GRID */}
+            <motion.div key="dash" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <button onClick={fetchData} className="w-full bg-white text-black font-bold py-4 rounded-xl mb-8 flex items-center justify-center gap-2">
+                <RefreshCcw size={20} className={status === 'THINKING' ? 'animate-spin' : ''} /> ESCANEAR AHORA
+              </button>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {strategies.map(s => (
-                  <StrategyCard
-                    key={s.targetId}
-                    strategy={s}
-                    onClick={() => handleStrategySelect(s)}
-                  />
-                ))}
+                {strategies.map(s => <StrategyCard key={s.targetId} strategy={s} onClick={() => handleStrategySelect(s)} />)}
               </div>
             </motion.div>
           ) : (
-            <motion.div
-              key="operation"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-            >
-              <OperationMode
-                strategy={activeStrategy}
-                materials={materials}
-                wallet={wallet}
-                prices={prices}
-                onBack={() => {
-                  setActiveStrategy(null);
-                  setStatus('IDLE');
-                  setThought("Protocolo suspendido. Esperando instrucciones.");
-                }}
-              />
+            <motion.div key="op" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <OperationMode strategy={activeStrategy} materials={materials} wallet={wallet} prices={prices} onBack={() => { setActiveStrategy(null); setStatus('IDLE'); }} />
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* FOOTER - SYSTEM LOG */}
-        <div className="border-t border-zinc-800 pt-6 mt-12 text-center text-xs text-zinc-600 font-mono">
-          <p>SYSTEM: ANUU_VERSE // MODULE: GW2_NEXUS // V25.11.0</p>
-          <p>POWERED BY: THOTH SCHOLAR ENGINE & KALI RISK ASSESSOR & ANUU MEDIATOR</p>
-        </div>
       </div>
     </div>
   );

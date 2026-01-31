@@ -636,17 +636,17 @@ const NextAction = ({ opportunities, gold, lang, onRefresh, loading }) => {
     );
 };
 
-// v22 AUTOTRACKER - Main Gold Guide
+// v23 AUTOTRACKER - Complete Gold Guide with Investment Modes
 const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
     const t = LANG[lang];
     const [currentStep, setCurrentStep] = useState(1);
+    const [mode, setMode] = useState(() => localStorage.getItem('ace_mode') || 'balanced'); // safe, balanced, aggro
     const [sessionEarnings, setSessionEarnings] = useState(() => parseInt(localStorage.getItem('ace_session_earnings') || '0'));
-    const [dailyGoal] = useState(100000); // 10g default goal
 
     const top = opportunities[0];
     if (!top || !top.id) {
         return (
-            <div className="bg-gradient-to-br from-violet-950 to-zinc-900 border-2 border-fuchsia-500/30 rounded-3xl p-8 mb-8 shadow-2xl">
+            <div className="bg-gradient-to-br from-violet-950 to-zinc-900 border-2 border-fuchsia-500/30 rounded-3xl p-8 shadow-2xl">
                 <div className="flex items-center justify-center gap-4">
                     <div className="w-8 h-8 border-4 border-fuchsia-500 border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-fuchsia-400 font-bold">{lang === 'es' ? 'Analizando mercado...' : 'Analyzing market...'}</p>
@@ -655,22 +655,39 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
         );
     }
 
+    // Investment calculation based on mode
+    const investmentRatios = { safe: 0.1, balanced: 0.25, aggro: 0.5 }; // 10%, 25%, 50% of gold
+    const investmentAmount = Math.floor(gold * investmentRatios[mode]);
+
+    // Calculate how many crafts we can do with this investment
+    const unitCost = top.totalCost / top.chosen; // Cost per single craft
+    const craftableUnits = Math.max(1, Math.floor(investmentAmount / unitCost));
+    const actualCost = craftableUnits * unitCost;
+    const expectedProfit = (top.potentialProfit / top.chosen) * craftableUnits;
+
     const t5Name = getItemName(top.t5Id, lang);
     const t6Name = getItemName(top.id, lang);
-    const qty = top.chosen || 1;
-    const profit = top.potentialProfit || 0;
-    const cost = top.totalCost || 0;
-    const canAfford = gold >= cost;
+
+    const modeConfig = {
+        safe: { label: lang === 'es' ? '🛡️ SEGURO' : '🛡️ SAFE', color: 'emerald', desc: lang === 'es' ? '10% de tu oro' : '10% of your gold' },
+        balanced: { label: lang === 'es' ? '⚖️ BALANCEADO' : '⚖️ BALANCED', color: 'violet', desc: lang === 'es' ? '25% de tu oro' : '25% of your gold' },
+        aggro: { label: lang === 'es' ? '🔥 AGRESIVO' : '🔥 AGGRESSIVE', color: 'red', desc: lang === 'es' ? '50% de tu oro' : '50% of your gold' }
+    };
 
     const steps = [
-        { id: 1, label: t.stepBuy, desc: `${t5Name} x${qty * 50}`, cost: formatGold(cost), color: 'blue' },
-        { id: 2, label: t.stepCraft, desc: `${t6Name} x${qty}`, cost: '—', color: 'violet' },
-        { id: 3, label: t.stepSell, desc: formatGold(profit), cost: '+', color: 'emerald' }
+        { id: 1, label: t.stepBuy, action: `${t5Name}`, qty: `x${craftableUnits * 50}`, color: 'blue' },
+        { id: 2, label: t.stepCraft, action: `${t6Name}`, qty: `x${craftableUnits}`, color: 'violet' },
+        { id: 3, label: t.stepSell, action: formatGold(expectedProfit), qty: lang === 'es' ? 'GANANCIA' : 'PROFIT', color: 'emerald' }
     ];
+
+    const changeMode = (newMode) => {
+        setMode(newMode);
+        localStorage.setItem('ace_mode', newMode);
+    };
 
     const markStepDone = () => {
         if (currentStep === 3) {
-            const newEarnings = sessionEarnings + profit;
+            const newEarnings = sessionEarnings + expectedProfit;
             setSessionEarnings(newEarnings);
             localStorage.setItem('ace_session_earnings', newEarnings.toString());
             setCurrentStep(1);
@@ -679,23 +696,26 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
         }
     };
 
-    const progressPct = Math.min((sessionEarnings / dailyGoal) * 100, 100);
+    const resetSession = () => {
+        setSessionEarnings(0);
+        localStorage.setItem('ace_session_earnings', '0');
+    };
 
     return (
-        <div className="bg-gradient-to-br from-violet-950 to-zinc-900 border-2 border-fuchsia-500/30 rounded-3xl p-6 mb-8 shadow-2xl">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6">
+        <div className="bg-gradient-to-br from-violet-950 to-zinc-900 border-2 border-fuchsia-500/30 rounded-3xl p-6 shadow-2xl">
+            {/* Header with Gold */}
+            <div className="flex justify-between items-start mb-6">
                 <div className="flex items-center gap-4">
                     <div className="bg-fuchsia-600 p-3 rounded-xl"><Target size={28} className="text-white" /></div>
                     <div>
                         <h2 className="text-2xl font-black text-white">{t.autoTracker}</h2>
-                        <p className="text-xs text-zinc-500">{t.step} {currentStep} {t.of} 3</p>
+                        <p className="text-xs text-zinc-500">{t.step} {currentStep} {t.of} 3 • {modeConfig[mode].label}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-4">
-                    <div className="text-right">
-                        <p className="text-[10px] text-zinc-500 uppercase">{t.todayEarnings}</p>
-                        <p className="text-lg font-mono font-black text-emerald-400">{formatGold(sessionEarnings)}</p>
+                <div className="flex items-center gap-3">
+                    <div className="bg-amber-500/10 border border-amber-500/30 px-4 py-2 rounded-xl">
+                        <p className="text-[10px] text-amber-400 uppercase font-bold">{lang === 'es' ? 'TU ORO' : 'YOUR GOLD'}</p>
+                        <p className="text-xl font-mono font-black text-amber-400">{formatGold(gold)}</p>
                     </div>
                     <button onClick={onRefresh} className="p-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-fuchsia-400">
                         <RefreshCcw size={20} className={loading ? 'animate-spin' : ''} />
@@ -703,42 +723,64 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
                 </div>
             </div>
 
-            {/* Progress Bar */}
-            <div className="mb-6">
-                <div className="flex justify-between text-xs mb-2">
-                    <span className="text-zinc-500">{t.dailyGoal}: {formatGold(dailyGoal)}</span>
-                    <span className="text-fuchsia-400 font-bold">{progressPct.toFixed(0)}%</span>
-                </div>
-                <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-fuchsia-600 to-violet-500 transition-all" style={{ width: `${progressPct}%` }}></div>
+            {/* Mode Selector */}
+            <div className="flex gap-2 mb-6">
+                {Object.entries(modeConfig).map(([key, cfg]) => (
+                    <button key={key} onClick={() => changeMode(key)} className={`flex-1 p-3 rounded-xl border-2 transition-all ${mode === key ? `bg-${cfg.color}-500/20 border-${cfg.color}-500 text-${cfg.color}-400` : 'bg-zinc-950/40 border-zinc-800 text-zinc-500 hover:border-zinc-600'}`}>
+                        <p className="font-black text-sm">{cfg.label}</p>
+                        <p className="text-[10px] opacity-70">{cfg.desc}</p>
+                    </button>
+                ))}
+            </div>
+
+            {/* Investment Summary */}
+            <div className="bg-zinc-950/60 rounded-2xl p-4 mb-6 border border-zinc-800">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <p className="text-[10px] text-zinc-500 uppercase font-bold">{lang === 'es' ? 'INVERSIÓN' : 'INVESTMENT'}</p>
+                        <p className="text-2xl font-black text-white">{formatGold(actualCost)}</p>
+                    </div>
+                    <div className="text-fuchsia-500 text-3xl">→</div>
+                    <div>
+                        <p className="text-[10px] text-zinc-500 uppercase font-bold">{lang === 'es' ? 'CRAFTEOS' : 'CRAFTS'}</p>
+                        <p className="text-2xl font-black text-violet-400">x{craftableUnits}</p>
+                    </div>
+                    <div className="text-fuchsia-500 text-3xl">→</div>
+                    <div>
+                        <p className="text-[10px] text-emerald-400 uppercase font-bold">{lang === 'es' ? 'GANANCIA' : 'PROFIT'}</p>
+                        <p className="text-2xl font-black text-emerald-400">{formatGold(expectedProfit)}</p>
+                    </div>
                 </div>
             </div>
 
             {/* Steps */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-3 gap-3 mb-6">
                 {steps.map(step => (
-                    <div key={step.id} className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${currentStep === step.id ? `bg-${step.color}-500/20 border-${step.color}-500` : 'bg-zinc-950/40 border-zinc-800 opacity-50'}`} onClick={() => setCurrentStep(step.id)}>
+                    <div key={step.id} className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${currentStep === step.id ? 'bg-fuchsia-500/20 border-fuchsia-500' : currentStep > step.id ? 'bg-emerald-500/10 border-emerald-500/50' : 'bg-zinc-950/40 border-zinc-800 opacity-50'}`} onClick={() => setCurrentStep(step.id)}>
                         <div className="flex items-center gap-2 mb-2">
-                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${currentStep > step.id ? 'bg-emerald-500 text-white' : currentStep === step.id ? `bg-${step.color}-500 text-white` : 'bg-zinc-700 text-zinc-400'}`}>
+                            <span className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-black ${currentStep > step.id ? 'bg-emerald-500 text-white' : currentStep === step.id ? 'bg-fuchsia-500 text-white' : 'bg-zinc-700 text-zinc-400'}`}>
                                 {currentStep > step.id ? '✓' : step.id}
                             </span>
-                            <span className={`text-sm font-black uppercase ${currentStep === step.id ? `text-${step.color}-400` : 'text-zinc-500'}`}>{step.label}</span>
+                            <span className={`text-xs font-black uppercase ${currentStep === step.id ? 'text-fuchsia-400' : currentStep > step.id ? 'text-emerald-400' : 'text-zinc-500'}`}>{step.label}</span>
                         </div>
-                        <p className="text-white font-bold text-lg">{step.desc}</p>
+                        <p className="text-white font-bold">{step.action}</p>
+                        <p className="text-xs text-zinc-500">{step.qty}</p>
                     </div>
                 ))}
             </div>
 
             {/* Action Button */}
-            <div className="flex gap-4">
-                <button onClick={markStepDone} className="flex-1 bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-500 hover:to-violet-500 text-white font-black py-4 rounded-2xl text-lg transition-all shadow-lg shadow-fuchsia-900/50">
-                    {currentStep === 3 ? (lang === 'es' ? '✓ COMPLETAR Y SIGUIENTE' : '✓ COMPLETE & NEXT') : t.markDone}
-                </button>
-                {!canAfford && currentStep === 1 && (
-                    <div className="bg-red-500/20 border border-red-500/30 text-red-400 px-6 py-4 rounded-2xl flex items-center gap-2">
-                        <AlertTriangle size={20} /> {lang === 'es' ? 'Falta oro' : 'Need gold'}
-                    </div>
-                )}
+            <button onClick={markStepDone} className="w-full bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-500 hover:to-violet-500 text-white font-black py-4 rounded-2xl text-lg transition-all shadow-lg shadow-fuchsia-900/50 mb-4">
+                {currentStep === 3 ? (lang === 'es' ? '✓ COMPLETAR Y SIGUIENTE' : '✓ COMPLETE & NEXT') : t.markDone}
+            </button>
+
+            {/* Session Stats */}
+            <div className="flex justify-between items-center bg-zinc-950/40 rounded-xl p-3 border border-zinc-800">
+                <div>
+                    <p className="text-[10px] text-zinc-500 uppercase">{t.todayEarnings}</p>
+                    <p className="text-lg font-mono font-black text-emerald-400">{formatGold(sessionEarnings)}</p>
+                </div>
+                <button onClick={resetSession} className="text-xs text-zinc-600 hover:text-red-400 transition-colors">{lang === 'es' ? 'Reiniciar' : 'Reset'}</button>
             </div>
         </div>
     );
@@ -1045,13 +1087,21 @@ const App = () => {
                 </div>
             </header>
 
-            <OracleBar alpha={globalAlpha} route={bestRoute} lang={lang} />
+            {/* AUTOTRACKER - MAIN FOCUS */}
             <AutoTracker opportunities={opportunities} gold={userData.wallet?.[1] || 0} lang={lang} onRefresh={() => { fetchMarketData(); fetchUserData(); }} loading={loading} />
-            <div className="mb-12">
-                <KilonovaScanner data={kilonovaData} loading={kiloLoading} onScan={runKilonovaScan} lang={lang} />
-            </div>
-            <EliteList opportunities={opportunities} flips={kilonovaData?.flips} recycle={recycleStats} lang={lang} />
-            <PhandrelProtocol prices={prices} lang={lang} />
+
+            {/* Secondary data below - collapsed by default */}
+            <details className="mb-8 group">
+                <summary className="flex items-center justify-between p-4 bg-zinc-900/50 rounded-2xl border border-zinc-800 cursor-pointer hover:bg-zinc-800/50 transition-colors">
+                    <span className="text-sm text-zinc-400 font-bold uppercase">{lang === 'es' ? '📊 Ver Datos Avanzados' : '📊 View Advanced Data'}</span>
+                    <ChevronDown size={20} className="text-zinc-500 group-open:rotate-180 transition-transform" />
+                </summary>
+                <div className="mt-4 space-y-6">
+                    <OracleBar alpha={globalAlpha} route={bestRoute} lang={lang} />
+                    <KilonovaScanner data={kilonovaData} loading={kiloLoading} onScan={runKilonovaScan} lang={lang} />
+                    <EliteList opportunities={opportunities} flips={kilonovaData?.flips} recycle={recycleStats} lang={lang} />
+                </div>
+            </details>
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
                 <div className="xl:col-span-3 space-y-8">

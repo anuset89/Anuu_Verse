@@ -64,7 +64,7 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, onBack, isEng
     // Distribute budget equally across all active strategies
     const weightPerStrategy = 1 / Math.max(1, activeStrategies.length);
 
-    const shoppingList = activeStrategies.map((s, idx) => {
+    const shoppingList = activeStrategies.map((s) => {
         const allocatedGold = budgetGold * weightPerStrategy;
         const sourcePriceGold = (prices[s.sourceId]?.buys?.unit_price || 0) / 10000;
 
@@ -81,7 +81,7 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, onBack, isEng
         const usesDust = s.type !== 'RUNE';
 
         // Seed logic for promotions
-        const neededTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : 5;
+        const neededTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : Math.min(batchSize, 5);
 
         return {
             strategy: s,

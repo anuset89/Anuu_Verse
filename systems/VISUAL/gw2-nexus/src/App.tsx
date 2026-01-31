@@ -172,8 +172,8 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack, isEng }: {
 
   // Seed logic: For material promotion (Fine/Common), we strictly need only a small fixed seed (e.g. 5 units)
   // to start the Mystic Forge cycle, regardless of how many thousands of conversions we plan to do.
-  // The output of the first craft fuels the input of the next.
-  const neededTarget = (isLode || isRune) ? 0 : 5;
+  // Exception: If batchSize < 5, we only need batchSize.
+  const neededTarget = (isLode || isRune) ? 0 : Math.min(batchSize, 5);
 
   const buySource = Math.max(0, neededSource - ownedSource);
   const buyDust = Math.max(0, neededDust - ownedDust);

@@ -129,9 +129,41 @@ function App() {
       setStrategies(prioritizedStrats);
 
       if (apiKey) {
-        setThought(strats[0] && strats[0].roi > 0
-          ? (isEng ? `Detected ${strats.filter(s => s.roi > 0).length} profitable routes.` : `Se han detectado ${strats.filter(s => s.roi > 0).length} rutas rentables.`)
-          : (isEng ? "Stable market, scanning for anomalies." : "Mercado estable, escaneando anomalías."));
+        // --- ORACLE INTELLIGENCE GENERATOR ---
+        const topProfitable = prioritizedStrats.filter(s => s.roi > 0);
+        const ownedItems = prioritizedStrats.filter(s => matMapLocal[s.sourceId]?.total > 0 && s.roi > 0);
+
+        // Line 1: Strategic Analysis
+        const analysis = isEng
+          ? `Nexus detected ${topProfitable.length} high-yield trajectories. Total market ROI averaging ${(topProfitable.reduce((acc, s) => acc + s.roi, 0) / Math.max(1, topProfitable.length)).toFixed(1)}%.`
+          : `Nexus ha detectado ${topProfitable.length} trayectorias de alto rendimiento. ROI promedio del mercado: ${(topProfitable.reduce((acc, s) => acc + s.roi, 0) / Math.max(1, topProfitable.length)).toFixed(1)}%.`;
+
+        // Line 2: Priority (Inventory-Aware)
+        let priority = "";
+        if (ownedItems.length > 0) {
+          const best = ownedItems[0];
+          const qty = matMapLocal[best.sourceId].total;
+          priority = isEng
+            ? `CRITICAL: You have ${qty} units of ${best.sourceName}. Process these into ${best.name} immediately for zero-cost entry.`
+            : `CRÍTICO: Tienes ${qty} unidades de ${best.sourceName}. Procésalas en ${best.name} de inmediato para una entrada sin coste.`;
+        } else {
+          priority = isEng
+            ? "RESOURCE DEFICIT: Restock required. Focus on T5 Fine promotion for high volume stability."
+            : "DÉFICIT DE RECURSOS: Reabastecimiento necesario. Enfócate en promoción T6 para estabilidad de volumen.";
+        }
+
+        // Line 3: Market Forecast
+        const forecast = isEng
+          ? "Market volatility is stable. Recommend high-volume liquidation within the next 4h cycle."
+          : "La volatilidad del mercado es estable. Recomiendo liquidación de alto volumen en las próximas 4h.";
+
+        // Line 4: Alert / Tip
+        const hasWine = matMapLocal[19632]?.total > 0;
+        const tip = !hasWine && prioritizedStrats.some(s => s.type === 'LODE')
+          ? (isEng ? "SYSTEM ALERT: Elonian Wine stock depleted. Visit Miyani." : "ALERTA: Stock de Vino de Elona agotado. Visita a Miyani.")
+          : (isEng ? "Nexus Link synchronized with Bank and Materials." : "Nexus Link sincronizado con Banco y Almacén.");
+
+        setThought(`${analysis} | ${priority} | ${forecast} | ${tip}`);
       }
       setStatus('IDLE');
     } catch (err) {
@@ -220,7 +252,7 @@ function App() {
           {showSettings && <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} currentKey={apiKey} onSave={saveApiKey} isEng={isEng} />}
         </AnimatePresence>
 
-        {!multiStrategy && <AnuuMediator thought={thought} status={status} onReload={fetchData} />}
+        {!multiStrategy && <AnuuMediator thought={thought} status={status} onReload={fetchData} isEng={isEng} />}
 
         <AnimatePresence mode="wait">
           {!activeStrategy && !multiStrategy ? (

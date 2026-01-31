@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { analyzeMarket, IDS } from './engine/calculator';
 import type { AnuuStrategy, MarketItem } from './engine/calculator';
 import { gw2 } from './api/gw2';
@@ -175,7 +175,7 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
   const multiplier = isWeekend ? (isCommon ? 0.05 : 0.25) : (isCommon ? 0.02 : 0.15);
   const recommendedBatch = Math.floor(strategy.supplyQty * multiplier);
 
-  const costPerCraft = (sourcePerCraft * priceOrderSource) + (neededDust / batchSize * priceOrderDust) + (isLode ? 0 : priceOrderTarget) + (isLode ? 2560 : 0);
+  const costPerCraft = (sourcePerCraft * priceOrderSource) + (neededDust / batchSize * priceOrderDust) + (isLode || isRune ? 0 : priceOrderTarget) + (isLode ? 2560 : 0);
   const maxByShards = totalShardCost > 0 ? Math.floor(ownedShards / (totalShardCost / batchSize)) : 10000;
   const maxByGold = costPerCraft > 0 ? Math.floor(availableGold / costPerCraft) : 0;
   const safeMax = Math.max(0, Math.min(maxByShards, maxByGold));
@@ -422,24 +422,24 @@ function App() {
   const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE'>('IDLE');
   const [category, setCategory] = useState<'ALL' | 'FINE' | 'COMMON' | 'LODE' | 'RUNE'>('ALL');
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setStatus('THINKING');
     try {
-      const allIds = Object.values(IDS).filter(x => typeof x === 'number');
-      const priceData: any[] = await gw2.getPrices(allIds) as any[];
+      const allIds = Object.values(IDS).filter((x): x is number => typeof x === 'number');
+      const priceData = await gw2.getPrices(allIds);
       const priceMap: Record<number, MarketItem> = {};
-      priceData.forEach((p) => { priceMap[p.id] = p; });
+      priceData.forEach((p: MarketItem) => { priceMap[p.id] = p; });
       setPrices(priceMap);
 
       if (apiKey) {
         const matsPromise = gw2.getMaterials(apiKey).then(mats => {
           const matMap: Record<number, number> = {};
-          mats.forEach((m: any) => { matMap[m.id] = m.count; });
+          mats.forEach((m: { id: number, count: number }) => { matMap[m.id] = m.count; });
           return matMap;
         });
         const walletPromise = gw2.getWallet(apiKey).then(wData => {
           const walletMap: Record<number, number> = {};
-          wData.forEach((w: any) => { walletMap[w.id] = w.value; });
+          wData.forEach((w: { id: number, value: number }) => { walletMap[w.id] = w.value; });
           return walletMap;
         });
         const [mResult, wResult] = await Promise.allSettled([matsPromise, walletPromise]);
@@ -451,9 +451,12 @@ function App() {
       setThought(strats[0] && strats[0].roi > 0 ? `Se han detectado ${strats.filter(s => s.roi > 0).length} rutas rentables.` : "Mercado estable, escaneando anomalías.");
       setStatus('IDLE');
     } catch { setStatus('ALERT'); setThought("Falla en la Nexus Link."); }
-  };
+  }, [apiKey]);
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchData();
+  }, [fetchData]);
 
   const filteredStrategies = strategies.filter(s => category === 'ALL' || s.type === category);
 
@@ -483,8 +486,8 @@ function App() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 bg-zinc-900/50 p-1.5 rounded-2xl border border-zinc-800">
-            {['ALL', 'FINE', 'COMMON', 'LODE', 'RUNE'].map(cat => (
-              <button key={cat} onClick={() => setCategory(cat as any)} className={`px-4 py-2 rounded-xl text-[9px] font-black tracking-[0.2em] transition-all ${category === cat ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-600 hover:text-white'}`}>
+            {(['ALL', 'FINE', 'COMMON', 'LODE', 'RUNE'] as const).map(cat => (
+              <button key={cat} onClick={() => setCategory(cat)} className={`px-4 py-2 rounded-xl text-[9px] font-black tracking-[0.2em] transition-all ${category === cat ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-600 hover:text-white'}`}>
                 {cat === 'ALL' ? 'NEXO' : cat === 'FINE' ? 'ESENCIAS' : cat === 'COMMON' ? 'GRANDE' : cat === 'LODE' ? 'LODAS' : 'RUNAS'}
               </button>
             ))}

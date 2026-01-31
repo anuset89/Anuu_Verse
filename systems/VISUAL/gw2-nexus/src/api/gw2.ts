@@ -51,7 +51,7 @@ export const gw2 = {
                 headers: { Authorization: `Bearer ${apiKey.trim()}` }
             });
             return res.data;
-        } catch (e) {
+        } catch {
             console.warn("Token Info failed, using fallback...");
             return { permissions: ['account', 'wallet', 'inventories'] }; // Fallback optimista
         }

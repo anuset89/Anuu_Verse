@@ -121,5 +121,19 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
         });
     });
 
+    // Runic
+    if (prices[IDS.LUCENT_MOTE] && prices[IDS.LUCENT_SHARD]) {
+        const s = IDS.LUCENT_MOTE;
+        const t = IDS.LUCENT_SHARD;
+        const cost = prices[s].buys.unit_price * 10;
+        const profit = (prices[t].sells.unit_price * 0.85) - cost;
+        results.push({
+            sourceId: s, targetId: t, name: IDS_TO_NAME[t], sourceName: IDS_TO_NAME[s],
+            costPerUnit: cost, sellPrice: prices[t].sells.unit_price, profitPerCraft: profit,
+            roi: (profit / cost) * 100, volatility: (prices[t].sells.unit_price - prices[t].buys.unit_price) / prices[t].sells.unit_price * 100,
+            score: (profit / 100) * 2, verdict: "SPECULATIVE", supplyQty: prices[t].sells.quantity, type: 'RUNE'
+        });
+    }
+
     return results.sort((a, b) => b.roi - a.roi);
 };

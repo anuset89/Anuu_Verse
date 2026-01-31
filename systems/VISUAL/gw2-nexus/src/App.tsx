@@ -117,7 +117,10 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
   const neededT5 = 50 * batchSize;
   const neededDust = 5 * batchSize;
   const neededT6 = 1 * batchSize;
-  const neededShards = 5 * batchSize;
+
+  // RECIPE MATH: 1 Shard = 10 Stones. 1 Craft = 5 Stones. (0.5 Shards per craft)
+  const neededStones = 5 * batchSize;
+  const neededShards = Math.ceil(neededStones / 10);
 
   const buyT5 = Math.max(0, neededT5 - ownedT5);
   const buyDust = Math.max(0, neededDust - ownedDust);
@@ -131,7 +134,7 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
   const recommendedBatch = Math.floor(strategy.supplyQty * multiplier);
 
   const costPerCraft = (50 * priceT5) + (5 * priceDust) + (1 * priceT6);
-  const maxByShards = Math.floor(ownedShards / 5);
+  const maxByShards = Math.floor(ownedShards / 0.5);
   const maxByGold = costPerCraft > 0 ? Math.floor(availableGold / costPerCraft) : 0;
   const safeMax = Math.max(0, Math.min(maxByShards, maxByGold));
 
@@ -234,34 +237,39 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
               <p className="text-zinc-500 font-mono text-xs max-w-md mx-auto mb-10 border-t border-zinc-800 pt-6">Repite este proceso <strong className="text-indigo-400 text-lg mx-1">{batchSize}</strong> veces en la Forja Mística.</p>
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-4xl mx-auto items-center">
-                <div className="bg-gradient-to-b from-zinc-800 to-zinc-950 p-5 rounded-2xl border border-zinc-700 shadow-xl group">
+                <div className="bg-gradient-to-b from-zinc-800 to-zinc-950 p-5 rounded-2xl border border-zinc-700 shadow-xl group transition-all hover:scale-105">
                   <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">📦</div>
                   <div className="text-[8px] text-zinc-500 font-black uppercase mb-1">Hueco 1</div>
                   <div className="text-sm font-black text-white">50x {strategy.sourceName}</div>
                 </div>
                 <div className="text-zinc-700 font-black">+</div>
-                <div className="bg-gradient-to-b from-zinc-800 to-zinc-950 p-5 rounded-2xl border border-zinc-700 shadow-xl">
+                <div className="bg-gradient-to-b from-zinc-800 to-zinc-950 p-5 rounded-2xl border border-zinc-700 shadow-xl transition-all hover:scale-105">
                   <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">🛡️</div>
                   <div className="text-[8px] text-zinc-500 font-black uppercase mb-1">Hueco 2</div>
                   <div className="text-sm font-black text-indigo-400">1x {strategy.name}</div>
                 </div>
                 <div className="text-zinc-700 font-black">+</div>
-                <div className="bg-gradient-to-b from-zinc-800 to-zinc-950 p-5 rounded-2xl border border-zinc-700 shadow-xl">
+                <div className="bg-gradient-to-b from-zinc-800 to-zinc-950 p-5 rounded-2xl border border-zinc-700 shadow-xl transition-all hover:scale-105">
                   <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">✨</div>
                   <div className="text-[8px] text-zinc-500 font-black uppercase mb-1">Hueco 3</div>
                   <div className="text-sm font-black text-white">5x Dust</div>
                 </div>
                 <div className="text-zinc-700 font-black">+</div>
-                <div className="bg-gradient-to-b from-zinc-800 to-zinc-950 p-5 rounded-2xl border border-zinc-700 shadow-xl">
+                <div className="bg-gradient-to-b from-zinc-800 to-zinc-950 p-5 rounded-2xl border border-zinc-700 shadow-xl transition-all hover:scale-105 border-indigo-500/30 shadow-indigo-900/20">
                   <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">💎</div>
                   <div className="text-[8px] text-zinc-500 font-black uppercase mb-1">Hueco 4</div>
-                  <div className="text-sm font-black text-indigo-300">5x Spirit Shards</div>
+                  <div className="text-sm font-black text-indigo-300 uppercase">5x Piedra Filosofal</div>
                 </div>
               </div>
 
-              <div className="mt-12 p-4 bg-indigo-500/5 rounded-2xl border border-indigo-500/20 text-[10px] text-zinc-400 font-medium inline-flex items-center gap-3">
-                <Sparkles size={16} className="text-indigo-400" />
-                <span>Total de Spirit Shards necesarios: <strong>{neededShards} chapas</strong>.</span>
+              <div className="mt-12 p-5 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 text-[10px] text-zinc-400 font-medium inline-flex flex-col items-center gap-2 shadow-inner">
+                <div className="flex items-center gap-3">
+                  <Sparkles size={16} className="text-indigo-400" />
+                  <span>Para este lote necesitas: <strong>{neededStones} Piedras Filosofales</strong>.</span>
+                </div>
+                <div className="text-[9px] text-zinc-500 italic opacity-80 pt-1 border-t border-white/5">
+                  Coste: <strong>{neededShards} Espíritu(s)</strong> (Compra 10 piedras por 1 espíritu a Miyani).
+                </div>
               </div>
             </div>
           </div>
@@ -375,7 +383,7 @@ function App() {
             </div>
           )}
           <div className="ml-auto flex gap-2">
-            <button onClick={fetchData} className="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl hover:bg-zinc-800 text-zinc-500 hover:text-white transition-all"><RefreshCcw size={18} className={status === 'THINKING' ? 'animate-spin' : ''} /></button>
+            <button onClick={fetchData} className="bg-zinc-900 border border-zinc-700 p-3 rounded-2xl hover:bg-zinc-800 text-zinc-500 hover:text-white transition-all"><RefreshCcw size={18} className={status === 'THINKING' ? 'animate-spin' : ''} /></button>
             <button onClick={() => { const k = prompt("API Key:", apiKey); if (k) { localStorage.setItem('gw2_api_key', k.trim()); window.location.reload(); } }} className="bg-zinc-900 p-3 rounded-2xl border border-zinc-800 hover:bg-zinc-800 text-zinc-500 hover:text-white transition-all"><Settings size={18} /></button>
           </div>
         </div>
@@ -416,7 +424,7 @@ function App() {
       </div>
       <div className="fixed bottom-0 left-0 w-full p-4 pointer-events-none opacity-40">
         <div className="max-w-4xl mx-auto flex justify-between items-center text-[8px] font-black text-zinc-700 uppercase tracking-[0.5em]">
-          <span>Anuu_Verse Nexus v2.6</span>
+          <span>Anuu_Verse Nexus v2.7</span>
           <span>Forja Mística: Protocolo de Transmutación</span>
         </div>
       </div>

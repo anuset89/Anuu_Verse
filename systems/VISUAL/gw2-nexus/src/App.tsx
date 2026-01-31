@@ -299,7 +299,7 @@ function App() {
         <AnimatePresence mode="wait">
           {!activeStrategy && !multiStrategy ? (
             <motion.div key="dash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-              <OracleCommandZone strategy={strategies[0]} onExecute={(s) => setMultiStrategy([s])} isEng={isEng} materials={materials} />
+              <OracleCommandZone strategy={strategies[0]} onExecute={() => setMultiStrategy(strategies.filter(s => s.roi > 0).slice(0, 6))} isEng={isEng} materials={materials} />
               <DiversificationHub strategies={strategies} onSelect={handleMultiSelect} isEng={isEng} />
               <StrategicLab strategies={strategies} isEng={isEng} onSelect={(s) => setActiveStrategy(s)} icons={icons} />
               <StrategyGrimoire strategies={strategies} onSelectSingle={(strat) => setActiveStrategy(strat)} isEng={isEng} materials={materials} icons={icons} />

@@ -37,26 +37,23 @@ interface ShoppingListItem {
 }
 
 // --- NEXUS TRACKER (TRADING WIZARD) ---
-const NexusTracker = ({ list, isEng }: { list: ShoppingListItem[], isEng: boolean }) => {
+const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet }: { list: ShoppingListItem[], isEng: boolean, onClose: () => void, budget: number, setBudget: (n: number) => void, wallet: number }) => {
     const [currentStep, setCurrentStep] = useState(1);
 
     // 1. Logistics: Consolidate Shopping List
     const logistics = list.reduce((acc, item) => {
-        // Source
         if (item.buySource > 0) {
             const existing = acc.find((x) => x.name === item.strategy.sourceName);
             if (existing) existing.count += item.buySource;
             else acc.push({ name: item.strategy.sourceName, count: item.buySource, type: 'source' });
         }
-        // Dust (Shared)
         if (item.buyDust > 0) {
             const existing = acc.find((x) => x.name === 'Crystalline Dust');
             if (existing) existing.count += item.buyDust;
             else acc.push({ name: 'Crystalline Dust', count: item.buyDust, type: 'dust' });
         }
-        // Seed Target
         if (item.buyTarget > 0) {
-            const existing = acc.find((x) => x.name === item.strategy.name); // Using strategy name as target name usually aligns
+            const existing = acc.find((x) => x.name === item.strategy.name);
             if (existing) existing.count += item.buyTarget;
             else acc.push({ name: item.strategy.name, count: item.buyTarget, type: 'target' });
         }
@@ -77,30 +74,54 @@ const NexusTracker = ({ list, isEng }: { list: ShoppingListItem[], isEng: boolea
     ];
 
     return (
-        <div className="mt-8 border border-white/10 rounded-2xl bg-black/40 overflow-hidden shadow-2xl shadow-black/50">
-            {/* WIZARD HEADER */}
-            <div className="flex bg-black/40 border-b border-white/5">
-                {steps.map((s) => (
-                    <button
-                        key={s.id}
-                        onClick={() => setCurrentStep(s.id)}
-                        className={`flex-1 py-4 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${currentStep === s.id ? 'bg-indigo-500/10 text-indigo-400 border-b-2 border-indigo-500 scale-105' : 'text-zinc-600 hover:text-zinc-400'}`}
-                    >
-                        {s.icon} <span className="hidden md:inline">{s.title}</span>
+        <div className="relative overflow-hidden matte-card p-6 border-indigo-500/40 mb-8 transition-all duration-500">
+            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Cpu size={120} /></div>
+
+            {/* WIZARD HEADER & CONTROLS */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 relative z-10">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/30 text-indigo-400">
+                        {steps[currentStep - 1].icon}
+                    </div>
+                    <div>
+                        <h2 className="text-[10px] font-black tracking-[0.3em] text-zinc-500 uppercase font-display">Mission Control</h2>
+                        <h3 className="text-xl font-black text-white uppercase italic font-display">{steps[currentStep - 1].title}</h3>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                    {currentStep === 1 && (
+                        <div className="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/5">
+                            <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">{isEng ? 'Budget' : 'Presupuesto'}:</span>
+                            <div className="flex items-center gap-1">
+                                <input
+                                    type="number"
+                                    value={budget}
+                                    onChange={(e) => setBudget(Math.max(1, parseInt(e.target.value) || 0))}
+                                    className="bg-transparent text-lg font-black text-white w-20 border-b border-indigo-500/50 focus:border-indigo-400 focus:outline-none font-display text-right"
+                                />
+                                <span className="text-[10px] font-black text-amber-500 uppercase">G</span>
+                            </div>
+                            <div className="hidden md:block h-4 w-px bg-white/10 mx-2"></div>
+                            <div className="hidden md:flex flex-col items-end">
+                                <span className="text-[7px] text-zinc-500 uppercase tracking-widest">{isEng ? 'Wallet' : 'Cartera'}</span>
+                                <span className="text-[9px] font-bold text-zinc-400">{Math.floor(wallet)}g</span>
+                            </div>
+                        </div>
+                    )}
+                    <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg text-zinc-500 hover:text-white transition-colors">
+                        <ArrowLeft size={20} />
                     </button>
-                ))}
+                </div>
             </div>
 
             {/* STEP CONTENT */}
-            <div className="p-8 min-h-[300px] relative">
+            <div className="min-h-[250px] relative z-10">
                 <AnimatePresence mode="wait">
                     {currentStep === 1 && (
                         <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-                            <h4 className="flex items-center gap-3 text-emerald-400 font-black uppercase tracking-widest text-lg mb-2">
-                                <ShoppingCart /> {isEng ? 'Phase 1: Accumulation' : 'Fase 1: Acumulación'}
-                            </h4>
                             <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-6 border-l-2 border-emerald-500 pl-3">
-                                {isEng ? 'Place Buy Orders to maximize flip margins. Do not instant buy.' : 'Coloca Órdenes de Compra para maximizar márgenes. No compres instantáneo.'}
+                                {isEng ? 'Phase 1: Place Buy Orders to maximize flip margins.' : 'Fase 1: Coloca Órdenes de Compra para maximizar márgenes.'}
                             </p>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -176,27 +197,28 @@ const NexusTracker = ({ list, isEng }: { list: ShoppingListItem[], isEng: boolea
                 </AnimatePresence>
             </div>
 
-            {/* NAVIGATION FOOTER */}
-            <div className="p-4 bg-black/40 border-t border-white/5 flex justify-between">
-                <button
-                    disabled={currentStep === 1}
-                    onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
-                    className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${currentStep === 1 ? 'opacity-0 cursor-default' : 'bg-zinc-800 hover:bg-zinc-700 text-white'}`}
-                >
-                    {isEng ? 'Previous Step' : 'Paso Anterior'}
-                </button>
-                <div className="flex gap-1 justify-center items-center">
+            {/* PROGRESS BAR & NAVIGATION */}
+            <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between relative z-10">
+                <div className="flex gap-1">
                     {[1, 2, 3].map(step => (
-                        <div key={step} className={`w-1.5 h-1.5 rounded-full transition-colors ${currentStep === step ? 'bg-indigo-500' : 'bg-zinc-800'}`} />
+                        <div key={step} className={`w-8 h-1 rounded-full transition-colors ${currentStep >= step ? 'bg-indigo-500' : 'bg-zinc-800'}`} />
                     ))}
                 </div>
-                <button
-                    disabled={currentStep === 3}
-                    onClick={() => setCurrentStep(prev => Math.min(3, prev + 1))}
-                    className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${currentStep === 3 ? 'opacity-0 cursor-default' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-900/40'}`}
-                >
-                    {isEng ? 'Next Step' : 'Siguiente Paso'} <ArrowLeft className="rotate-180" size={14} />
-                </button>
+                <div className="flex gap-4">
+                    <button
+                        disabled={currentStep === 1}
+                        onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
+                        className={`text-[10px] font-black uppercase tracking-widest transition-colors ${currentStep === 1 ? 'opacity-30 cursor-default' : 'text-zinc-500 hover:text-white'}`}
+                    >
+                        {isEng ? 'Back' : 'Atrás'}
+                    </button>
+                    <button
+                        onClick={() => currentStep === 3 ? onClose() : setCurrentStep(prev => Math.min(3, prev + 1))}
+                        className="px-6 py-2 bg-white text-black rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-indigo-500 hover:text-white transition-colors"
+                    >
+                        {currentStep === 3 ? (isEng ? 'Finish' : 'Terminar') : (isEng ? 'Next' : 'Siguiente')}
+                    </button>
+                </div>
             </div>
         </div>
     );
@@ -292,41 +314,16 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
 
     return (
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-8 pb-12">
-            {/* HEADER */}
-            <div className="flex items-center gap-4 mb-2">
-                <button onClick={onBack} className="p-3 rounded-full hover:bg-white/10 transition-colors group">
-                    <ArrowLeft className="text-zinc-400 group-hover:text-white transition-colors" />
-                </button>
-                <div>
-                    <h2 className="text-2xl font-black text-white uppercase tracking-tighter font-display italic">
-                        {isEng ? 'Diversified Operations' : 'Operaciones Diversificadas'}
-                    </h2>
-                    <p className="text-[10px] text-zinc-500 font-bold tracking-widest uppercase flex items-center gap-2">
-                        {isEng ? 'Protocol v6.1: Active' : 'Protocolo v6.1: Activo'}
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    </p>
-                </div>
-            </div>
 
-            {/* BUDGET CONTROL */}
-            <div className="flex items-center gap-4 bg-black/20 p-4 rounded-xl border border-white/5 mx-1">
-                <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">{isEng ? 'Set Investment Budget' : 'Presupuesto de Inversión'}:</span>
-                <div className="flex items-center gap-2">
-                    <input
-                        type="number"
-                        value={budgetGold}
-                        onChange={(e) => setBudgetGold(Math.max(1, parseInt(e.target.value) || 0))}
-                        className="bg-transparent text-xl font-black text-white w-24 border-b border-indigo-500/50 focus:border-indigo-400 focus:outline-none font-display text-right"
-                    />
-                    <span className="text-[10px] font-black text-amber-500 uppercase">GOLD</span>
-                </div>
-                <div className="text-[9px] text-zinc-600 ml-auto uppercase tracking-wide border-l border-white/10 pl-4">
-                    {isEng ? 'Wallet Available:' : 'Cartera Disponible:'} <span className="text-zinc-400 font-bold">{Math.floor(availableGold)}g</span>
-                </div>
-            </div>
-
-            {/* MISSION CONTROL (CENTRALIZED TRACKER) */}
-            <NexusTracker list={shoppingList} isEng={isEng} />
+            {/* WIZARD AS CORE HEADER */}
+            <NexusTracker
+                list={shoppingList}
+                isEng={isEng}
+                onClose={onBack}
+                budget={budgetGold}
+                setBudget={setBudgetGold}
+                wallet={availableGold}
+            />
 
             {/* FINANCIAL PROJECTION PANEL */}
             <div className="mt-8">

@@ -646,7 +646,7 @@ function App() {
           </div>
         </div>
 
-        <AnuuMediator thought={thought} status={status} onReload={fetchData} />
+        {!multiStrategy && <AnuuMediator thought={thought} status={status} onReload={fetchData} />}
 
         <AnimatePresence mode="wait">
           {!activeStrategy && !multiStrategy ? (

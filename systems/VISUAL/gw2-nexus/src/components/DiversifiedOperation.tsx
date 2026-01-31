@@ -508,7 +508,9 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
 
     // --- NEW ADAPTIVE BUDGETER: Sequential Capital Allocation ---
     const calculateShoppingList = () => {
-        let flexibleBudget = budgetGold;
+        // Reserve 10% of budget for listing fees (upfront cash requirement)
+        const operationalReserve = budgetGold * 0.10;
+        let flexibleBudget = budgetGold - operationalReserve;
         const totalStrats = prioritizedStrategies.length;
         const defaultWeight = 1 / Math.max(1, totalStrats);
 
@@ -588,9 +590,14 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
     }, 0);
 
     const totalInvested = totalMarketBuy + totalNpcFees;
-    const tpFees = totalGrossSales * 0.15;
+    const listingFees = totalGrossSales * 0.05; // 5% Upfront cash required to list
+    const tpFees = totalGrossSales * 0.15; // Total 15% (including the 5% listing)
     const netProfit = totalGrossSales - tpFees - totalInvested;
     const roiPercentage = totalInvested > 0 ? (netProfit / totalInvested) * 100 : 0;
+
+    // Check if the user has enough gold for the listing fees apart from logic
+    const totalCashRequired = totalInvested + listingFees;
+    const isBudgetExceeded = (totalCashRequired / 10000) > availableGold;
 
     return (
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-8 pb-12">
@@ -626,8 +633,8 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                         <GoldDisplay amount={totalGrossSales} size="lg" />
                     </div>
                     <div className="matte-card p-4 border-l-2 border-red-500/50 bg-black/40">
-                        <div className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">{isEng ? 'Trading Post Fees (15%)' : 'Tasas Bazar (15%)'}</div>
-                        <div className="text-red-400 font-mono font-bold">-<GoldDisplay amount={tpFees} size="lg" /></div>
+                        <div className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">{isEng ? 'Listing Fee (5% Upfront)' : 'Tasa Listado (5% Adelanto)'}</div>
+                        <div className="text-red-400 font-mono font-bold">-<GoldDisplay amount={listingFees} size="lg" /></div>
                     </div>
                     <div className="matte-card p-4 border-l-2 border-emerald-400 bg-emerald-500/10 shadow-[0_0_30px_rgba(16,185,129,0.1)] relative overflow-hidden">
                         <div className="relative z-10">
@@ -639,6 +646,16 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                         </div>
                     </div>
                 </div>
+
+                {isBudgetExceeded && (
+                    <div className="mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-4 animate-bounce">
+                        <div className="p-2 bg-red-500/20 rounded-lg text-red-500"><Coins size={20} /></div>
+                        <div>
+                            <h4 className="text-[10px] font-black text-red-400 uppercase tracking-widest">{isEng ? 'Liquidity Alert' : 'Alerta de Liquidez'}</h4>
+                            <p className="text-[9px] text-red-500/80 uppercase font-bold">{isEng ? 'You need more gold in wallet to pay the listing fees!' : '¡Necesitas más oro en la cartera para pagar las tasas de listado!'}</p>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* STRATEGY BREAKDOWN */}

@@ -35,6 +35,14 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
     prices: Record<number, MarketItem>
 }) => {
     const [currentStep, setCurrentStep] = useState(1);
+    const [manualCompleted, setManualCompleted] = useState<Set<string>>(new Set());
+
+    const toggleTask = (taskId: string) => {
+        const next = new Set(manualCompleted);
+        if (next.has(taskId)) next.delete(taskId);
+        else next.add(taskId);
+        setManualCompleted(next);
+    };
 
     // 1. Logistics: Consolidate Shopping List
     const logistics = list.reduce((acc, item) => {
@@ -74,6 +82,20 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
         }
         return acc;
     }, [] as { id: number, name: string, count: number, type: string, price: number }[]);
+
+    // Logic to check if a task is "Auto-Completed" by inventory
+    const isTaskDone = (taskId: string, itemId?: number, reqCount?: number) => {
+        if (manualCompleted.has(taskId)) return true;
+
+        // Auto-check for Inventory tasks (withdraw or buy)
+        if (itemId !== undefined && reqCount !== undefined) {
+            const ownedInBag = materials[itemId]?.character || 0;
+            // For withdrawal, if it's already in bag, it's done. 
+            // For buy, same thing.
+            return ownedInBag >= reqCount;
+        }
+        return false;
+    };
 
     const totalOrderGold = logistics.reduce((sum, l) => sum + (l.price * l.count), 0);
 
@@ -127,6 +149,20 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                             </div>
                         </div>
                     )}
+                    <div className="hidden lg:flex flex-col items-end min-w-[120px]">
+                        <div className="flex justify-between w-full mb-1">
+                            <span className="text-[7px] text-zinc-500 font-black uppercase tracking-widest">{isEng ? 'Mission Progress' : 'Progreso de Misión'}</span>
+                            <span className="text-[7px] text-indigo-400 font-black">SYNC</span>
+                        </div>
+                        <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                            <motion.div
+                                className="h-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                                initial={{ width: 0 }}
+                                animate={{ width: `100%` }}
+                            />
+                        </div>
+                    </div>
+
                     <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg text-zinc-500 hover:text-white transition-colors">
                         <ArrowLeft size={20} />
                     </button>
@@ -198,10 +234,16 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         {list.map((item, idx) => (
                                             (item.ownedSource > 0 || item.ownedDust > 0) && (
-                                                <div key={idx} className="matte-card bg-amber-500/5 border-amber-500/20 p-5 group hover:border-amber-500/40 transition-all flex flex-col gap-4">
+                                                <div
+                                                    key={idx}
+                                                    onClick={() => toggleTask(`withdraw-${item.strategy.id}`)}
+                                                    className={`matte-card p-5 cursor-pointer transition-all flex flex-col gap-4 border-2 ${isTaskDone(`withdraw-${item.strategy.id}`, item.strategy.sourceId, item.neededSource) ? 'bg-emerald-500/10 border-emerald-500/40 opacity-50' : 'bg-amber-500/5 border-amber-500/20 hover:border-amber-500/40'}`}
+                                                >
                                                     <div className="flex justify-between items-start">
-                                                        <div className="text-[9px] font-black text-amber-500 uppercase tracking-[0.2em]">{isEng ? 'BANK WITHDRAWAL' : 'RETIRAR DEL BANCO'}</div>
-                                                        <Package size={14} className="text-amber-500/40" />
+                                                        <div className={`text-[9px] font-black uppercase tracking-[0.2em] ${isTaskDone(`withdraw-${item.strategy.id}`, item.strategy.sourceId, item.neededSource) ? 'text-emerald-500' : 'text-amber-500'}`}>
+                                                            {isTaskDone(`withdraw-${item.strategy.id}`, item.strategy.sourceId, item.neededSource) ? (isEng ? 'COMPLETED' : 'COMPLETADO') : (isEng ? 'BANK WITHDRAWAL' : 'RETIRAR DEL BANCO')}
+                                                        </div>
+                                                        {isTaskDone(`withdraw-${item.strategy.id}`, item.strategy.sourceId, item.neededSource) ? <CheckCircle size={14} className="text-emerald-500" /> : <Package size={14} className="text-amber-500/40" />}
                                                     </div>
                                                     <div className="space-y-3">
                                                         {item.ownedSource > 0 && (
@@ -285,14 +327,18 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                         </div>
                                     ) : (
                                         logistics.map((l, i) => (
-                                            <div key={i} className={`flex justify-between items-center p-5 rounded-2xl bg-white/5 border relative group transition-colors shadow-xl ${l.type === 'npc' || l.type === 'shard' ? 'border-amber-500/20 hover:border-amber-500/40 bg-amber-500/5' : 'border-white/5 hover:border-emerald-500/30'}`}>
+                                            <div
+                                                key={i}
+                                                onClick={() => toggleTask(`buy-${l.id}`)}
+                                                className={`flex justify-between items-center p-5 rounded-2xl border relative cursor-pointer transition-all shadow-xl ${isTaskDone(`buy-${l.id}`, l.id, l.count) ? 'bg-emerald-500/10 border-emerald-500/40 opacity-50' : (l.type === 'npc' || l.type === 'shard' ? 'bg-amber-500/5 border-amber-500/20 hover:border-amber-500/40' : 'bg-white/5 border-white/5 hover:border-emerald-500/30')}`}
+                                            >
                                                 <div className="flex items-center gap-4">
-                                                    <div className={`w-12 h-12 flex-shrink-0 rounded-2xl flex items-center justify-center overflow-hidden border border-white/5 ${l.type === 'dust' ? 'bg-indigo-500/20 text-indigo-300' : l.type === 'npc' || l.type === 'shard' ? 'bg-amber-500/10 text-amber-500' : 'bg-black/40 text-zinc-300'}`}>
-                                                        {icons[l.id] ? (
+                                                    <div className={`w-12 h-12 flex-shrink-0 rounded-2xl flex items-center justify-center overflow-hidden border border-white/5 ${isTaskDone(`buy-${l.id}`, l.id, l.count) ? 'bg-emerald-500/20 text-emerald-400' : (l.type === 'dust' ? 'bg-indigo-500/20 text-indigo-300' : l.type === 'npc' || l.type === 'shard' ? 'bg-amber-500/10 text-amber-500' : 'bg-black/40 text-zinc-300')}`}>
+                                                        {isTaskDone(`buy-${l.id}`, l.id, l.count) ? <CheckCircle size={24} /> : (icons[l.id] ? (
                                                             <img src={icons[l.id]} alt="" className="w-10 h-10 object-contain" />
                                                         ) : (
                                                             <span className="text-xl">{l.type === 'npc' ? '🍷' : l.type === 'shard' ? '🧊' : getItemIcon(l.name)}</span>
-                                                        )}
+                                                        ))}
                                                     </div>
                                                     <div>
                                                         <span className={`font-black uppercase tracking-tight text-xs block mb-0.5 ${l.type === 'dust' ? 'text-indigo-300' : l.type === 'npc' || l.type === 'shard' ? 'text-amber-400' : 'text-zinc-200'}`}>{l.name}</span>

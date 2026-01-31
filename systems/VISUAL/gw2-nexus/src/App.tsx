@@ -4,7 +4,7 @@ import { analyzeMarket, IDS } from './engine/calculator';
 import type { AnuuStrategy, MarketItem } from './engine/calculator';
 import { gw2 } from './api/gw2';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Brain, RefreshCcw, Cpu, Settings, Package, FlaskConical, Database, Zap, Scale, Target, ArrowLeft, ShoppingCart, TrendingUp, Sparkles, MapPin, Gavel } from 'lucide-react';
+import { Brain, RefreshCcw, Cpu, Settings, Package, FlaskConical, Database, Zap, Scale, Target, ArrowLeft, ShoppingCart, TrendingUp, Sparkles, MapPin, Gavel, BarChart3, Clock } from 'lucide-react';
 
 // --- HELPER: Gold Formatter ---
 const GoldDisplay = ({ amount, size = "md" }: { amount: number, size?: "sm" | "md" | "lg" | "xl" }) => {
@@ -13,7 +13,7 @@ const GoldDisplay = ({ amount, size = "md" }: { amount: number, size?: "sm" | "m
   const g = Math.floor(absAmount / 10000);
   const s = Math.floor((absAmount % 10000) / 100);
   const c = Math.floor(absAmount % 100);
-  const sizeClasses = { "sm": "text-xs", "md": "text-[10px] md:text-sm", "lg": "text-xl", "xl": "text-3xl" };
+  const sizeClasses = { "sm": "text-[10px]", "md": "text-[10px] md:text-sm", "lg": "text-xl", "xl": "text-3xl" };
   return (
     <div className={`font-mono font-bold flex items-baseline gap-1 ${sizeClasses[size]} ${isNegative ? 'text-red-400' : ''}`}>
       {isNegative && <span>-</span>}
@@ -103,10 +103,17 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
   const [step, setStep] = useState(1);
   const [batchSize, setBatchSize] = useState(10);
 
-  // MATERIAL REQUIREMENTS
-  const priceT5 = prices[strategy.sourceId]?.buys?.unit_price || 0;
-  const priceDust = prices[IDS.DUST]?.buys?.unit_price || 0;
-  const priceT6 = prices[strategy.targetId]?.buys?.unit_price || 0;
+  // PRICES
+  const pT5 = prices[strategy.sourceId];
+  const pDust = prices[IDS.DUST];
+  const pT6 = prices[strategy.targetId];
+
+  const priceOrderT5 = pT5?.buys?.unit_price || 0;
+  const priceInstaT5 = pT5?.sells?.unit_price || 0;
+  const priceOrderDust = pDust?.buys?.unit_price || 0;
+  const priceInstaDust = pDust?.sells?.unit_price || 0;
+  const priceOrderT6 = pT6?.buys?.unit_price || 0;
+  const priceInstaT6 = pT6?.sells?.unit_price || 0;
 
   const ownedT5 = materials[strategy.sourceId] || 0;
   const ownedDust = materials[IDS.DUST] || 0;
@@ -118,7 +125,6 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
   const neededDust = 5 * batchSize;
   const neededT6 = 1 * batchSize;
 
-  // RECIPE MATH: 1 Shard = 10 Stones. 1 Craft = 5 Stones. (0.5 Shards per craft)
   const neededStones = 5 * batchSize;
   const neededShards = Math.ceil(neededStones / 10);
 
@@ -126,22 +132,23 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
   const buyDust = Math.max(0, neededDust - ownedDust);
   const buyT6 = Math.max(0, neededT6 - ownedT6);
 
-  const totalGoldCost = (buyT5 * priceT5) + (buyDust * priceDust) + (buyT6 * priceT6);
-  const canAfford = availableGold >= totalGoldCost;
+  const totalGoldCost = (buyT5 * priceOrderT5) + (buyDust * priceOrderDust) + (buyT6 * priceOrderT6);
+  const totalInstaCost = (buyT5 * priceInstaT5) + (buyDust * priceInstaDust) + (buyT6 * priceInstaT6);
+  const savings = totalInstaCost - totalGoldCost;
 
   const isWeekend = [0, 5, 6].includes(new Date().getDay());
   const multiplier = isWeekend ? 0.25 : 0.15;
   const recommendedBatch = Math.floor(strategy.supplyQty * multiplier);
 
-  const costPerCraft = (50 * priceT5) + (5 * priceDust) + (1 * priceT6);
+  const costPerCraft = (50 * priceOrderT5) + (5 * priceOrderDust) + (1 * priceOrderT6);
   const maxByShards = Math.floor(ownedShards / 0.5);
   const maxByGold = costPerCraft > 0 ? Math.floor(availableGold / costPerCraft) : 0;
   const safeMax = Math.max(0, Math.min(maxByShards, maxByGold));
 
   const shoppingList = [
-    { name: strategy.sourceName, icon: "📦", need: neededT5, have: ownedT5, buy: buyT5, price: priceT5 },
-    { name: "Crystalline Dust", icon: "✨", need: neededDust, have: ownedDust, buy: buyDust, price: priceDust },
-    { name: strategy.name, icon: "🛡️", need: neededT6, have: ownedT6, buy: buyT6, price: priceT6 },
+    { name: strategy.sourceName, icon: "📦", need: neededT5, have: ownedT5, buy: buyT5, priceOrder: priceOrderT5, priceInsta: priceInstaT5, supply: pT5?.sells.quantity || 0 },
+    { name: "Crystalline Dust", icon: "✨", need: neededDust, have: ownedDust, buy: buyDust, priceOrder: priceOrderDust, priceInsta: priceInstaDust, supply: pDust?.sells.quantity || 0 },
+    { name: strategy.name, icon: "🛡️", need: neededT6, have: ownedT6, buy: buyT6, priceOrder: priceOrderT6, priceInsta: priceInstaT6, supply: pT6?.sells.quantity || 0 },
   ];
 
   return (
@@ -150,7 +157,7 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
         <button onClick={onBack} className="bg-zinc-900 px-4 py-2 rounded-lg border border-zinc-800 text-zinc-500 text-[10px] hover:text-white transition-colors uppercase tracking-[0.2em] font-black">← Volver al Nexo</button>
         <div className="text-right">
           <h2 className="text-2xl font-black text-white">{strategy.name}</h2>
-          <p className="text-[10px] text-zinc-500 font-mono italic">STOCK: {strategy.supplyQty.toLocaleString()}</p>
+          <p className="text-[10px] text-zinc-500 font-mono italic">VOLUMEN MERCADO: {strategy.supplyQty.toLocaleString()}</p>
         </div>
       </div>
 
@@ -161,60 +168,91 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
 
       {step === 1 && (
         <div className="space-y-6">
-          <div className="bg-indigo-950/20 border border-indigo-500/20 rounded-2xl p-4 flex items-center gap-3">
-            <MapPin size={18} className="text-indigo-400" />
-            <div className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest">LOCALIZACIÓN: BAZAR (TRADING POST) - CUALQUIER GRAN CIUDAD</div>
-          </div>
-
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-8 shadow-2xl">
-            <div className="flex items-center gap-6">
-              <div className="p-5 bg-indigo-500/10 rounded-2xl border border-indigo-500/20"><Package className="text-indigo-400" size={32} /></div>
-              <div>
-                <h3 className="text-zinc-500 text-[9px] font-black uppercase tracking-[0.3em] mb-2">Escalar Operación</h3>
-                <div className="flex gap-2 items-center">
-                  <input type="number" value={batchSize} onChange={(e) => setBatchSize(Math.max(1, parseInt(e.target.value) || 0))} className="bg-black border border-zinc-700 rounded-xl px-4 py-2.5 text-white font-mono w-32 text-sm focus:border-indigo-500 outline-none transition-all shadow-inner" />
-                  <button onClick={() => setBatchSize(safeMax)} className="text-[10px] bg-zinc-800 text-zinc-200 px-4 py-2.5 rounded-xl border border-zinc-700 hover:bg-zinc-700 transition-colors font-black uppercase">MAX ({safeMax})</button>
-                  <button onClick={() => setBatchSize(recommendedBatch)} className="text-[10px] bg-emerald-950/40 text-emerald-400 px-4 py-2.5 rounded-xl border border-emerald-500/20 hover:bg-emerald-900/50 transition-colors font-black uppercase tracking-tighter italic">REC ({recommendedBatch})</button>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-2 bg-zinc-900 border border-zinc-800 rounded-3xl p-6 flex flex-col gap-6 shadow-2xl">
+              <div className="flex items-center gap-6">
+                <div className="p-5 bg-indigo-500/10 rounded-2xl border border-indigo-500/20"><Package className="text-indigo-400" size={32} /></div>
+                <div className="flex-1">
+                  <h3 className="text-zinc-500 text-[9px] font-black uppercase tracking-[0.3em] mb-2">Escalar Operación</h3>
+                  <div className="flex gap-2 items-center">
+                    <input type="number" value={batchSize} onChange={(e) => setBatchSize(Math.max(1, parseInt(e.target.value) || 0))} className="bg-black border border-zinc-700 rounded-xl px-4 py-2.5 text-white font-mono w-full text-sm focus:border-indigo-500 outline-none transition-all shadow-inner" />
+                    <button onClick={() => setBatchSize(safeMax)} className="text-[10px] bg-zinc-800 text-zinc-200 px-4 py-2.5 rounded-xl border border-zinc-700 hover:bg-zinc-700 transition-colors font-black uppercase">MAX</button>
+                    <button onClick={() => setBatchSize(recommendedBatch)} className="text-[10px] bg-emerald-950/40 text-emerald-400 px-4 py-2.5 rounded-xl border border-emerald-500/20 hover:bg-emerald-900/50 transition-colors font-black uppercase tracking-tighter italic">REC</button>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className={`p-6 px-12 rounded-3xl border-2 shadow-2xl transition-all ${canAfford ? 'bg-emerald-950/10 border-emerald-500/20' : 'bg-red-950/10 border-red-500/20'}`}>
-              <div className="text-[9px] text-zinc-500 font-black mb-1 uppercase tracking-widest text-center">Liquidez Total</div>
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 flex flex-col justify-center shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><TrendingUp size={60} className="text-emerald-500" /></div>
+              <div className="text-[9px] text-zinc-600 font-black mb-1 uppercase tracking-widest">Inversión Necesaria</div>
               <GoldDisplay amount={totalGoldCost} size="lg" />
+              <div className="mt-4 pt-4 border-t border-zinc-800 flex justify-between items-center">
+                <span className="text-[9px] text-zinc-500 font-bold uppercase">Ahorro x Orden</span>
+                <span className="text-emerald-400 font-mono text-xs">+{Math.floor(savings / 10000)}g...</span>
+              </div>
             </div>
           </div>
 
           <div className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl">
-            <div className="bg-zinc-950 p-5 border-b border-zinc-800 flex items-center gap-3">
-              <ShoppingCart size={18} className="text-indigo-500" />
-              <h3 className="text-[11px] font-black text-white uppercase tracking-[0.2em]">Guía de Órdenes de Compra</h3>
+            <div className="bg-zinc-950 p-5 border-b border-zinc-800 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <ShoppingCart size={18} className="text-indigo-500" />
+                <h3 className="text-[11px] font-black text-white uppercase tracking-[0.2em]">Hoja de Adquisición Táctica</h3>
+              </div>
+              <div className="flex items-center gap-4 text-[9px] font-black text-zinc-600 uppercase">
+                <div className="flex items-center gap-1"><MapPin size={12} /> Bazaar</div>
+                <div className="flex items-center gap-1"><Gavel size={12} /> Buy Orders</div>
+              </div>
             </div>
             <div className="divide-y divide-zinc-800">
               {shoppingList.map((item, idx) => (
-                <div key={idx} className="p-5 flex flex-col md:flex-row justify-between items-center gap-5 hover:bg-zinc-800/20 transition-colors">
+                <div key={idx} className="p-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 hover:bg-zinc-800/10 transition-colors relative group">
                   <div className="flex items-center gap-5 flex-1 w-full">
-                    <div className="text-3xl bg-black/40 p-2.5 rounded-xl border border-white/5">{item.icon}</div>
+                    <div className="text-3xl bg-black/40 p-3 rounded-2xl border border-white/5 shadow-inner">{item.icon}</div>
                     <div>
-                      <div className="text-sm font-black text-white uppercase tracking-tight">{item.name}</div>
-                      <div className="text-[9px] text-zinc-600 font-bold uppercase">Tienes: {item.have} en el banco</div>
+                      <div className="text-sm font-black text-white uppercase tracking-tight mb-1">{item.name}</div>
+                      <div className="flex gap-4">
+                        <div className="text-[9px] text-zinc-600 font-black uppercase flex items-center gap-1"><Database size={10} /> Stock: {item.have}</div>
+                        <div className="text-[9px] text-zinc-600 font-black uppercase flex items-center gap-1"><Clock size={10} /> Velocidad: {item.supply > 50000 ? 'Relámpago' : item.supply > 20000 ? 'Rápida' : 'Moderada'}</div>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-10 text-right w-full md:w-auto">
-                    <div>
-                      <div className="text-[8px] text-zinc-500 font-black uppercase mb-1 tracking-widest">Tu Puja (Buy)</div>
-                      <GoldDisplay amount={item.price} size="sm" />
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full lg:w-auto text-right">
+                    <div className="hidden md:block">
+                      <div className="text-[8px] text-zinc-600 font-black uppercase mb-1 tracking-widest opacity-60">Insta-Compra</div>
+                      <GoldDisplay amount={item.priceInsta} size="sm" />
                     </div>
-                    <div className="bg-black/60 px-5 py-3 rounded-2xl border border-indigo-500/20 shadow-inner">
-                      <div className="text-[8px] text-indigo-400 font-black uppercase mb-1 flex items-center gap-1">A Pedir <TrendingUp size={8} /></div>
-                      <div className="text-xl font-black text-white">{item.buy.toLocaleString()} <span className="text-[10px] text-zinc-700">u.</span></div>
+                    <div>
+                      <div className="text-[8px] text-indigo-400 font-black uppercase mb-1 tracking-widest">Tu Puja (Order)</div>
+                      <GoldDisplay amount={item.priceOrder} size="sm" />
+                    </div>
+                    <div className="bg-black/60 px-5 py-3 rounded-2xl border border-indigo-500/20 shadow-inner min-w-[120px]">
+                      <div className="text-[8px] text-indigo-400 font-black uppercase mb-1 flex items-center gap-1 justify-end">Pedir <TrendingUp size={8} /></div>
+                      <div className="text-xl font-black text-white">{item.buy.toLocaleString()} <span className="text-[10px] text-zinc-700 font-mono">u.</span></div>
+                    </div>
+                    <div className="flex flex-col justify-center">
+                      <div className="text-[8px] text-emerald-500 font-black uppercase mb-1 tracking-widest opacity-80">Ahorro</div>
+                      <GoldDisplay amount={(item.priceInsta - item.priceOrder) * item.buy} size="sm" />
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="p-4 bg-zinc-950/50 flex gap-3 border-t border-zinc-800">
-              <Gavel size={16} className="text-amber-500 shrink-0" />
-              <p className="text-[10px] text-zinc-500 font-medium">Usa siempre <strong>"Pedir" (Order)</strong>, nunca comprar al instante. Esto nos asegura el margen de beneficio máximo pero requiere tiempo para que otros jugadores te vendan el material.</p>
+            <div className="p-5 bg-zinc-950/50 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-zinc-800">
+              <div className="flex gap-3 items-start">
+                <Gavel size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                <p className="text-[10px] text-zinc-500 font-medium leading-relaxed max-w-xl">
+                  <strong>PROTOCOLO DE AHORRO:</strong> Pon tus órdenes a <strong>+1 cobre</strong> por encima de la oferta actual. Usar "Buy Orders" nos asegura el profit; comprar al instante ("Insta-Buy") recortaría tus beneficios en un <strong>{Math.floor((savings / totalGoldCost) * 100)}%</strong>.
+                </p>
+              </div>
+              <div className="bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20 flex items-center gap-3">
+                <BarChart3 size={16} className="text-emerald-400" />
+                <div className="text-right">
+                  <div className="text-[8px] text-emerald-400 font-black uppercase">Plus por Paciencia</div>
+                  <GoldDisplay amount={savings} size="sm" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -424,7 +462,7 @@ function App() {
       </div>
       <div className="fixed bottom-0 left-0 w-full p-4 pointer-events-none opacity-40">
         <div className="max-w-4xl mx-auto flex justify-between items-center text-[8px] font-black text-zinc-700 uppercase tracking-[0.5em]">
-          <span>Anuu_Verse Nexus v2.7</span>
+          <span>Anuu_Verse Nexus v2.8</span>
           <span>Forja Mística: Protocolo de Transmutación</span>
         </div>
       </div>

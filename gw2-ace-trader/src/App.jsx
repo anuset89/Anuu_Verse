@@ -643,8 +643,8 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
     const [investPct, setInvestPct] = useState(() => parseInt(localStorage.getItem('ace_invest_pct') || '25'));
     const [sessionEarnings, setSessionEarnings] = useState(() => parseInt(localStorage.getItem('ace_session_earnings') || '0'));
 
-    const top = opportunities[0];
-    if (!top || !top.id) {
+    // Safety check for empty data
+    if (!opportunities || !Array.isArray(opportunities) || opportunities.length === 0) {
         return (
             <div className="bg-gradient-to-br from-violet-950 to-zinc-900 border-2 border-fuchsia-500/30 rounded-3xl p-8 shadow-2xl">
                 <div className="flex items-center justify-center gap-4">
@@ -654,6 +654,8 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
             </div>
         );
     }
+
+    const top = opportunities[0];
 
     // PROPORTIONAL CALCULATION ENGINE with useMemo for optimization
     const calculation = useMemo(() => {
@@ -1000,7 +1002,9 @@ const App = () => {
     const opportunities = useMemo(() => {
         const ops = [];
         T6_IDS.forEach(t6Id => {
-            const item = ITEM_DATA[t6Id]; const t6 = prices[t6Id]; const t5 = prices[item.t5];
+            const item = ITEM_DATA[t6Id];
+            if (!item) return;
+            const t6 = prices[t6Id]; const t5 = prices[item.t5];
             const dustPrice = recycleStats?.isCheaper ? recycleStats.costPerDustExEcto : prices[ESSENTIALS.CRYSTALLINE_DUST]?.buys?.unit_price;
             if (!t6 || !t5 || !dustPrice) return;
 
@@ -1080,11 +1084,17 @@ const App = () => {
         const shopping = {};
         batch.forEach(opp => {
             // 50 T5 + 1 T6 + 5 Dust
-            const t5Name = ITEM_DATA[opp.t5Id].name[lang];
-            const t6Name = ITEM_DATA[opp.id].name[lang];
-            shopping[t5Name] = (shopping[t5Name] || 0) + (opp.chosen * 50);
-            shopping[t6Name] = (shopping[t6Name] || 0) + (opp.chosen * 1);
-            shopping['Crystalline Dust'] = (shopping['Crystalline Dust'] || 0) + (opp.chosen * 5);
+            // 50 T5 + 1 T6 + 5 Dust
+            const t5Item = ITEM_DATA[opp.t5Id];
+            const t6Item = ITEM_DATA[opp.id];
+
+            if (t5Item && t6Item) {
+                const t5Name = t5Item.name[lang] || t5Item.name.en;
+                const t6Name = t6Item.name[lang] || t6Item.name.en;
+                shopping[t5Name] = (shopping[t5Name] || 0) + (opp.chosen * 50);
+                shopping[t6Name] = (shopping[t6Name] || 0) + (opp.chosen * 1);
+                shopping['Crystalline Dust'] = (shopping['Crystalline Dust'] || 0) + (opp.chosen * 5);
+            }
         });
         return { totalInvestment, totalProfit, totalShards, shopping };
     }, [trainCount, opportunities, lang]);

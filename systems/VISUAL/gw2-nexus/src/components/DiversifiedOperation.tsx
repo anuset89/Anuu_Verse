@@ -58,14 +58,14 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, onBack, isEng
     const [budgetGold, setBudgetGold] = useState(100); // 100g total budget
     const availableGold = (wallet[1] || 0) / 10000; // Convert copper to gold
 
-    // Limit to top 3 strategies to avoid saturation
-    const activeStrategies = strategies.slice(0, 3);
+    // Use all provided strategies for maximum diversification
+    const activeStrategies = strategies;
 
-    // Distribution weights: 40% / 30% / 30%
-    const weights = [0.4, 0.3, 0.3];
+    // Distribute budget equally across all active strategies
+    const weightPerStrategy = 1 / Math.max(1, activeStrategies.length);
 
     const shoppingList = activeStrategies.map((s, idx) => {
-        const allocatedGold = budgetGold * weights[idx];
+        const allocatedGold = budgetGold * weightPerStrategy;
         const sourcePriceGold = (prices[s.sourceId]?.buys?.unit_price || 0) / 10000;
 
         // Cost per craft (approx)
@@ -177,9 +177,9 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, onBack, isEng
                     <div key={idx} className="matte-card p-6 border-white/5 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-3 opacity-10 text-6xl font-black text-zinc-700">{idx + 1}</div>
                         <div className="relative z-10">
-                            <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">{isEng ? 'Allocation' : 'Asignación'}: {Math.round(weights[idx] * 100)}%</h4>
+                            <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">{isEng ? 'Allocation' : 'Asignación'}: {Math.round(weightPerStrategy * 100)}% ({Math.floor(item.allocatedGold)}g)</h4>
                             <div className="h-1 w-full bg-zinc-800 rounded-full mb-6 overflow-hidden">
-                                <div className="h-full bg-indigo-500" style={{ width: `${weights[idx] * 100}%` }}></div>
+                                <div className="h-full bg-indigo-500" style={{ width: `${weightPerStrategy * 100}%` }}></div>
                             </div>
 
                             <div className="flex items-center gap-4 mb-6">

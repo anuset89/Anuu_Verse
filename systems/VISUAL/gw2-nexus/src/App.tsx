@@ -726,13 +726,13 @@ function App() {
           </div>
 
           {apiKey && (
-            <div className="flex items-center gap-6 matte-card p-3 px-5 cursor-pointer hover:bg-white/2 transition-all border-white/5" onClick={fetchData}>
+            <div className="flex items-center gap-6 matte-card p-3 px-5 cursor-pointer hover:bg-white/5 transition-all border-white/5" onClick={fetchData}>
               <div className="flex items-center gap-3">
                 <span className="text-[9px] text-zinc-600 font-black uppercase tracking-widest font-display">{isEng ? 'Wallet' : 'Billetera'}</span>
-                {wallet[1] !== undefined ? <GoldDisplay amount={wallet[1]} size="md" /> : <div className="w-12 h-4 bg-zinc-800 animate-pulse rounded"></div>}
+                <GoldDisplay amount={wallet[1] || 0} size="md" />
               </div>
               <div className="w-px h-8 bg-white/5"></div>
-              <div className="flex items-center gap-3 text-indigo-400 font-black">
+              <div className="flex items-center gap-3 text-indigo-400 font-black" title="Spirit Shards">
                 <Database size={18} /><span className="font-mono text-base">{wallet[23] || 0}</span>
               </div>
             </div>

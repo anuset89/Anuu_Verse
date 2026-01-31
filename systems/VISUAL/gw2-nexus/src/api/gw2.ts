@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE = 'https://api.guildwars2.com/v2';
+// Use proxy in development to bypass CORS, direct API in production
+const isDev = import.meta.env.DEV;
+const API_BASE = isDev ? '/gw2api' : 'https://api.guildwars2.com/v2';
 
 export interface MarketItem {
     id: number;

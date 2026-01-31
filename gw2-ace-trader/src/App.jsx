@@ -666,14 +666,12 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
         );
         if (validOpps.length === 0) return null;
 
-        // Calculate unit economics
+        // Calculate unit economics (only store IDs, not names to avoid re-renders)
         const oppData = validOpps.map(o => ({
             id: o.id, t5Id: o.t5Id,
             unitCost: o.totalCost / o.chosen,
             unitProfit: o.potentialProfit / o.chosen,
-            roi: o.roi || 0,
-            name: getItemName(o.id, lang),
-            t5Name: getItemName(o.t5Id, lang)
+            roi: o.roi || 0
         })).filter(o => o.unitCost > 0).sort((a, b) => b.roi - a.roi);
 
         // Greedy allocation by ROI
@@ -695,10 +693,11 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
         const totalCrafts = allocations.reduce((s, a) => s + a.units, 0);
 
         return { allocations, totalCost, totalProfit, totalCrafts, avgROI: totalCost > 0 ? (totalProfit / totalCost) * 100 : 0, itemCount: allocations.length };
-    }, [opportunities, gold, investPct, lang]);
+    }, [opportunities, gold, investPct]);
 
-    const t5Name = calculation?.allocations[0]?.t5Name || getItemName(top.t5Id, lang);
-    const t6Name = calculation?.allocations[0]?.name || getItemName(top.id, lang);
+    const firstAlloc = calculation?.allocations[0];
+    const t5Name = firstAlloc ? getItemName(firstAlloc.t5Id, lang) : getItemName(top?.t5Id, lang);
+    const t6Name = firstAlloc ? getItemName(firstAlloc.id, lang) : getItemName(top?.id, lang);
 
     // Risk indicator
     const getRiskLabel = () => {
@@ -711,9 +710,13 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
 
     const steps = calculation ? [
         { id: 1, label: t.stepBuy, action: `${calculation.itemCount} items`, qty: `${calculation.totalCrafts * 50} T5`, color: 'blue' },
-        { id: 2, label: t.stepCraft, action: `${calculation.itemCount} tipos`, qty: `x${calculation.totalCrafts}`, color: 'violet' },
+        { id: 2, label: t.stepCraft, action: `${calculation.itemCount} types`, qty: `x${calculation.totalCrafts}`, color: 'violet' },
         { id: 3, label: t.stepSell, action: formatGold(calculation.totalProfit), qty: `${calculation.avgROI.toFixed(1)}% ROI`, color: 'emerald' }
-    ] : [];
+    ] : [
+        { id: 1, label: t.stepBuy, action: '---', qty: '0 T5', color: 'blue' },
+        { id: 2, label: t.stepCraft, action: '---', qty: 'x0', color: 'violet' },
+        { id: 3, label: t.stepSell, action: formatGold(0), qty: '0% ROI', color: 'emerald' }
+    ];
 
     const changePct = (pct) => {
         setInvestPct(pct);

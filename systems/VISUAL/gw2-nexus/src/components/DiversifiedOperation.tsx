@@ -614,8 +614,15 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                 : 'bg-white/10 text-zinc-500 hover:bg-white hover:text-black'
                             }`}
                     >
-                        {currentStep === 3 ? (isEng ? 'Complete Cycle & Reinvest' : 'Completar Ciclo y Reinvertir') : (isEng ? 'Next' : 'Siguiente')}
+                        {currentStep === 3 ? (isEng ? 'Complete Cycle & Reinvest' : 'Completar Ciclo y Reinvertir') : (
+                            canAdvance ? (isEng ? 'Next Phase' : 'Siguiente Fase') : (isEng ? 'Confirm Tasks & Next' : 'Confirmar y Avanzar')
+                        )}
                     </button>
+                    {!canAdvance && currentStep < 3 && (
+                        <div className="absolute -top-8 right-0 text-[9px] font-black text-amber-500 uppercase tracking-widest animate-pulse whitespace-nowrap bg-black/60 px-2 py-1 rounded border border-amber-500/30">
+                            {isEng ? 'Check items to proceed' : 'Marca las casillas para continuar'}
+                        </div>
+                    )}
                 </div>
             </div>
         </div >

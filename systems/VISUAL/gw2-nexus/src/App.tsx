@@ -103,6 +103,13 @@ const StrategyCard = ({ strategy, onClick }: { strategy: AnuuStrategy, onClick: 
             {strategy.profitPerCraft > 0 ? '+' : ''}{Math.floor(strategy.profitPerCraft / 100)}s {Math.floor(strategy.profitPerCraft % 100)}c
           </span>
         </div>
+
+        <div className="col-span-2 flex justify-between items-center bg-indigo-950/30 px-2 py-1.5 rounded mt-2 border border-indigo-500/20">
+          <span className="text-[10px] text-indigo-300 font-bold uppercase tracking-tight">INVIERTE 100g → SACAS:</span>
+          <span className="font-mono font-bold text-emerald-300 text-sm">
+            +{strategy.roi.toFixed(1)}g
+          </span>
+        </div>
       </div>
 
       {/* Hint for interaction */}

@@ -512,14 +512,15 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0c0c0e] text-zinc-400 p-6 md:p-12 font-sans selection:bg-indigo-500/30">
-      <div className="max-w-6xl mx-auto space-y-10">
+    <div className="min-h-screen bg-[#050508] text-zinc-400 p-6 md:p-12 font-sans selection:bg-indigo-500/30 overflow-x-hidden relative">
+      <div className="stars"></div>
+      <div className="max-w-6xl mx-auto space-y-10 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-900/20"><Star className="text-white" size={24} /></div>
             <div>
-              <h1 className="text-2xl font-black text-white tracking-tight uppercase font-display italic">GW2 NEXUS</h1>
-              <p className="text-[9px] text-zinc-600 font-black tracking-[0.4em] uppercase">{isEng ? 'Operations Intelligence v4.0' : 'Inteligencia de Operaciones v4.0'}</p>
+              <h1 className="text-2xl font-black text-white tracking-tight uppercase font-display italic text-glow">GW2 NEXUS</h1>
+              <p className="text-[9px] text-indigo-400 font-black tracking-[0.4em] uppercase">{isEng ? 'Operations Intelligence v4.3' : 'Inteligencia de Operaciones v4.3'}</p>
             </div>
           </div>
 

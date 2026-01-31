@@ -1,22 +1,66 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 
 :root {
   color-scheme: dark;
-  --bg-matte: #0c0c0e;
-  --surface-matte: #141417;
-  --surface-matte-light: #1c1c1f;
-  --border-matte: rgba(255, 255, 255, 0.05);
-  --accent-blue: #5b6aff;
+  --cosmos-base: #050508;
+  --cosmos-nebula: rgba(99, 102, 241, 0.08);
+  /* Indigo muy sutil */
 }
 
 body {
-  background-color: var(--bg-matte);
-  color: #d4d4d8;
-  /* zinc-300 */
+  background-color: var(--cosmos-base);
+  background-image:
+    radial-gradient(circle at 50% 0%, var(--cosmos-nebula) 0%, transparent 60%),
+    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 15% 70%, rgba(56, 189, 248, 0.05) 0%, transparent 40%);
+  background-attachment: fixed;
+  color: #e4e4e7;
+  /* zinc-200 */
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Star Field Effect */
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  background: transparent;
+  box-shadow:
+    10vw 10vh #fff, 20vw 50vh #fff, 30vw 30vh #fff, 80vw 10vh #fff,
+    45vw 85vh #fff, 90vw 50vh #fff, 60vw 20vh #fff, 10vw 90vh #fff;
+  opacity: 0.3;
+  animation: twinkle 10s infinite alternate;
+  z-index: -1;
+}
+
+.stars::after {
+  content: " ";
+  position: absolute;
+  top: 200px;
+  width: 1px;
+  height: 1px;
+  background: transparent;
+  box-shadow:
+    55vw 25vh 1px #fff, 15vw 75vh 1px #fff, 85vw 15vh 1px #fff;
+  opacity: 0.5;
+}
+
+@keyframes twinkle {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0.6;
+  }
 }
 
 h1,
@@ -24,43 +68,53 @@ h2,
 h3,
 h4,
 .font-display {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.05em;
+}
+
+/* Glassmorphism Cards */
+.matte-card {
+  background: rgba(10, 10, 15, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.matte-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  /* Indigo glow */
+  box-shadow: 0 10px 40px rgba(99, 102, 241, 0.1);
+  background: rgba(15, 15, 25, 0.7);
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #09090b;
-  /* zinc-950 */
+  background: var(--cosmos-base);
 }
 
 ::-webkit-scrollbar-thumb {
   background: #27272a;
-  /* zinc-800 */
-  border-radius: 9999px;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
-  /* zinc-700 */
+  background: #6366f1;
 }
 
-/* Animations using standard CSS */
-@keyframes pulse-glow {
+/* Indigo hover */
 
-  0%,
-  100% {
-    box-shadow: 0 0 15px rgba(232, 121, 249, 0.1);
-  }
-
-  50% {
-    box-shadow: 0 0 25px rgba(232, 121, 249, 0.3);
-  }
+/* Neon Accents */
+.text-glow {
+  text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 }
 
-.animate-pulse-glow {
-  animation: pulse-glow 3s infinite;
+.border-glow {
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
 }

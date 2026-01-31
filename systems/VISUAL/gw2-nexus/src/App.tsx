@@ -306,16 +306,14 @@ function App() {
             </motion.div>
           ) : multiStrategy ? (
             <DiversifiedOperation
+              strategies={multiStrategy}
               materials={materials}
               prices={prices}
               wallet={wallet}
-              strategies={strategies}
               icons={icons}
               isEng={isEng}
-              onBack={() => {
-                setActiveStrategy(null);
-                setMultiStrategy(null);
-              }}
+              onClose={() => { setMultiStrategy(null); setStatus('GUIDE'); }}
+              onRefresh={fetchData}
             />
           ) : (
             <motion.div key="op" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>

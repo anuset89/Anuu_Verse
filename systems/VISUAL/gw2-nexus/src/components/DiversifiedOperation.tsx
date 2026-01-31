@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Cpu, ShoppingCart, Hammer, Coins, CheckCircle, Package, Sparkles } from 'lucide-react';
+import { ArrowLeft, Cpu, ShoppingCart, Hammer, Coins, CheckCircle, Package, Sparkles, RefreshCw } from 'lucide-react';
 import type { AnuuStrategy, MarketItem } from '../engine/calculator';
 import { IDS, getTranslatedName } from '../engine/calculator';
 
@@ -22,7 +21,7 @@ interface ShoppingListItem {
 }
 
 // --- NEXUS TRACKER (TRADING WIZARD) ---
-const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materials, totalGrossSales, icons, prices }: {
+const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materials, totalGrossSales, icons, prices, onRefresh }: {
     list: ShoppingListItem[],
     isEng: boolean,
     onClose: () => void,
@@ -32,10 +31,26 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
     materials: Record<number, { total: number, storage: number, bank: number, character: number }>,
     totalGrossSales: number,
     icons: Record<number, string>,
-    prices: Record<number, MarketItem>
+    prices: Record<number, MarketItem>,
+    onRefresh?: () => Promise<void>
 }) => {
     const [currentStep, setCurrentStep] = useState(1);
     const [manualCompleted, setManualCompleted] = useState<Set<string>>(new Set());
+    const [isSyncing, setIsSyncing] = useState(false); // Visual state for sync button
+
+    // Helper for Smart Clipboard
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+    };
+
+    // Wrapper for Refresh to show animation
+    const handleForceSync = () => {
+        if (onRefresh) {
+            setIsSyncing(true);
+            onRefresh();
+            setTimeout(() => setIsSyncing(false), 1000); // Visual feedback duration
+        }
+    };
 
     const toggleTask = (taskId: string) => {
         const next = new Set(manualCompleted);
@@ -137,7 +152,19 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                     </div>
                     <div>
                         <h2 className="text-[10px] font-black tracking-[0.3em] text-zinc-500 uppercase font-display">{isEng ? 'Mission Control' : 'Control de Misión'}</h2>
-                        <h3 className="text-xl font-black text-white uppercase italic font-display">{steps[currentStep - 1].title}</h3>
+                        <div className="flex items-center gap-3">
+                            <h3 className="text-xl font-black text-white uppercase italic font-display">{steps[currentStep - 1].title}</h3>
+                            {/* FORCE SYNC BUTTON */}
+                            {onRefresh && (
+                                <button
+                                    onClick={handleForceSync}
+                                    title={isEng ? "Force Sync with API" : "Forzar Sincronización API"}
+                                    className={`p-1.5 rounded-lg border border-white/10 hover:bg-indigo-500 hover:border-indigo-500 transition-all ${isSyncing ? 'bg-indigo-500/20 text-indigo-300 animate-spin' : 'bg-transparent text-zinc-500 hover:text-white'}`}
+                                >
+                                    <RefreshCw size={12} />
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -444,7 +471,13 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                                     {isDone ? <CheckCircle size={32} /> : getItemIcon(a.name)}
                                                 </div>
                                                 <div>
-                                                    <span className={`font-black uppercase text-xs block mb-1 ${isDone ? 'text-emerald-400 decoration-emerald-500/50' : 'text-white'}`}>{a.name}</span>
+                                                    <span
+                                                        onClick={(e) => { e.stopPropagation(); copyToClipboard(a.name); }}
+                                                        title={isEng ? "Click to Copy Name" : "Click para Copiar Nombre"}
+                                                        className={`font-black uppercase text-xs block mb-1 hover:text-indigo-400 cursor-copy active:scale-95 transition-transform ${isDone ? 'text-emerald-400 decoration-emerald-500/50' : 'text-white'}`}
+                                                    >
+                                                        {a.name}
+                                                    </span>
                                                     <div className="flex items-center gap-2">
                                                         <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${isDone ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300' : 'bg-black/40 border-white/5 text-zinc-500'}`}>{a.batches} {isEng ? 'BATCHES' : 'OPS'}</span>
                                                         <span className="text-[9px] text-indigo-400 font-bold italic">{a.recipe}</span>
@@ -535,12 +568,13 @@ const GoldDisplay = ({ amount, size = "md" }: { amount: number, size?: "sm" | "m
     );
 };
 
-export const DiversifiedOperation = ({ strategies, wallet, prices, materials, onBack, isEng, icons }: {
+export const DiversifiedOperation = ({ strategies, wallet, prices, materials, onClose, onRefresh, isEng, icons }: {
     strategies: AnuuStrategy[];
     wallet: Record<number, number>;
     prices: Record<number, MarketItem>;
     materials: Record<number, { total: number, storage: number, bank: number, character: number }>; // Inventory
-    onBack: () => void;
+    onClose: () => void;
+    onRefresh?: () => Promise<void>;
     isEng: boolean;
     icons: Record<number, string>;
 }) => {
@@ -740,7 +774,8 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
     const weightPerStrategy = 1 / Math.max(1, shoppingList.length);
 
     // Financial calculations using Actual Buy Amounts (Auto-Tracker applied)
-    const totalGrossSales = shoppingList.reduce((acc, item) => acc + (item.batchSize * (prices[item.strategy.targetId]?.sells?.unit_price || 0) * (item.strategy.type === 'COMMON' ? (item.strategy.name.includes('Ecto') ? 0.9 : 22) : (item.strategy.type === 'FINE' ? 7 : 1))), 0);
+    // Financial calculations using Actual Buy Amounts (Auto-Tracker applied)
+    const calculatedGrossSales = shoppingList.reduce((acc, item) => acc + (item.batchSize * (prices[item.strategy.targetId]?.sells?.unit_price || 0) * (item.strategy.type === 'COMMON' ? (item.strategy.name.includes('Ecto') ? 0.9 : 22) : (item.strategy.type === 'FINE' ? 7 : 1))), 0);
     const totalNpcFees = shoppingList.reduce((acc, item) => acc + (item.buyWine * 2560), 0);
     const totalMarketBuy = shoppingList.reduce((acc, item) => {
         const itemP = (prices[item.strategy.sourceId]?.buys?.unit_price || prices[item.strategy.sourceId]?.sells?.unit_price || 0);
@@ -750,9 +785,9 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
     }, 0);
 
     const totalInvested = totalMarketBuy + totalNpcFees;
-    const listingFees = totalGrossSales * 0.05; // 5% Upfront cash required to list
-    const tpFees = totalGrossSales * 0.15; // Total 15% (including the 5% listing)
-    const netProfit = totalGrossSales - tpFees - totalInvested;
+    const listingFees = calculatedGrossSales * 0.05; // 5% Upfront cash required to list
+    const tpFees = calculatedGrossSales * 0.15; // Total 15% (including the 5% listing)
+    const netProfit = calculatedGrossSales - tpFees - totalInvested;
     const roiPercentage = totalInvested > 0 ? (netProfit / totalInvested) * 100 : 0;
 
     // Check if the user has enough gold for the listing fees apart from logic
@@ -766,14 +801,15 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
             <NexusTracker
                 list={shoppingList}
                 isEng={isEng}
-                onClose={onBack}
+                onClose={onClose}
                 budget={budgetGold}
                 setBudget={setBudgetGold}
                 wallet={availableGold}
                 materials={materials}
-                totalGrossSales={totalGrossSales}
+                totalGrossSales={calculatedGrossSales}
                 icons={icons}
                 prices={prices}
+                onRefresh={onRefresh}
             />
 
             {/* FINANCIAL PROJECTION PANEL */}
@@ -790,7 +826,7 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                     </div>
                     <div className="matte-card p-4 border-l-2 border-emerald-500 bg-black/40">
                         <div className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">{isEng ? 'Gross Projected Sales' : 'Ventas Brutas Proyectadas'}</div>
-                        <GoldDisplay amount={totalGrossSales} size="lg" />
+                        <GoldDisplay amount={calculatedGrossSales} size="lg" />
                     </div>
                     <div className="matte-card p-4 border-l-2 border-red-500/50 bg-black/40">
                         <div className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">{isEng ? 'Listing Fee (5% Upfront)' : 'Tasa Listado (5% Adelanto)'}</div>

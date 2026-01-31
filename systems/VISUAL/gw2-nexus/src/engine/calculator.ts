@@ -134,6 +134,7 @@ export interface AnuuStrategy {
     sellPrice: number;
     recipe?: string;
     verdict?: string;
+    grossSales?: number; // Added for listing fee calculation
 }
 
 export interface MarketItem {
@@ -171,7 +172,8 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
                 supplyQty: p5.sells.quantity,
                 sellPrice: p6.sells.unit_price,
                 verdict: 'UPGRADE',
-                recipe: '50 T5 + 1 T6 + 5 Dust + 5 Stones -> ~7 T6'
+                recipe: '50 T5 + 1 T6 + 5 Dust + 5 Stones -> ~7 T6',
+                grossSales: revenue
             });
         }
     });
@@ -202,7 +204,8 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
                 supplyQty: p5.sells.quantity,
                 sellPrice: p6.sells.unit_price,
                 verdict: 'VOLUME',
-                recipe: '250 T5 + 1 T6 + 5 Dust + 5 Stones -> ~22 T6'
+                recipe: '250 T5 + 1 T6 + 5 Dust + 5 Stones -> ~22 T6',
+                grossSales: revenue
             });
         }
     });
@@ -233,7 +236,8 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
                 supplyQty: pCore.sells.quantity,
                 sellPrice: pLode.sells.unit_price,
                 verdict: 'UPGRADE',
-                recipe: '2 Cores + 1 Dust + 1 Wine + 1 Crystal -> 1 Lodestone'
+                recipe: '2 Cores + 1 Dust + 1 Wine + 1 Crystal -> 1 Lodestone',
+                grossSales: revenue
             });
         }
     });
@@ -258,7 +262,8 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
             supplyQty: pMote.sells.quantity,
             sellPrice: pShard.sells.unit_price,
             verdict: 'WEEKLY',
-            recipe: '10 Motes -> 1 Shard'
+            recipe: '10 Motes -> 1 Shard',
+            grossSales: revenue
         });
     }
 

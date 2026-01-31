@@ -287,8 +287,12 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                         logistics.map((l, i) => (
                                             <div key={i} className={`flex justify-between items-center p-5 rounded-2xl bg-white/5 border relative group transition-colors shadow-xl ${l.type === 'npc' || l.type === 'shard' ? 'border-amber-500/20 hover:border-amber-500/40 bg-amber-500/5' : 'border-white/5 hover:border-emerald-500/30'}`}>
                                                 <div className="flex items-center gap-4">
-                                                    <div className={`p-3 rounded-2xl ${l.type === 'dust' ? 'bg-indigo-500/20 text-indigo-300' : l.type === 'npc' || l.type === 'shard' ? 'bg-amber-500/10 text-amber-500' : 'bg-black/40 text-zinc-300'}`}>
-                                                        {l.type === 'npc' ? '🍷' : l.type === 'shard' ? '🧊' : getItemIcon(l.name)}
+                                                    <div className={`w-12 h-12 flex-shrink-0 rounded-2xl flex items-center justify-center overflow-hidden border border-white/5 ${l.type === 'dust' ? 'bg-indigo-500/20 text-indigo-300' : l.type === 'npc' || l.type === 'shard' ? 'bg-amber-500/10 text-amber-500' : 'bg-black/40 text-zinc-300'}`}>
+                                                        {icons[l.id] ? (
+                                                            <img src={icons[l.id]} alt="" className="w-10 h-10 object-contain" />
+                                                        ) : (
+                                                            <span className="text-xl">{l.type === 'npc' ? '🍷' : l.type === 'shard' ? '🧊' : getItemIcon(l.name)}</span>
+                                                        )}
                                                     </div>
                                                     <div>
                                                         <span className={`font-black uppercase tracking-tight text-xs block mb-0.5 ${l.type === 'dust' ? 'text-indigo-300' : l.type === 'npc' || l.type === 'shard' ? 'text-amber-400' : 'text-zinc-200'}`}>{l.name}</span>
@@ -311,7 +315,16 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                                         <div className="text-[7px] text-zinc-500 font-black uppercase tracking-widest mb-1">
                                                             {isEng ? 'PENDING' : 'PENDIENTE'} <span className="text-white ml-2 text-base font-mono">x{l.count}</span>
                                                         </div>
-                                                        {l.price > 0 && <GoldDisplay amount={l.price * l.count} size="md" />}
+                                                        {l.price > 0 ? (
+                                                            <GoldDisplay amount={l.price * l.count} size="md" />
+                                                        ) : (
+                                                            l.type === 'shard' && (
+                                                                <div className="flex items-center gap-1.5 text-indigo-400 font-mono font-bold text-sm">
+                                                                    <Sparkles size={12} />
+                                                                    <span>{Math.ceil(l.count * 0.6)} <span className="text-[10px] opacity-60">SHARDS</span></span>
+                                                                </div>
+                                                            )
+                                                        )}
                                                     </div>
                                                 </div>
                                                 {l.count >= 250 && (

@@ -22,7 +22,7 @@ interface ShoppingListItem {
 }
 
 // --- NEXUS TRACKER (TRADING WIZARD) ---
-const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materials, totalGrossSales, icons }: {
+const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materials, totalGrossSales, icons, prices }: {
     list: ShoppingListItem[],
     isEng: boolean,
     onClose: () => void,
@@ -31,7 +31,8 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
     wallet: number,
     materials: Record<number, { total: number, storage: number, bank: number, character: number }>,
     totalGrossSales: number,
-    icons: Record<number, string>
+    icons: Record<number, string>,
+    prices: Record<number, MarketItem>
 }) => {
     const [currentStep, setCurrentStep] = useState(1);
 
@@ -39,36 +40,42 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
     const logistics = list.reduce((acc, item) => {
         if (item.buySource > 0) {
             const name = getTranslatedName(item.strategy.sourceId, item.strategy.sourceName, isEng);
+            const price = prices[item.strategy.sourceId]?.buys?.unit_price || 0;
             const existing = acc.find((x) => x.id === item.strategy.sourceId);
             if (existing) existing.count += item.buySource;
-            else acc.push({ id: item.strategy.sourceId, name, count: item.buySource, type: 'source' });
+            else acc.push({ id: item.strategy.sourceId, name, count: item.buySource, type: 'source', price });
         }
         if (item.buyDust > 0) {
             const name = getTranslatedName(IDS.DUST, 'Crystalline Dust', isEng);
+            const price = prices[IDS.DUST]?.buys?.unit_price || 0;
             const existing = acc.find((x) => x.id === IDS.DUST);
             if (existing) existing.count += item.buyDust;
-            else acc.push({ id: IDS.DUST, name, count: item.buyDust, type: 'dust' });
+            else acc.push({ id: IDS.DUST, name, count: item.buyDust, type: 'dust', price });
         }
         if (item.buyWine > 0) {
             const name = isEng ? 'Bottle of Elonian Wine' : 'Botella de vino de Elona';
+            const price = 2560;
             const existing = acc.find((x) => x.id === 19632);
             if (existing) existing.count += item.buyWine;
-            else acc.push({ id: 19632, name, count: item.buyWine, type: 'npc' });
+            else acc.push({ id: 19632, name, count: item.buyWine, type: 'npc', price });
         }
         if (item.buyCrystals > 0) {
             const name = isEng ? 'Mystic Crystal' : 'Cristal místico';
             const existing = acc.find((x) => x.id === 19925);
             if (existing) existing.count += item.buyCrystals;
-            else acc.push({ id: 19925, name, count: item.buyCrystals, type: 'shard' });
+            else acc.push({ id: 19925, name, count: item.buyCrystals, type: 'shard', price: 0 });
         }
         if (item.buyTarget > 0 && item.strategy.type !== 'LODE') {
             const name = getTranslatedName(item.strategy.targetId, item.strategy.name, isEng);
+            const price = prices[item.strategy.targetId]?.buys?.unit_price || 0;
             const existing = acc.find((x) => x.id === item.strategy.targetId);
             if (existing) existing.count += item.buyTarget;
-            else acc.push({ id: item.strategy.targetId, name, count: item.buyTarget, type: 'target' });
+            else acc.push({ id: item.strategy.targetId, name, count: item.buyTarget, type: 'target', price });
         }
         return acc;
-    }, [] as { id: number, name: string, count: number, type: string }[]);
+    }, [] as { id: number, name: string, count: number, type: string, price: number }[]);
+
+    const totalOrderGold = logistics.reduce((sum, l) => sum + (l.price * l.count), 0);
 
     // 2. Assembly: Forge Recipes
     const assembly = list.filter(item => item.batchSize > 0).map(item => ({
@@ -248,14 +255,23 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                             </div>
 
                             <div className="space-y-6">
-                                <div className="flex items-center gap-4 border-b border-white/5 pb-4">
-                                    <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-black font-display">1</div>
-                                    <div>
-                                        <h4 className="text-[11px] font-black text-white uppercase tracking-widest">{isEng ? 'Protocol One: Market Accumulation' : 'Protocolo Uno: Acumulación de Mercado'}</h4>
-                                        <p className="text-[10px] text-zinc-500 uppercase tracking-widest leading-relaxed max-w-2xl">
-                                            {isEng ? 'Secure REMAINING raw materials using Buy Orders. This ensures maximum profit margins by avoiding the "Insta-Buy" premium.' : 'Asegura las materias primas RESTANTES usando Órdenes de Compra. Esto garantiza márgenes de beneficio máximos al evitar el sobrecoste.'}
-                                        </p>
+                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/5 pb-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-black font-display">1</div>
+                                        <div>
+                                            <h4 className="text-[11px] font-black text-white uppercase tracking-widest">{isEng ? 'Protocol One: Bazar & Procurement' : 'Protocolo Uno: Bazar y Adquisición'}</h4>
+                                            <p className="text-[10px] text-zinc-500 uppercase tracking-widest leading-relaxed max-w-xl">
+                                                {isEng ? 'THIS IS YOUR SHOPPING LIST. Place BUY ORDERS in the Trading Post for maximum profit. NPC items (Wine) require direct gold.' : 'ESTA ES TU LISTA DE LA COMPRA. Pon ÓRDENES DE COMPRA en el Bazar para maximizar margen. Los ítems de NPC (Vino) requieren oro directo.'}
+                                            </p>
+                                        </div>
                                     </div>
+
+                                    {totalOrderGold > 0 && (
+                                        <div className="bg-black/40 px-5 py-3 rounded-2xl border border-emerald-500/30 text-right">
+                                            <div className="text-[8px] text-emerald-500 font-black uppercase tracking-widest mb-1">{isEng ? 'TOTAL PROCUREMENT INVESTMENT' : 'INVERSIÓN TOTAL EN BAZAR'}</div>
+                                            <GoldDisplay amount={totalOrderGold} size="lg" />
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -283,25 +299,34 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div className="text-right">
-                                                    <div className="flex items-center gap-2 justify-end">
-                                                        <span className="text-[8px] text-zinc-700 font-black uppercase">{isEng ? 'REMAINING' : 'PENDIENTE'}</span>
-                                                        <span className="text-white font-mono font-black text-2xl block leading-none">{l.count}</span>
-                                                    </div>
-                                                    {l.count >= 250 && (
-                                                        <span className="text-[9px] text-indigo-300 font-black uppercase tracking-tighter block mt-1">
-                                                            {Math.floor(l.count / 250)} STACK{Math.floor(l.count / 250) > 1 ? 'S' : ''}
-                                                            {l.count % 250 > 0 ? ` + ${l.count % 250}` : ''}
-                                                        </span>
-                                                    )}
-                                                    {materials[l.id] && materials[l.id].total > 0 && (
-                                                        <div className="text-[7px] text-zinc-600 font-black uppercase flex flex-col items-end opacity-60 mt-1">
-                                                            {materials[l.id].storage > 0 && <span>{isEng ? 'In Storage' : 'En Almacén'}: {materials[l.id].storage}</span>}
-                                                            {materials[l.id].bank > 0 && <span className="text-indigo-400">{isEng ? 'In Bank' : 'En Banco'}: {materials[l.id].bank}</span>}
-                                                            {materials[l.id].character > 0 && <span className="text-amber-500">{isEng ? 'In Bag' : 'En Bolsa'}: {materials[l.id].character}</span>}
+                                                <div className="text-right flex flex-col items-end gap-2">
+                                                    {l.price > 0 && (
+                                                        <div className="flex flex-col items-end">
+                                                            <div className="text-[7px] text-zinc-600 font-black uppercase tracking-tighter mb-0.5">{isEng ? 'UNIT BUY ORDER' : 'ORDEN COMPRA U.'}</div>
+                                                            <GoldDisplay amount={l.price} size="sm" />
                                                         </div>
                                                     )}
+
+                                                    <div className="flex flex-col items-end bg-black/40 p-2 rounded-xl border border-white/5 min-w-[100px]">
+                                                        <div className="text-[7px] text-zinc-500 font-black uppercase tracking-widest mb-1">
+                                                            {isEng ? 'PENDING' : 'PENDIENTE'} <span className="text-white ml-2 text-base font-mono">x{l.count}</span>
+                                                        </div>
+                                                        {l.price > 0 && <GoldDisplay amount={l.price * l.count} size="md" />}
+                                                    </div>
                                                 </div>
+                                                {l.count >= 250 && (
+                                                    <span className="text-[9px] text-indigo-300 font-black uppercase tracking-tighter block mt-1">
+                                                        {Math.floor(l.count / 250)} STACK{Math.floor(l.count / 250) > 1 ? 'S' : ''}
+                                                        {l.count % 250 > 0 ? ` + ${l.count % 250}` : ''}
+                                                    </span>
+                                                )}
+                                                {materials[l.id] && materials[l.id].total > 0 && (
+                                                    <div className="text-[7px] text-zinc-600 font-black uppercase flex flex-col items-end opacity-60 mt-1">
+                                                        {materials[l.id].storage > 0 && <span>{isEng ? 'In Storage' : 'En Almacén'}: {materials[l.id].storage}</span>}
+                                                        {materials[l.id].bank > 0 && <span className="text-indigo-400">{isEng ? 'In Bank' : 'En Banco'}: {materials[l.id].bank}</span>}
+                                                        {materials[l.id].character > 0 && <span className="text-amber-500">{isEng ? 'In Bag' : 'En Bolsa'}: {materials[l.id].character}</span>}
+                                                    </div>
+                                                )}
                                             </div>
                                         ))
                                     )}
@@ -386,7 +411,7 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
@@ -569,6 +594,7 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                 materials={materials}
                 totalGrossSales={totalGrossSales}
                 icons={icons}
+                prices={prices}
             />
 
             {/* FINANCIAL PROJECTION PANEL */}

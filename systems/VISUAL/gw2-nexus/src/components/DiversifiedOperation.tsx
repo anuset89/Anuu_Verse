@@ -407,13 +407,23 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
     const availableGold = (wallet[1] || 0) / 10000; // Convert copper to gold
     const [budgetGold, setBudgetGold] = useState(availableGold >= 1 ? Math.floor(availableGold) : 100);
 
-    // Use all provided strategies for maximum diversification
-    const activeStrategies = strategies;
+    // 1. Pre-calculate inventory scores to determine priority
+    const prioritizedStrategies = [...strategies].map(s => {
+        const qSource = s.type === 'LODE' ? 2 : (s.type === 'RUNE' ? 10 : (s.type === 'COMMON' ? 250 : 50));
+        const qDust = s.type === 'LODE' ? 1 : (s.type === 'RUNE' ? 0 : 5);
 
-    // Distribute budget equally across all active strategies
-    const weightPerStrategy = 1 / Math.max(1, activeStrategies.length);
+        const ownedS = materials[s.sourceId]?.total || 0;
+        const ownedD = materials[IDS.DUST]?.total || 0;
 
-    const shoppingList = activeStrategies.map((s) => {
+        // Executability Score: potential batches we can do with current stock
+        const score = Math.min(ownedS / qSource, qDust > 0 ? ownedD / qDust : Infinity);
+        return { strategy: s, score };
+    }).sort((a, b) => b.score - a.score);
+
+    // 2. Distribute weight based on priority (highest stock first)
+    const weightPerStrategy = 1 / Math.max(1, prioritizedStrategies.length);
+
+    const shoppingList = prioritizedStrategies.map(({ strategy: s, score }) => {
         const allocatedGold = budgetGold * weightPerStrategy;
 
         // Prices in gold for calculation - Use Sell price as fallback for Buy if missing (safer budgeting)
@@ -457,18 +467,19 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
         let batchSize = 0;
         if (costPerCraft > 0) {
             // First: How many crafts can we do if we ONLY buy what's missing?
-            // This allows the user to see "Buy Cores" to use up their many "Dusts".
             const possibleWithBudget = allocatedGold / Math.max(0.0001, goldPerNewCraft);
             const possibleWithInventory = Math.max(
                 (ownedSource / qSource),
                 (qDust > 0 ? ownedDust / qDust : 0)
             );
 
-            // We aim to satisfy the inventory surplus up to the budget limit
-            batchSize = Math.floor(Math.min(possibleWithBudget, Math.max(possibleWithInventory, allocatedGold / costPerCraft)));
+            // Priority Logic: Use existing inventory as a BASE, then expand with budget.
+            // If we have 300 cores, we want to at least cover those.
+            batchSize = Math.floor(Math.max(possibleWithInventory, possibleWithBudget));
 
-            // If budget is very high, don't go crazy? No, go as high as budget allows.
-            if (allocatedGold > 0 && batchSize < 1) batchSize = 1;
+            // Safety cap: even if inventory is huge, don't exceed budget by massive amounts 
+            // of bought materials. But here we prioritize UNLOCKING inventory.
+            // We'll let the user see the total required gold below.
         }
 
         const neededSource = qSource * batchSize;
@@ -485,20 +496,21 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
             buyWine: qWine * batchSize, buyCrystals: s.type === 'LODE' ? batchSize : 0,
             profit: s.profitPerCraft * batchSize,
             priceSource: prices[s.sourceId]?.buys?.unit_price || 0,
+            inventoryScore: score, // Pass the score for UI display
         };
     });
 
     // Financial calculations using Actual Buy Amounts (Auto-Tracker applied)
-    const totalInvested = shoppingList.reduce((acc, item) => {
+    const totalGrossSales = shoppingList.reduce((acc, item) => acc + (item.batchSize * (prices[item.strategy.targetId]?.sells?.unit_price || 0) * (item.strategy.type === 'COMMON' ? (item.strategy.name.includes('Ecto') ? 0.9 : 22) : (item.strategy.type === 'FINE' ? 7 : 1))), 0);
+    const totalNpcFees = shoppingList.reduce((acc, item) => acc + (item.buyWine * 2560), 0);
+    const totalMarketBuy = shoppingList.reduce((acc, item) => {
         const itemP = (prices[item.strategy.sourceId]?.buys?.unit_price || prices[item.strategy.sourceId]?.sells?.unit_price || 0);
         const dustP = (prices[IDS.DUST]?.buys?.unit_price || prices[IDS.DUST]?.sells?.unit_price || 0);
         const targetP = (prices[item.strategy.targetId]?.buys?.unit_price || prices[item.strategy.targetId]?.sells?.unit_price || 0);
-        const npcCosts = (item.buyWine * 2560); // Adding wine cost (silver/copper)
-
-        return acc + (item.buySource * itemP) + (item.buyDust * dustP) + (item.buyTarget * targetP) + npcCosts;
+        return acc + (item.buySource * itemP) + (item.buyDust * dustP) + (item.buyTarget * targetP);
     }, 0);
 
-    const totalGrossSales = shoppingList.reduce((acc, item) => acc + (item.batchSize * (prices[item.strategy.targetId]?.sells?.unit_price || 0) * (item.strategy.type === 'COMMON' ? (item.strategy.name.includes('Ecto') ? 0.9 : 22) : (item.strategy.type === 'FINE' ? 7 : 1))), 0);
+    const totalInvested = totalMarketBuy + totalNpcFees;
     const tpFees = totalGrossSales * 0.15;
     const netProfit = totalGrossSales - tpFees - totalInvested;
     const roiPercentage = totalInvested > 0 ? (netProfit / totalInvested) * 100 : 0;
@@ -523,11 +535,15 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                 <h3 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] mb-4 pl-1">{isEng ? 'Financial Telemetry' : 'Telemetría Financiera'}</h3>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="matte-card p-4 border-l-2 border-indigo-500 bg-black/40">
-                        <div className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">{isEng ? 'Total Investment' : 'Inversión Total'}</div>
-                        <GoldDisplay amount={totalInvested} size="lg" />
+                        <div className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">{isEng ? 'Market Investment' : 'Inversión Mercado'}</div>
+                        <GoldDisplay amount={totalMarketBuy} size="lg" />
+                    </div>
+                    <div className="matte-card p-4 border-l-2 border-amber-500/50 bg-black/40">
+                        <div className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">{isEng ? 'NPC Fees (Wine)' : 'Tasas NPC (Vino)'}</div>
+                        <GoldDisplay amount={totalNpcFees} size="lg" />
                     </div>
                     <div className="matte-card p-4 border-l-2 border-emerald-500 bg-black/40">
-                        <div className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">{isEng ? 'Gross Sales' : 'Ventas Brutas'}</div>
+                        <div className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">{isEng ? 'Gross Projected Sales' : 'Ventas Brutas Proyectadas'}</div>
                         <GoldDisplay amount={totalGrossSales} size="lg" />
                     </div>
                     <div className="matte-card p-4 border-l-2 border-red-500/50 bg-black/40">
@@ -554,7 +570,14 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                         <div key={idx} className="matte-card p-6 border-white/5 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-3 opacity-10 text-6xl font-black text-zinc-700">{idx + 1}</div>
                             <div className="relative z-10">
-                                <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">{isEng ? 'Allocation' : 'Asignación'}: {Math.round(weightPerStrategy * 100)}% ({Math.floor(item.allocatedGold)}g)</h4>
+                                <div className="flex justify-between items-start mb-1">
+                                    <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{isEng ? 'Allocation' : 'Asignación'}: {Math.round(weightPerStrategy * 100)}% ({Math.floor(item.allocatedGold)}g)</h4>
+                                    {item.inventoryScore > 0 && (
+                                        <span className="text-[7px] bg-amber-500/10 text-amber-500 border border-amber-500/20 px-2 py-0.5 rounded font-black uppercase tracking-tighter animate-pulse">
+                                            {isEng ? 'PRIORITY: STOCK AVAILABLE' : 'PRIORIDAD: STOCK DISPONIBLE'}
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="h-1 w-full bg-zinc-800 rounded-full mb-6 overflow-hidden">
                                     <div className="h-full bg-indigo-500" style={{ width: `${weightPerStrategy * 100}%` }}></div>
                                 </div>

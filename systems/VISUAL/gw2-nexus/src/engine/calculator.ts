@@ -24,16 +24,33 @@ export const IDS = {
     // Runic
     LUCENT_MOTE: 85731, LUCENT_SHARD: 85750,
 
+    // Ectoplasm & Mystic
+    GLOB_ECTO: 19721,
+    MYSTIC_CLOVER: 19675,
+    MYSTIC_COIN: 19976,
+    OBSIDIAN_SHARD: 19924,
+    PHILO_STONE: 19673,
+
+    // Rare/Exotic crafting
+    VIAL_BLOOD: 24290, // T2 Blood for alternative conversions
+    TINY_SCALES: 24284, // T2 Scales
+
     // Global Catalyst & Utility
     DUST: 24277,
     WINE: 19659, // Bottle of Elonian Wine
+    CRYSTAL: 24319, // Mystic Crystal (made from Philo Stone)
 };
 
 const IDS_TO_NAME: Record<number, string> = {
+    // T5 Fine
     24294: "Potent Blood", 24340: "Large Bone", 24350: "Large Claw", 24356: "Large Fang", 24288: "Large Scale", 24299: "Intricate Totem", 24282: "Potent Venom", 24276: "Incandescent Dust",
+    // T6 Fine
     24295: "Powerful Blood", 24341: "Ancient Bone", 24351: "Powerful Claw", 24357: "Ancient Fang", 24289: "Armored Scale", 24300: "Elaborate Totem", 24283: "Powerful Venom", 24277: "Crystalline Dust",
-    19702: "Mithril Ore", 19722: "Elder Wood Log", 19729: "Thick Leather Section", 19748: "Silk Scrap",
-    19703: "Orichalcum Ore", 19725: "Ancient Wood Log", 19732: "Hardened Leather Section", 19745: "Gossamer Scrap",
+    // T5 Common
+    19702: "Mithril Ore", 19722: "Elder Wood", 19729: "Thick Leather", 19748: "Silk Scrap",
+    // T6 Common
+    19703: "Orichalcum Ore", 19725: "Ancient Wood", 19732: "Hardened Leather", 19745: "Gossamer",
+    // Lodestones
     24304: "Onyx Core", 24305: "Onyx Lodestone",
     24329: "Molten Core", 24330: "Molten Lodestone",
     24334: "Glacial Core", 24335: "Glacial Lodestone",
@@ -41,7 +58,17 @@ const IDS_TO_NAME: Record<number, string> = {
     24320: "Crystal Core", 24321: "Crystal Lodestone",
     24339: "Corrupted Core", 24338: "Corrupted Lodestone",
     24309: "Charged Core", 24310: "Charged Lodestone",
+    // Runic & Mystic
     85731: "Lucent Mote", 85750: "Lucent Shard",
+    19721: "Glob of Ectoplasm",
+    19675: "Mystic Clover",
+    19976: "Mystic Coin",
+    19924: "Obsidian Shard",
+    19673: "Philosopher's Stone",
+    24319: "Mystic Crystal",
+    // T2 Materials
+    24290: "Vial of Blood",
+    24284: "Tiny Scales",
 };
 
 export interface MarketItem {
@@ -160,6 +187,69 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
             roi, volatility, score,
             verdict: roi > 25 ? "SPECULATIVE" : roi > 10 ? "RISKY" : "VOLATILE",
             supplyQty: prices[t].sells.quantity, type: 'RUNE'
+        });
+    }
+
+    // Philosopher's Stone conversions (T2 Blood + T2 Scales → 5 Philosopher's Stones)
+    if (prices[IDS.VIAL_BLOOD] && prices[IDS.TINY_SCALES] && prices[IDS.PHILO_STONE] && prices[IDS.MYSTIC_COIN]) {
+        const cost = (prices[IDS.VIAL_BLOOD].buys.unit_price * 5) + (prices[IDS.TINY_SCALES].buys.unit_price * 5) + prices[IDS.MYSTIC_COIN].buys.unit_price;
+        const output = 5; // Makes 5 Philosopher's Stones
+        const sellValue = prices[IDS.PHILO_STONE].sells.unit_price * output;
+        const profit = (sellValue * 0.85) - cost;
+        const roi = (profit / cost) * 100;
+        const volatility = (prices[IDS.PHILO_STONE].sells.unit_price - prices[IDS.PHILO_STONE].buys.unit_price) / prices[IDS.PHILO_STONE].sells.unit_price * 100;
+        const liquidityScore = Math.min(prices[IDS.PHILO_STONE].sells.quantity / 15000, 1) * 30;
+        const roiScore = Math.max(0, Math.min(roi, 50));
+        const stabilityScore = Math.max(0, 20 - volatility);
+        const score = roiScore + liquidityScore + stabilityScore;
+        results.push({
+            sourceId: IDS.VIAL_BLOOD, targetId: IDS.PHILO_STONE, name: "Philosopher's Stone (x5)", sourceName: "T2 Bundle",
+            costPerUnit: cost / output, sellPrice: prices[IDS.PHILO_STONE].sells.unit_price, profitPerCraft: profit,
+            roi, volatility, score,
+            verdict: roi > 15 ? "CRAFT VIABLE" : roi > 5 ? "MODERATE" : "LOW PROFIT",
+            supplyQty: prices[IDS.PHILO_STONE].sells.quantity, type: 'FINE'
+        });
+    }
+
+    // Mystic Crystals (Philo Stone → Crystal, requires Ectos)
+    if (prices[IDS.PHILO_STONE] && prices[IDS.GLOB_ECTO] && prices[IDS.CRYSTAL] && prices[IDS.MYSTIC_COIN]) {
+        const cost = prices[IDS.PHILO_STONE].buys.unit_price + (prices[IDS.GLOB_ECTO].buys.unit_price * 5) + prices[IDS.MYSTIC_COIN].buys.unit_price;
+        const profit = (prices[IDS.CRYSTAL].sells.unit_price * 0.85) - cost;
+        const roi = (profit / cost) * 100;
+        const volatility = (prices[IDS.CRYSTAL].sells.unit_price - prices[IDS.CRYSTAL].buys.unit_price) / prices[IDS.CRYSTAL].sells.unit_price * 100;
+        const liquidityScore = Math.min(prices[IDS.CRYSTAL].sells.quantity / 8000, 1) * 25;
+        const roiScore = Math.max(0, Math.min(roi, 50));
+        const stabilityScore = Math.max(0, 20 - volatility);
+        const score = roiScore + liquidityScore + stabilityScore;
+        results.push({
+            sourceId: IDS.PHILO_STONE, targetId: IDS.CRYSTAL, name: "Mystic Crystal", sourceName: "Philo + Ectos",
+            costPerUnit: cost, sellPrice: prices[IDS.CRYSTAL].sells.unit_price, profitPerCraft: profit,
+            roi, volatility, score,
+            verdict: roi > 10 ? "CRYSTAL PROFIT" : roi > 3 ? "SMALL GAIN" : "MARGINAL",
+            supplyQty: prices[IDS.CRYSTAL].sells.quantity, type: 'COMMON'
+        });
+    }
+
+    // Ecto Gambling (Ecto salvage profit simulation - requires rare items)
+    // This simulates "Ecto Farming" by buying rares from TP and salvaging
+    if (prices[IDS.GLOB_ECTO]) {
+        // Average rare cost (simplified - actual would need rare item IDs)
+        const avgRareCost = 4000; // ~40 silver for cheap rares
+        const avgEctoYield = 0.9; // Average ectos per rare
+        const cost = avgRareCost;
+        const profit = (prices[IDS.GLOB_ECTO].sells.unit_price * avgEctoYield * 0.85) - cost;
+        const roi = (profit / cost) * 100;
+        const volatility = (prices[IDS.GLOB_ECTO].sells.unit_price - prices[IDS.GLOB_ECTO].buys.unit_price) / prices[IDS.GLOB_ECTO].sells.unit_price * 100;
+        const liquidityScore = Math.min(prices[IDS.GLOB_ECTO].sells.quantity / 50000, 1) * 40; // Ectos are highly liquid
+        const roiScore = Math.max(0, Math.min(roi, 50));
+        const stabilityScore = Math.max(0, 20 - volatility);
+        const score = roiScore + liquidityScore + stabilityScore;
+        results.push({
+            sourceId: 0, targetId: IDS.GLOB_ECTO, name: "Ecto (Salvage)", sourceName: "Rare Gear",
+            costPerUnit: cost, sellPrice: prices[IDS.GLOB_ECTO].sells.unit_price, profitPerCraft: profit,
+            roi, volatility, score,
+            verdict: roi > 5 ? "SALVAGE VIABLE" : roi > 0 ? "BREAK EVEN" : "LOSS",
+            supplyQty: prices[IDS.GLOB_ECTO].sells.quantity, type: 'COMMON'
         });
     }
 

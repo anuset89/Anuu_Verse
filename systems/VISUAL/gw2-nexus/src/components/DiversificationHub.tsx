@@ -1,19 +1,8 @@
 
-import { Zap, Scale, Crosshair, FlaskConical, Sparkles, ArrowRight } from 'lucide-react';
+import { Zap, Scale, Crosshair, FlaskConical } from 'lucide-react';
 import type { AnuuStrategy } from '../engine/calculator';
-import { getTranslatedName } from '../engine/calculator';
 
-export const DiversificationHub = ({ strategies, onSelect, isEng, walletGold }: { strategies: AnuuStrategy[], onSelect: (strats: AnuuStrategy[], profile: string) => void, isEng: boolean, walletGold: number }) => {
-    // Estimate cost per 10 batches (approximate minimal viable run)
-    const getEstCost = (s: AnuuStrategy) => (s.profitPerCraft * 10) / (Math.max(s.roi, 1) / 100);
-
-    const affordable = strategies.filter(s => getEstCost(s) <= (walletGold || 9999999));
-    const candidatePool = affordable.length > 0 ? affordable : strategies;
-
-    const bestStrategy = candidatePool.length > 0
-        ? candidatePool.reduce((prev, current) => (current.roi > prev.roi ? current : prev), candidatePool[0])
-        : strategies[0];
-
+export const DiversificationHub = ({ strategies, onSelect, isEng }: { strategies: AnuuStrategy[], onSelect: (strats: AnuuStrategy[], profile: string) => void, isEng: boolean, walletGold?: number }) => {
     const profiles = [
         {
             id: 'hot',
@@ -55,40 +44,6 @@ export const DiversificationHub = ({ strategies, onSelect, isEng, walletGold }: 
 
     return (
         <div className="space-y-8 mb-12">
-            {/* ORACLE RECOMMENDATION (BEST FLIP) */}
-            {bestStrategy && (
-                <div className="matte-card p-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl relative overflow-hidden shadow-[0_0_50px_rgba(99,102,241,0.3)]">
-                    <div className="bg-black/90 p-8 rounded-[14px] flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-                        <div className="flex items-center gap-6">
-                            <div className="p-4 bg-indigo-500/20 rounded-2xl border border-indigo-500/30 text-indigo-400 animate-pulse">
-                                <Sparkles size={32} />
-                            </div>
-                            <div>
-                                <h3 className="text-2xl font-black text-white italic uppercase font-display tracking-tight mb-1">
-                                    {isEng ? 'Oracle Recommendation' : 'Recomendación del Oráculo'}
-                                </h3>
-                                <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest mb-2">
-                                    {isEng ? 'Optimized for your current wallet' : 'Optimizado para tu cartera actual'}
-                                </p>
-                                <div className="flex items-center gap-4 text-[10px] font-black uppercase text-indigo-300 bg-indigo-500/10 px-3 py-1.5 rounded-lg border border-indigo-500/20 w-fit">
-                                    <span>{getTranslatedName(bestStrategy.targetId, bestStrategy.name, isEng)}</span>
-                                    <span className="w-1 h-1 bg-indigo-500 rounded-full"></span>
-                                    <span className="text-emerald-400">ROI: +{bestStrategy.roi.toFixed(1)}%</span>
-                                </div>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => onSelect([bestStrategy], `Oracle: ${bestStrategy.name}`)}
-                            className="w-full md:w-auto px-8 py-4 bg-white text-black font-black uppercase tracking-widest hover:scale-105 transition-transform rounded-xl shadow-xl shadow-white/10 flex items-center justify-center gap-3 group"
-                        >
-                            {isEng ? 'Execute Operation' : 'Ejecutar Operación'} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                        </button>
-                    </div>
-                    {/* Background Glow */}
-                    <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-indigo-500/30 blur-[100px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
-                </div>
-            )}
-
             {/* STANDARD PROFILES */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {profiles.map(p => (

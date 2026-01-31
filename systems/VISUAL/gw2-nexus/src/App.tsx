@@ -9,11 +9,12 @@ import { RefreshCcw, Settings, Star, Database } from 'lucide-react';
 // Divided Components
 import { DiversifiedOperation } from './components/DiversifiedOperation';
 import { OperationMode } from './components/OperationMode';
+import { SettingsModal } from './components/SettingsModal';
 import { AnuuMediator } from './components/AnuuMediator';
+import { OracleCommandZone } from './components/OracleCommandZone';
 import { DiversificationHub } from './components/DiversificationHub';
 import { StrategicLab } from './components/StrategicLab';
 import { StrategyGrimoire } from './components/StrategyGrimoire';
-import { SettingsModal } from './components/SettingsModal';
 import { GoldDisplay } from './components/common/GoldDisplay';
 
 // --- APP COMPONENT ---
@@ -257,7 +258,8 @@ function App() {
         <AnimatePresence mode="wait">
           {!activeStrategy && !multiStrategy ? (
             <motion.div key="dash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-              <DiversificationHub strategies={strategies} onSelect={handleMultiSelect} isEng={isEng} walletGold={wallet[1] || 0} />
+              <OracleCommandZone strategy={strategies[0]} onExecute={(s) => setMultiStrategy([s])} isEng={isEng} materials={materials} />
+              <DiversificationHub strategies={strategies} onSelect={handleMultiSelect} isEng={isEng} />
               <StrategicLab strategies={strategies} isEng={isEng} onSelect={(s) => setActiveStrategy(s)} />
               <StrategyGrimoire strategies={strategies} onSelectSingle={(strat) => setActiveStrategy(strat)} isEng={isEng} materials={materials} />
             </motion.div>

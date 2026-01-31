@@ -812,11 +812,14 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
             }
         });
 
-        // PASS 2: Expansion (Buy NEW materials) - Only if we have headroom
+        // PASS 2: Expansion (Buy NEW materials) - Only if we have headroom AND we aren't already busy with inventory
+        // Logic Update: If we found work in Pass 1 (cleaningInventory), we SKIP Pass 2 to prioritize "Craft First".
+        // This ensures we don't buy more stuff until we've processed what we have.
+        const cleaningInventory = results.some(r => r.batchSize > 0);
         const currentTotal = totalDirectCost + totalProjectedListingFee;
         const remainingBudget = walletLimit - currentTotal;
 
-        if (remainingBudget > 0.5) {
+        if (remainingBudget > 0.5 && !cleaningInventory) {
             results.forEach(res => {
                 const s = res.strategy;
 

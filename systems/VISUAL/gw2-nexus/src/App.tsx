@@ -249,7 +249,7 @@ function App() {
             <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-900/20"><Star className="text-white" size={24} /></div>
             <div>
               <h1 className="text-2xl font-black text-white tracking-tight uppercase font-display italic text-glow">GW2 NEXUS</h1>
-              <p className="text-[9px] text-indigo-400 font-black tracking-[0.4em] uppercase">{isEng ? 'Operations Intelligence v4.3' : 'Inteligencia de Operaciones v4.3'}</p>
+              <p className="text-[9px] text-indigo-400 font-black tracking-[0.4em] uppercase">{isEng ? 'Operations Intelligence v4.3.1' : 'Inteligencia de Operaciones v4.3.1'}</p>
             </div>
           </div>
 

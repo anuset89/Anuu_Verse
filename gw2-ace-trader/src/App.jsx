@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import {
     TrendingUp, Zap, Database, Cpu, Activity, RefreshCcw, AlertTriangle, ArrowUpRight,
     Clock, Key, Wallet, BookOpen, X, Target, ChevronDown, ChevronUp, FlaskConical,
@@ -637,7 +637,7 @@ const NextAction = ({ opportunities, gold, lang, onRefresh, loading }) => {
 };
 
 // v24 AUTOTRACKER - Continuous % Slider
-const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
+const AutoTracker = memo(({ opportunities, gold, lang, onRefresh, loading }) => {
     const t = LANG[lang];
     const [currentStep, setCurrentStep] = useState(1);
     const [investPct, setInvestPct] = useState(() => parseInt(localStorage.getItem('ace_invest_pct') || '25'));
@@ -883,7 +883,7 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
             </div>
         </div>
     );
-};
+});
 
 // --- APP ---
 const App = () => {

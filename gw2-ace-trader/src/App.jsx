@@ -643,22 +643,10 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
     const [investPct, setInvestPct] = useState(() => parseInt(localStorage.getItem('ace_invest_pct') || '25'));
     const [sessionEarnings, setSessionEarnings] = useState(() => parseInt(localStorage.getItem('ace_session_earnings') || '0'));
 
-    // Safety check for empty data
-    if (!opportunities || !Array.isArray(opportunities) || opportunities.length === 0) {
-        return (
-            <div className="bg-gradient-to-br from-violet-950 to-zinc-900 border-2 border-fuchsia-500/30 rounded-3xl p-8 shadow-2xl">
-                <div className="flex items-center justify-center gap-4">
-                    <div className="w-8 h-8 border-4 border-fuchsia-500 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-fuchsia-400 font-bold">{lang === 'es' ? 'Analizando mercado...' : 'Analyzing market...'}</p>
-                </div>
-            </div>
-        );
-    }
-
-    const top = opportunities[0];
-
     // PROPORTIONAL CALCULATION ENGINE with useMemo for optimization
     const calculation = useMemo(() => {
+        if (!opportunities || !Array.isArray(opportunities) || opportunities.length === 0) return null;
+
         const budget = Math.floor((gold || 0) * (investPct / 100));
         if (budget <= 0) return null;
 
@@ -668,17 +656,9 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
         );
         if (validOpps.length === 0) return null;
 
-        // Calculate unit economics (only store IDs, not names to avoid re-renders)
-        const oppData = validOpps.map(o => ({
-            id: o.id, t5Id: o.t5Id,
-            unitCost: o.totalCost / o.chosen,
-            unitProfit: o.potentialProfit / o.chosen,
-            roi: o.roi || 0
-        })).filter(o => o.unitCost > 0).sort((a, b) => b.roi - a.roi);
 
-        // Greedy allocation by ROI
-        let remaining = budget;
-        const allocations = [];
+
+
 
         for (const opp of oppData) {
             if (remaining < opp.unitCost) continue;
@@ -696,6 +676,65 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
 
         return { allocations, totalCost, totalProfit, totalCrafts, avgROI: totalCost > 0 ? (totalProfit / totalCost) * 100 : 0, itemCount: allocations.length };
     }, [opportunities, gold, investPct]);
+
+    // Safety check for empty data - RENDER PHASE ONLY
+    const hasData = opportunities && Array.isArray(opportunities) && opportunities.length > 0;
+    const top = hasData ? opportunities[0] : null;
+
+    if (!hasData) {
+        return (
+            <div className="bg-gradient-to-br from-violet-950 to-zinc-900 border-2 border-fuchsia-500/30 rounded-3xl p-8 shadow-2xl">
+                <div className="flex items-center justify-center gap-4">
+                    <div className="w-8 h-8 border-4 border-fuchsia-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-fuchsia-400 font-bold">{lang === 'es' ? 'Analizando mercado...' : 'Analyzing market...'}</p>
+                </div>
+            </div>
+        );
+    }
+
+    // PROPORTIONAL CALCULATION ENGINE with useMemo for optimization
+
+
+    // Calculate unit economics (only store IDs, not names to avoid re-renders)
+    const oppData = validOpps.map(o => ({
+        id: o.id, t5Id: o.t5Id,
+        unitCost: o.totalCost / o.chosen,
+        unitProfit: o.potentialProfit / o.chosen,
+        roi: o.roi || 0
+    })).filter(o => o.unitCost > 0).sort((a, b) => b.roi - a.roi);
+
+    // Greedy allocation by ROI
+    let remaining = budget;
+    const allocations = [];
+
+    for (const opp of oppData) {
+        if (remaining < opp.unitCost) continue;
+        const maxUnits = Math.min(50, Math.floor(remaining / opp.unitCost));
+        if (maxUnits <= 0) continue;
+
+        allocations.push({ ...opp, units: maxUnits, cost: Math.floor(maxUnits * opp.unitCost), profit: Math.floor(maxUnits * opp.unitProfit) });
+        remaining -= maxUnits * opp.unitCost;
+        if (remaining < 1000) break;
+    }
+
+    const totalCost = allocations.reduce((s, a) => s + a.cost, 0);
+    const totalProfit = allocations.reduce((s, a) => s + a.profit, 0);
+    const totalCrafts = allocations.reduce((s, a) => s + a.units, 0);
+
+    return { allocations, totalCost, totalProfit, totalCrafts, avgROI: totalCost > 0 ? (totalProfit / totalCost) * 100 : 0, itemCount: allocations.length };
+
+
+    // Safety check for empty data - RENDER PHASE ONLY
+
+
+
+
+
+
+
+
+
+
 
     const firstAlloc = calculation?.allocations[0];
     const t5Name = firstAlloc ? getItemName(firstAlloc.t5Id, lang) : getItemName(top?.t5Id, lang);

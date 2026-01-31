@@ -35,6 +35,20 @@ export const gw2 = {
         }
     },
 
+    async getBank(apiKey: string) {
+        try {
+            const url = isDev
+                ? `${API_BASE}/account/bank`
+                : `${API_BASE}/account/bank?access_token=${apiKey.trim()}`;
+            const config = isDev ? authConfig(apiKey) : {};
+            const res = await axios.get(url, config);
+            return res.data;
+        } catch (e) {
+            console.error("[GW2 API] Bank Error", e);
+            return [];
+        }
+    },
+
     async getMaterials(apiKey: string) {
         try {
             const url = isDev

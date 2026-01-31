@@ -22,7 +22,7 @@ function App() {
   const [strategies, setStrategies] = useState<AnuuStrategy[]>([]);
   const [activeStrategy, setActiveStrategy] = useState<AnuuStrategy | null>(null);
   const [multiStrategy, setMultiStrategy] = useState<AnuuStrategy[] | null>(null);
-  const [materials, setMaterials] = useState<Record<number, number>>({});
+  const [materials, setMaterials] = useState<Record<number, { total: number, storage: number, bank: number }>>({});
   const [wallet, setWallet] = useState<Record<number, number>>({});
   const [prices, setPrices] = useState<Record<number, MarketItem>>({});
   const [lang, setLang] = useState<'es' | 'en'>((localStorage.getItem('gw2_lang') as 'es' | 'en') || 'es');
@@ -55,14 +55,33 @@ function App() {
 
         if (hasInventoriesPerm) {
           try {
-            const mats = await gw2.getMaterials(apiKey);
-            const matMap: Record<number, number> = {};
+            const [mats, bank] = await Promise.all([
+              gw2.getMaterials(apiKey),
+              gw2.getBank(apiKey)
+            ]);
+
+            const matMap: Record<number, { total: number, storage: number, bank: number }> = {};
+
             if (Array.isArray(mats)) {
-              mats.forEach((m: { id: number, count: number }) => { matMap[m.id] = m.count; });
-              setMaterials(matMap);
+              mats.forEach((m: { id: number, count: number }) => {
+                if (!matMap[m.id]) matMap[m.id] = { total: 0, storage: 0, bank: 0 };
+                matMap[m.id].storage = m.count;
+                matMap[m.id].total += m.count;
+              });
             }
+
+            if (Array.isArray(bank)) {
+              bank.forEach((slot: { id: number, count: number } | null) => {
+                if (slot) {
+                  if (!matMap[slot.id]) matMap[slot.id] = { total: 0, storage: 0, bank: 0 };
+                  matMap[slot.id].bank += slot.count;
+                  matMap[slot.id].total += slot.count;
+                }
+              });
+            }
+            setMaterials(matMap);
           } catch (e) {
-            console.error('[Nexus] Materials fetch failed:', e);
+            console.error('[Nexus] Inventories fetch failed:', e);
           }
         }
 
@@ -100,13 +119,13 @@ function App() {
   }, [apiKey, isEng]);
 
   useEffect(() => {
-    fetchData();
+    fetchData().catch(e => console.error(e));
   }, [fetchData]);
 
   const handleMultiSelect = (strats: AnuuStrategy[], title: string) => {
     setMultiStrategy(strats);
     setStatus('GUIDE');
-    setThought(`Perfil estratégico: ${title}.`);
+    setThought(isEng ? `Strategic Profile: ${title}.` : `Perfil estratégico: ${title}.`);
   };
 
   const saveApiKey = (key: string) => {

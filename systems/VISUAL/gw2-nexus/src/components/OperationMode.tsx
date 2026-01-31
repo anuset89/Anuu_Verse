@@ -1,15 +1,28 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Package, TrendingUp, ShoppingCart, Database, Clock, Sparkles, MapPin, FlaskConical, Gavel, RefreshCcw } from 'lucide-react';
+import { ArrowLeft, Package, TrendingUp, ShoppingCart, Database, Sparkles, MapPin, FlaskConical, Gavel, RefreshCcw } from 'lucide-react';
 import type { AnuuStrategy, MarketItem } from '../engine/calculator';
 import { IDS, getTranslatedName } from '../engine/calculator';
 import { GoldDisplay } from './common/GoldDisplay';
 import { getItemIcon } from '../utils/icons';
 
+interface ShoppingListItem {
+    name: string;
+    icon: string;
+    need: number;
+    have: number;
+    data: { storage: number, bank: number, total?: number };
+    buy: number;
+    priceOrder: number;
+    priceInsta: number;
+    supply: number;
+    location: string;
+}
+
 export const OperationMode = ({ strategy, materials, wallet, prices, onBack, isEng }: {
     strategy: AnuuStrategy;
-    materials: Record<number, number>;
+    materials: Record<number, { total: number, storage: number, bank: number }>;
     wallet: Record<number, number>;
     prices: Record<number, MarketItem>;
     onBack: () => void;
@@ -29,9 +42,13 @@ export const OperationMode = ({ strategy, materials, wallet, prices, onBack, isE
     const priceOrderTarget = pTarget?.buys?.unit_price || 0;
     const priceInstaTarget = pTarget?.sells?.unit_price || 0;
 
-    const ownedSource = materials[strategy.sourceId] || 0;
-    const ownedDust = materials[IDS.DUST] || 0;
-    const ownedTarget = materials[strategy.targetId] || 0;
+    const ownedSourceData = materials[strategy.sourceId] || { total: 0, storage: 0, bank: 0 };
+    const ownedDustData = materials[IDS.DUST] || { total: 0, storage: 0, bank: 0 };
+    const ownedTargetData = materials[strategy.targetId] || { total: 0, storage: 0, bank: 0 };
+
+    const ownedSource = ownedSourceData.total;
+    const ownedDust = ownedDustData.total;
+    const ownedTarget = ownedTargetData.total;
     const ownedShards = wallet[23] || 0;
     const availableGold = wallet[1] || 0;
 
@@ -74,11 +91,13 @@ export const OperationMode = ({ strategy, materials, wallet, prices, onBack, isE
     const maxByGold = costPerCraft > 0 ? Math.floor(availableGold / costPerCraft) : 0;
     const safeMax = Math.max(0, Math.min(maxByShards, maxByGold));
 
-    const shoppingList = [
-        { name: getTranslatedName(strategy.sourceId, strategy.sourceName, isEng), icon: getItemIcon(strategy.sourceName), need: neededSource, have: ownedSource, buy: buySource, priceOrder: priceOrderSource, priceInsta: priceInstaSource, supply: pSource?.sells.quantity || 0 },
-        ...(usesDust ? [{ name: getTranslatedName(IDS.DUST, "Crystalline Dust", isEng), icon: "✨", need: neededDust, have: ownedDust, buy: buyDust, priceOrder: priceOrderDust, priceInsta: prices[IDS.DUST]?.sells.unit_price || 0, supply: pDust?.sells.quantity || 0 }] : []),
-        ...(isLode ? [{ name: getTranslatedName(IDS.WINE, "Elonian Wine", isEng), icon: "🍷", need: batchSize, have: 0, buy: batchSize, priceOrder: 2560, priceInsta: 2560, supply: 999999 }] : []),
-        ...(!isLode ? [{ name: getTranslatedName(strategy.targetId, strategy.name, isEng), icon: getItemIcon(strategy.name), need: neededTarget, have: ownedTarget, buy: buyTarget, priceOrder: priceOrderTarget, priceInsta: priceInstaTarget, supply: pTarget?.sells.quantity || 0 }] : []),
+    const shoppingList: ShoppingListItem[] = [
+        { name: getTranslatedName(strategy.sourceId, strategy.sourceName, isEng), icon: getItemIcon(strategy.sourceName), need: neededSource, have: ownedSource, data: ownedSourceData, buy: buySource, priceOrder: priceOrderSource, priceInsta: priceInstaSource, supply: pSource?.sells.quantity || 0, location: isEng ? 'Trading Post' : 'Bazar' },
+        ...(usesDust ? [{ name: getTranslatedName(IDS.DUST, "Crystalline Dust", isEng), icon: "✨", need: neededDust, have: ownedDust, data: ownedDustData, buy: buyDust, priceOrder: priceOrderDust, priceInsta: prices[IDS.DUST]?.sells.unit_price || 0, supply: pDust?.sells.quantity || 0, location: isEng ? 'Trading Post' : 'Bazar' }] : []),
+        ...(isLode ? [{ name: getTranslatedName(IDS.WINE, "Elonian Wine", isEng), icon: "🍷", need: batchSize, have: 0, data: { storage: 0, bank: 0 }, buy: batchSize, priceOrder: 2560, priceInsta: 2560, supply: 999999, location: isEng ? 'Miyani (25s 60c)' : 'Miyani (25s 60c)' }] : []),
+        ...(isLode ? [{ name: isEng ? 'Mystic Crystal' : 'Cristal místico', icon: "🧊", need: batchSize, have: 0, data: { storage: 0, bank: 0 }, buy: batchSize, priceOrder: 0, priceInsta: 0, supply: 999999, location: isEng ? 'Miyani (Spirit Shards)' : 'Miyani (Shards)' }] : []),
+        ...(!isLode && !isRune && neededStones > 0 ? [{ name: isEng ? 'Philosopher\'s Stones' : 'Piedras filosofales', icon: "💎", need: neededStones, have: 0, data: { storage: 0, bank: 0 }, buy: neededStones, priceOrder: 0, priceInsta: 0, supply: 999999, location: isEng ? 'Miyani (Spirit Shards)' : 'Miyani (Shards)' }] : []),
+        ...(!isLode && !isRune ? [{ name: getTranslatedName(strategy.targetId, strategy.name, isEng), icon: getItemIcon(strategy.name), need: neededTarget, have: ownedTarget, data: ownedTargetData, buy: buyTarget, priceOrder: priceOrderTarget, priceInsta: priceInstaTarget, supply: pTarget?.sells.quantity || 0, location: isEng ? 'Trading Post' : 'Bazar' }] : []),
     ];
 
     return (
@@ -145,9 +164,17 @@ export const OperationMode = ({ strategy, materials, wallet, prices, onBack, isE
                                         <div className="text-4xl bg-black/40 p-4 rounded-3xl border border-white/5 shadow-inner">{item.icon}</div>
                                         <div>
                                             <div className="text-base font-bold text-white uppercase font-display tracking-tight mb-1">{item.name}</div>
-                                            <div className="flex gap-6">
-                                                <div className="text-[10px] text-zinc-600 font-black uppercase flex items-center gap-2 font-display"><Database size={12} /> {item.have}</div>
-                                                <div className="text-[10px] text-zinc-600 font-black uppercase flex items-center gap-2 font-display"><Clock size={12} /> {item.supply > 50000 ? (isEng ? 'HIGH' : 'ALTO') : (isEng ? 'STABLE' : 'ESTABLE')}</div>
+                                            <div className="flex flex-col md:flex-row gap-2 md:gap-6 mt-1">
+                                                <div className="flex gap-4">
+                                                    <div className="text-[9px] text-zinc-600 font-black uppercase flex items-center gap-2 font-display">
+                                                        <Database size={10} /> {item.have}
+                                                        {item.data.storage > 0 && <span className="opacity-60">({item.data.storage} {isEng ? 'Storage' : 'Almacén'})</span>}
+                                                        {item.data.bank > 0 && <span className="text-indigo-400">({item.data.bank} {isEng ? 'Bank' : 'Banco'})</span>}
+                                                    </div>
+                                                </div>
+                                                <div className="text-[9px] text-indigo-400 font-black uppercase flex items-center gap-2 font-display bg-indigo-500/5 px-2 py-0.5 rounded border border-indigo-500/10 w-fit">
+                                                    {item.location}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

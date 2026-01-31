@@ -37,8 +37,9 @@ export const IDS = {
 
     // Global Catalyst & Utility
     DUST: 24277,
-    WINE: 19659, // Bottle of Elonian Wine
-    CRYSTAL: 24319, // Mystic Crystal (made from Philo Stone)
+    WINE: 19632, // Bottle of Elonian Wine
+    CRYSTAL: 19925, // Mystic Crystal
+    STONE: 19673,  // Philosopher's Stone
 
     // Industrial / Research
     RESEARCH_NOTE: 94684,
@@ -48,13 +49,15 @@ export const IDS = {
     MITHRIL_EARRING: 13357,
 };
 
-const IDS_TO_NAME: Record<number, string> = {
-    // T5 Fine
-    24294: "Potent Blood", 24340: "Large Bone", 24350: "Large Claw", 24356: "Large Fang", 24288: "Large Scale", 24299: "Intricate Totem", 24282: "Potent Venom", 24276: "Incandescent Dust",
-    // T6 Fine
-    24295: "Powerful Blood", 24341: "Ancient Bone", 24351: "Powerful Claw", 24357: "Ancient Fang", 24289: "Armored Scale", 24300: "Elaborate Totem", 24283: "Powerful Venom", 24277: "Crystalline Dust",
+export const IDS_TO_NAME: Record<number, string> = {
+    // T5
+    24294: "Powerful Blood", 24340: "Ancient Bone", 24350: "Vicious Claw", 24356: "Vicious Fang",
+    24288: "Armored Scale", 24299: "Elaborate Totem", 24282: "Powerful Venom Sac", 24276: "Crystalline Dust",
+    // T6
+    24295: "Powerful Blood", 24341: "Ancient Bone", 24351: "Vicious Claw", 24357: "Vicious Fang",
+    24289: "Armored Scale", 24300: "Elaborate Totem", 24283: "Powerful Venom Sac", 24277: "Crystalline Dust",
     // T5 Common
-    19702: "Mithril Ore", 19722: "Elder Wood", 19729: "Thick Leather", 19748: "Silk Scrap",
+    19702: "Mithril Ore", 19722: "Elder Wood Log", 19729: "Thick Leather Section", 19748: "Silk Scrap",
     // T6 Common
     19703: "Orichalcum Ore", 19725: "Ancient Wood", 19732: "Hardened Leather", 19745: "Gossamer",
     // Lodestones
@@ -72,13 +75,15 @@ const IDS_TO_NAME: Record<number, string> = {
     19976: "Mystic Coin",
     19924: "Obsidian Shard",
     19673: "Philosopher's Stone",
-    24319: "Mystic Crystal",
+    19925: "Mystic Crystal",
+    19632: "Bottle of Elonian Wine",
     // T2 Materials
     24290: "Vial of Blood",
     24284: "Tiny Scales",
     94684: "Research Note",
     95982: "Antique Summoning Stone",
     95914: "Unusual Coin",
+    95856: "Ancient Scroll",
     13357: "Mithril Earring",
 };
 
@@ -93,13 +98,19 @@ export const IDS_TO_NAME_ES: Record<number, string> = {
     19703: "Mineral de Oricalco", 19725: "Madera Antigua", 19732: "Cuero Endurecido", 19745: "Gasa",
     24304: "Núcleo de Ónix", 24305: "Piedra de Imán de Ónix",
     24329: "Núcleo Fundido", 24330: "Piedra de Imán Fundida",
-    24334: "Núcleo Glacial", 24335: "Piedra de Imán Glacial",
+    24334: "Núcleo Fundido", 24335: "Piedra de Imán Fundida",
     24324: "Núcleo de Destructor", 24325: "Piedra de Imán de Destructor",
     24320: "Núcleo de Cristal", 24321: "Piedra de Imán de Cristal",
     24339: "Núcleo Corrupto", 24338: "Piedra de Imán Corrupta",
     24309: "Núcleo Cargado", 24310: "Piedra de Imán Cargada",
     85731: "Mota Luciente", 85750: "Fragmento Luciente",
-    19721: "Bola de Ectoplasma", 19659: "Vino de Elona", 24319: "Cristal Místico"
+    19632: "Botella de Vino de Elona",
+    19925: "Cristal Místico",
+    19673: "Piedra Filosofal",
+    19721: "Globo de Ectoplasma",
+    19976: "Moneda Mística",
+    19675: "Trébol Místico",
+    24277: "Polvo Cristalino Centelleante"
 };
 
 export const getTranslatedName = (id: number, fallback: string, isEng: boolean) => {
@@ -107,162 +118,152 @@ export const getTranslatedName = (id: number, fallback: string, isEng: boolean) 
     return IDS_TO_NAME_ES[id] || fallback;
 };
 
-export interface MarketItem {
-    id: number;
-    buys: { quantity: number; unit_price: number };
-    sells: { quantity: number; unit_price: number };
-}
-
 export interface AnuuStrategy {
-    sourceId: number;
-    targetId: number;
+    id: string;
     name: string;
+    type: 'COMMON' | 'FINE' | 'LODE' | 'RUNE' | 'INDUSTRIAL';
+    sourceId: number;
     sourceName: string;
-    costPerUnit: number;
-    sellPrice: number;
+    targetId: number;
     profitPerCraft: number;
     roi: number;
-    volatility: number;
-    score: number;
-    verdict: string;
     supplyQty: number;
-    type: 'FINE' | 'COMMON' | 'RUNE' | 'LODE';
-    recipe?: string;
+}
+
+export interface MarketItem {
+    id: number;
+    buys: { unit_price: number };
+    sells: { unit_price: number; quantity: number };
 }
 
 export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[] => {
-    const results: AnuuStrategy[] = [];
-    const dust = prices[IDS.DUST];
+    const strategies: AnuuStrategy[] = [];
 
-    if (!dust) return [];
+    // 1. T5 to T6 Fine Materials (Promotion)
+    const types: (keyof typeof IDS)[] = ['BLOOD', 'BONE', 'CLAW', 'FANG', 'SCALE', 'TOTEM', 'VENOM', 'DUST'];
+    types.forEach(type => {
+        const idT5 = IDS[`${type}_T5` as keyof typeof IDS];
+        const idT6 = IDS[`${type}_T6` as keyof typeof IDS];
+        const p5 = prices[idT5];
+        const p6 = prices[idT6];
+        const pDust = prices[IDS.DUST];
 
-    // T5 to T6 FINE
-    [
-        [IDS.BLOOD_T5, IDS.BLOOD_T6], [IDS.BONE_T5, IDS.BONE_T6], [IDS.CLAW_T5, IDS.CLAW_T6], [IDS.FANG_T5, IDS.FANG_T6],
-        [IDS.SCALE_T5, IDS.SCALE_T6], [IDS.TOTEM_T5, IDS.TOTEM_T6], [IDS.VENOM_T5, IDS.VENOM_T6], [IDS.DUST_T5, IDS.DUST_T6]
-    ].forEach(([s, t]) => {
-        if (!prices[s] || !prices[t]) return;
-        const cost = (prices[s].buys.unit_price * 50) + (prices[t].buys.unit_price * 1) + (dust.buys.unit_price * 5);
-        const profit = (prices[t].sells.unit_price * 7 * 0.85) - cost;
-        const roi = (profit / cost) * 100;
-        const volatility = (prices[t].sells.unit_price - prices[t].buys.unit_price) / prices[t].sells.unit_price * 100;
-        const liquidityScore = Math.min(prices[t].sells.quantity / 10000, 1) * 30;
-        const roiScore = Math.max(0, Math.min(roi, 50));
-        const stabilityScore = Math.max(0, 20 - volatility);
-        const score = roiScore + liquidityScore + stabilityScore;
-        results.push({
-            sourceId: s, targetId: t, name: IDS_TO_NAME[t], sourceName: IDS_TO_NAME[s],
-            costPerUnit: cost, sellPrice: prices[t].sells.unit_price, profitPerCraft: profit,
-            roi, volatility, score,
-            verdict: roi > 15 ? "HIGH PROFIT" : roi > 5 ? "STABLE" : "BREAKEVEN",
-            supplyQty: prices[t].sells.quantity, type: 'FINE',
-            recipe: "50x T5 Material + 1x T6 Material + 5x Crystalline Dust + 5x Philosopher's Stones"
-        });
+        if (p5 && p6 && pDust) {
+            const cost = (p5.buys.unit_price * 50) + (pDust.buys.unit_price * 5) + (p6.buys.unit_price * 1);
+            const revenue = p6.sells.unit_price * 7;
+            const profit = revenue * 0.85 - cost;
+
+            strategies.push({
+                id: `fine-${type}`,
+                name: `${type} T6 Promotion`,
+                type: 'FINE',
+                sourceId: idT5,
+                sourceName: `${type} T5`,
+                targetId: idT6,
+                profitPerCraft: profit,
+                roi: profit / cost,
+                supplyQty: p5.sells.quantity
+            });
+        }
     });
 
-    // T5 to T6 COMMON
-    [
-        [IDS.ORE_T5, IDS.ORE_T6], [IDS.WOOD_T5, IDS.WOOD_T6], [IDS.LEATHER_T5, IDS.LEATHER_T6], [IDS.CLOTH_T5, IDS.CLOTH_T6]
-    ].forEach(([s, t]) => {
-        if (!prices[s] || !prices[t]) return;
-        const cost = (prices[s].buys.unit_price * 250) + (prices[t].buys.unit_price * 1) + (dust.buys.unit_price * 5);
-        const profit = (prices[t].sells.unit_price * 22 * 0.85) - cost;
-        const roi = (profit / cost) * 100;
-        const volatility = (prices[t].sells.unit_price - prices[t].buys.unit_price) / prices[t].sells.unit_price * 100;
-        const liquidityScore = Math.min(prices[t].sells.quantity / 50000, 1) * 40;
-        const roiScore = Math.max(0, Math.min(roi, 40));
-        const stabilityScore = Math.max(0, 20 - volatility);
-        const score = roiScore + liquidityScore + stabilityScore;
-        results.push({
-            sourceId: s, targetId: t, name: IDS_TO_NAME[t], sourceName: IDS_TO_NAME[s],
-            costPerUnit: cost, sellPrice: prices[t].sells.unit_price, profitPerCraft: profit,
-            roi, volatility, score,
-            verdict: roi > 10 ? "MASS PRODUCTION" : roi > 3 ? "VIABLE" : "LOW MARGIN",
-            supplyQty: prices[t].sells.quantity, type: 'COMMON',
-            recipe: "250x T5 Material + 1x T6 Material + 5x Crystalline Dust + 5x Philosopher's Stones"
-        });
+    // 2. Common Materials (Promotion)
+    const commonTypes: (keyof typeof IDS)[] = ['ORE', 'WOOD', 'LEATHER', 'CLOTH'];
+    commonTypes.forEach(type => {
+        const idT5 = IDS[`${type}_T5` as keyof typeof IDS];
+        const idT6 = IDS[`${type}_T6` as keyof typeof IDS];
+        const p5 = prices[idT5];
+        const p6 = prices[idT6];
+        const pDust = prices[IDS.DUST];
+
+        if (p5 && p6 && pDust) {
+            const cost = (p5.buys.unit_price * 250) + (pDust.buys.unit_price * 5) + (p6.buys.unit_price * 1);
+            const revenue = p6.sells.unit_price * 22; // Yield for commons
+            const profit = revenue * 0.85 - cost;
+
+            strategies.push({
+                id: `common-${type}`,
+                name: `${type} T6 Promotion`,
+                type: 'COMMON',
+                sourceId: idT5,
+                sourceName: `${type} T5`,
+                targetId: idT6,
+                profitPerCraft: profit,
+                roi: profit / cost,
+                supplyQty: p5.sells.quantity
+            });
+        }
     });
 
-    // Lodestones
-    [
-        [IDS.CORE_ONYX, IDS.LODE_ONYX], [IDS.CORE_MOLTEN, IDS.LODE_MOLTEN], [IDS.CORE_GLACIAL, IDS.LODE_GLACIAL],
-        [IDS.CORE_DESTROYER, IDS.LODE_DESTROYER], [IDS.CORE_CRYSTAL, IDS.LODE_CRYSTAL], [IDS.CORE_CORRUPTED, IDS.LODE_CORRUPTED],
-        [IDS.CORE_CHARGED, IDS.LODE_CHARGED]
-    ].forEach(([s, t]) => {
-        if (!prices[s] || !prices[t]) return;
-        const wineCost = 2560;
-        const cost = (prices[s].buys.unit_price * 2) + wineCost + dust.buys.unit_price;
-        const profit = (prices[t].sells.unit_price * 0.85) - cost;
-        const roi = (profit / cost) * 100;
-        const volatility = (prices[t].sells.unit_price - prices[t].buys.unit_price) / prices[t].sells.unit_price * 100;
-        const liquidityScore = Math.min(prices[t].sells.quantity / 5000, 1) * 25;
-        const roiScore = Math.max(0, Math.min(roi, 50));
-        const stabilityScore = Math.max(0, 25 - volatility);
-        const score = roiScore + liquidityScore + stabilityScore;
-        results.push({
-            sourceId: s, targetId: t, name: IDS_TO_NAME[t], sourceName: IDS_TO_NAME[s],
-            costPerUnit: cost, sellPrice: prices[t].sells.unit_price, profitPerCraft: profit,
-            roi, volatility, score,
-            verdict: roi > 20 ? "RARE UPGRADE" : roi > 10 ? "PROFITABLE" : "RISKY",
-            supplyQty: prices[t].sells.quantity, type: 'LODE',
-            recipe: "2x Cores + 1x Bottle of Elonian Wine + 1x Pile of Crystalline Dust + 1x Mystic Crystal"
-        });
+    // 3. Cores to Lodestones
+    const lodeTypes = ['ONYX', 'MOLTEN', 'GLACIAL', 'DESTROYER', 'CRYSTAL', 'CORRUPTED', 'CHARGED'];
+    lodeTypes.forEach(type => {
+        const idCore = IDS[`CORE_${type}` as keyof typeof IDS];
+        const idLode = IDS[`LODE_${type}` as keyof typeof IDS];
+        const pCore = prices[idCore];
+        const pLode = prices[idLode];
+        const pDust = prices[IDS.DUST];
+
+        if (pCore && pLode && pDust) {
+            const cost = (pCore.buys.unit_price * 2) + (pDust.buys.unit_price * 1) + 2560; // 25s 60c for wine
+            const revenue = pLode.sells.unit_price * 1;
+            const profit = revenue * 0.85 - cost;
+
+            strategies.push({
+                id: `lode-${type}`,
+                name: `${type} Lodestone`,
+                type: 'LODE',
+                sourceId: idCore,
+                sourceName: `${type} Core`,
+                targetId: idLode,
+                profitPerCraft: profit,
+                roi: profit / cost,
+                supplyQty: pCore.sells.quantity
+            });
+        }
     });
 
-    // Runic
-    if (prices[IDS.LUCENT_MOTE] && prices[IDS.LUCENT_SHARD]) {
-        const s = IDS.LUCENT_MOTE;
-        const t = IDS.LUCENT_SHARD;
-        const cost = prices[s].buys.unit_price * 10;
-        const profit = (prices[t].sells.unit_price * 0.85) - cost;
-        const roi = (profit / cost) * 100;
-        const volatility = (prices[t].sells.unit_price - prices[t].buys.unit_price) / prices[t].sells.unit_price * 100;
-        const liquidityScore = Math.min(prices[t].sells.quantity / 3000, 1) * 20;
-        const roiScore = Math.max(0, Math.min(roi, 60));
-        const stabilityScore = Math.max(0, 20 - volatility);
-        const score = roiScore + liquidityScore + stabilityScore;
-        results.push({
-            sourceId: s, targetId: t, name: IDS_TO_NAME[t], sourceName: IDS_TO_NAME[s],
-            costPerUnit: cost, sellPrice: prices[t].sells.unit_price, profitPerCraft: profit,
-            roi, volatility, score,
-            verdict: roi > 25 ? "SPECULATIVE" : roi > 10 ? "RISKY" : "VOLATILE",
-            supplyQty: prices[t].sells.quantity, type: 'RUNE',
-            recipe: "10x Lucent Motes + 1x Charm/Symbol + 1x Ectoplasm + 50x Lucent Crystals"
+    // 4. Lucent Mote Optimization (Runic)
+    const pMote = prices[IDS.LUCENT_MOTE];
+    const pShard = prices[IDS.LUCENT_SHARD];
+    if (pMote && pShard) {
+        const cost = pMote.buys.unit_price * 10;
+        const revenue = pShard.sells.unit_price;
+        const profit = revenue * 0.85 - cost;
+
+        strategies.push({
+            id: 'runic-lucent',
+            name: 'Lucent Shard Processing',
+            type: 'RUNE',
+            sourceId: IDS.LUCENT_MOTE,
+            sourceName: 'Lucent Mote',
+            targetId: IDS.LUCENT_SHARD,
+            profitPerCraft: profit,
+            roi: profit / cost,
+            supplyQty: pMote.sells.quantity
         });
     }
 
-    // Research Note Extraction
-    if (prices[IDS.MITHRIL_EARRING] && prices[IDS.RESEARCH_NOTE]) {
-        const cost = prices[IDS.MITHRIL_EARRING].buys.unit_price;
-        const noteYield = 1;
-        const profit = (prices[IDS.RESEARCH_NOTE].sells.unit_price * noteYield * 0.85) - cost;
-        const roi = (profit / cost) * 100;
-        results.push({
-            sourceId: IDS.MITHRIL_EARRING, targetId: IDS.RESEARCH_NOTE, name: "Research Note", sourceName: "Mithril Earring",
-            costPerUnit: cost, sellPrice: prices[IDS.RESEARCH_NOTE].sells.unit_price, profitPerCraft: profit,
-            roi, volatility: 2, score: 95,
-            verdict: "STABLE RESEARCH",
-            supplyQty: 99999,
-            type: 'COMMON',
-            recipe: "Salvage Mithril Earring with Research Kit"
+    // 5. Industrial: Research Notes via Mithril Earrings
+    const pMithril = prices[IDS.ORE_T5];
+    if (pMithril) {
+        // Mithril Earring cost (simplified: 2 mithril ingots ~ 4 ore + 1 hook)
+        // Profit is calculated based on "potential value" of a research note (approx 1s-2s)
+        const cost = pMithril.buys.unit_price * 4;
+        const profit = 150 - cost; // Assuming 1s 50c value per note
+
+        strategies.push({
+            id: 'industrial-research',
+            name: 'Research Notes (Earrings)',
+            type: 'INDUSTRIAL',
+            sourceId: IDS.ORE_T5,
+            sourceName: 'Mithril Ore',
+            targetId: IDS.RESEARCH_NOTE,
+            profitPerCraft: profit,
+            roi: profit / cost,
+            supplyQty: pMithril.sells.quantity
         });
     }
 
-    // Industrial Exchange
-    if (prices[IDS.UNUSUAL_COIN] && prices[IDS.ANTIQUE_STONE]) {
-        const cost = prices[IDS.UNUSUAL_COIN].buys.unit_price * 1;
-        const profit = (prices[IDS.ANTIQUE_STONE].sells.unit_price * 0.85) - cost;
-        const roi = (profit / cost) * 100;
-        results.push({
-            sourceId: IDS.UNUSUAL_COIN, targetId: IDS.ANTIQUE_STONE, name: "Antique Summoning Stone", sourceName: "Unusual Coin",
-            costPerUnit: cost, sellPrice: prices[IDS.ANTIQUE_STONE].sells.unit_price, profitPerCraft: profit,
-            roi, volatility: 5, score: 90,
-            verdict: "WEEKLY PRIORITY",
-            supplyQty: prices[IDS.ANTIQUE_STONE].sells.quantity,
-            type: 'LODE',
-            recipe: "1x Unusual Coin (Vendor Exchange)"
-        });
-    }
-
-    return results.sort((a, b) => b.roi - a.roi);
+    return strategies.sort((a, b) => b.roi - a.roi);
 };

@@ -10,34 +10,58 @@ import { getItemIcon } from '../utils/icons';
 
 interface ShoppingListItem {
     strategy: AnuuStrategy;
-    buySource: number;
-    buyDust: number;
-    buyTarget: number;
+    allocatedGold: number;
+    neededSource: number; buySource: number; ownedSource: number; ownedSourceData: { storage: number, bank: number };
+    neededDust: number; buyDust: number; ownedDust: number; ownedDustData: { storage: number, bank: number };
+    neededTarget: number; buyTarget: number; ownedTarget: number; ownedTargetData: { storage: number, bank: number };
+    buyWine: number;
+    buyCrystals: number;
     batchSize: number;
-    // ... add other properties if needed
+    profit: number;
+    priceSource: number;
 }
 
 // --- NEXUS TRACKER (TRADING WIZARD) ---
-const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet }: { list: ShoppingListItem[], isEng: boolean, onClose: () => void, budget: number, setBudget: (n: number) => void, wallet: number }) => {
+const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materials }: {
+    list: ShoppingListItem[],
+    isEng: boolean,
+    onClose: () => void,
+    budget: number,
+    setBudget: (n: number) => void,
+    wallet: number,
+    materials: Record<number, { total: number, storage: number, bank: number }>
+}) => {
     const [currentStep, setCurrentStep] = useState(1);
 
     // 1. Logistics: Consolidate Shopping List
     const logistics = list.reduce((acc, item) => {
         if (item.buySource > 0) {
             const name = getTranslatedName(item.strategy.sourceId, item.strategy.sourceName, isEng);
-            const existing = acc.find((x) => x.name === name);
+            const existing = acc.find((x) => x.id === item.strategy.sourceId);
             if (existing) existing.count += item.buySource;
             else acc.push({ id: item.strategy.sourceId, name, count: item.buySource, type: 'source' });
         }
         if (item.buyDust > 0) {
             const name = getTranslatedName(IDS.DUST, 'Crystalline Dust', isEng);
-            const existing = acc.find((x) => x.name === name);
+            const existing = acc.find((x) => x.id === IDS.DUST);
             if (existing) existing.count += item.buyDust;
             else acc.push({ id: IDS.DUST, name, count: item.buyDust, type: 'dust' });
         }
-        if (item.buyTarget > 0) {
+        if (item.buyWine > 0) {
+            const name = isEng ? 'Bottle of Elonian Wine' : 'Botella de vino de Elona';
+            const existing = acc.find((x) => x.id === 19632);
+            if (existing) existing.count += item.buyWine;
+            else acc.push({ id: 19632, name, count: item.buyWine, type: 'npc' });
+        }
+        if (item.buyCrystals > 0) {
+            const name = isEng ? 'Mystic Crystal' : 'Cristal místico';
+            const existing = acc.find((x) => x.id === 19925);
+            if (existing) existing.count += item.buyCrystals;
+            else acc.push({ id: 19925, name, count: item.buyCrystals, type: 'shard' });
+        }
+        if (item.buyTarget > 0 && item.strategy.type !== 'LODE') {
             const name = getTranslatedName(item.strategy.targetId, item.strategy.name, isEng);
-            const existing = acc.find((x) => x.name === name);
+            const existing = acc.find((x) => x.id === item.strategy.targetId);
             if (existing) existing.count += item.buyTarget;
             else acc.push({ id: item.strategy.targetId, name, count: item.buyTarget, type: 'target' });
         }
@@ -114,28 +138,40 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet }: { lis
                                     <div className="p-4 rounded border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 text-center text-xs font-bold uppercase">
                                         {isEng ? 'Inventory Sufficient.' : 'Inventario Suficiente.'}
                                     </div>
-                                ) : logistics.map((l, i) => (
-                                    <div key={i} className="flex justify-between items-center p-4 rounded-xl bg-white/5 border border-white/5 relative group hover:border-emerald-500/30 transition-colors">
-                                        <div className="flex items-center gap-3">
-                                            <div className={`p-2 rounded-lg ${l.type === 'dust' ? 'bg-indigo-500/20 text-indigo-300' : 'bg-black/40 text-zinc-300'}`}>
-                                                {getItemIcon(l.name)}
+                                ) : (
+                                    logistics.map((l, i) => (
+                                        <div key={i} className={`flex justify-between items-center p-4 rounded-xl bg-white/5 border relative group transition-colors ${l.type === 'npc' || l.type === 'shard' ? 'border-amber-500/20 hover:border-amber-500/40' : 'border-white/5 hover:border-emerald-500/30'}`}>
+                                            <div className="flex items-center gap-3">
+                                                <div className={`p-2 rounded-lg ${l.type === 'dust' ? 'bg-indigo-500/20 text-indigo-300' : l.type === 'npc' ? 'bg-amber-500/10 text-amber-500' : 'bg-black/40 text-zinc-300'}`}>
+                                                    {l.type === 'npc' ? '🍷' : l.type === 'shard' ? '🧊' : getItemIcon(l.name)}
+                                                </div>
+                                                <div>
+                                                    <span className={`font-bold uppercase tracking-tight text-xs block ${l.type === 'dust' ? 'text-indigo-300' : l.type === 'npc' ? 'text-amber-400' : 'text-zinc-300'}`}>{l.name}</span>
+                                                    <span className="text-[8px] text-zinc-600 font-black uppercase tracking-widest leading-tight">
+                                                        {l.type === 'npc' ? (isEng ? 'Buy from Miyani (25s 60c)' : 'Miyani (25s 60c)') :
+                                                            l.type === 'shard' ? (isEng ? 'Miyani (Spirit Shards)' : 'Miyani (Exc. Shards)') :
+                                                                (isEng ? 'Buy Order' : 'Orden de Compra')}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <span className={`font-bold uppercase tracking-tight text-xs block ${l.type === 'dust' ? 'text-indigo-300' : 'text-zinc-300'}`}>{l.name}</span>
-                                                <span className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">{isEng ? 'Buy Order' : 'Orden de Compra'}</span>
+                                            <div className="text-right">
+                                                <span className="text-white font-mono font-black text-xl block leading-none">{l.count}</span>
+                                                {l.count >= 250 && (
+                                                    <span className="text-[9px] text-indigo-400 font-black uppercase tracking-tighter block mb-0.5">
+                                                        {Math.floor(l.count / 250)} STACK{Math.floor(l.count / 250) > 1 ? 'S' : ''}
+                                                        {l.count % 250 > 0 ? ` + ${l.count % 250}` : ''}
+                                                    </span>
+                                                )}
+                                                {materials[l.id] && materials[l.id].total > 0 && (
+                                                    <div className="text-[7px] text-zinc-600 font-black uppercase flex flex-col items-end opacity-60">
+                                                        {materials[l.id].storage > 0 && <span>{isEng ? 'Storage' : 'Almacén'}: {materials[l.id].storage}</span>}
+                                                        {materials[l.id].bank > 0 && <span className="text-indigo-500">{isEng ? 'Bank' : 'Banco'}: {materials[l.id].bank}</span>}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <span className="text-white font-mono font-black text-xl block">{l.count}</span>
-                                            {l.count >= 250 && (
-                                                <span className="text-[10px] text-indigo-400 font-black uppercase tracking-tighter">
-                                                    {Math.floor(l.count / 250)} STACK{Math.floor(l.count / 250) > 1 ? 'S' : ''}
-                                                    {l.count % 250 > 0 ? ` + ${l.count % 250}` : ''}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))
+                                )}
                             </div>
                         </motion.div>
                     )}
@@ -240,7 +276,7 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
     strategies: AnuuStrategy[];
     wallet: Record<number, number>;
     prices: Record<number, MarketItem>;
-    materials: Record<number, number>; // Inventory
+    materials: Record<number, { total: number, storage: number, bank: number }>; // Inventory
     onBack: () => void;
     isEng: boolean;
 }) => {
@@ -277,9 +313,13 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
         const batchSize = costPerCraft > 0 ? Math.max(1, Math.floor(allocatedGold / costPerCraft)) : 1;
 
         // Auto-Tracker: Check inventory
-        const ownedSource = materials[s.sourceId] || 0;
-        const ownedDust = materials[IDS.DUST] || 0;
-        const ownedTarget = materials[s.targetId] || 0;
+        const ownedSourceData = materials[s.sourceId] || { total: 0, storage: 0, bank: 0 };
+        const ownedDustData = materials[IDS.DUST] || { total: 0, storage: 0, bank: 0 };
+        const ownedTargetData = materials[s.targetId] || { total: 0, storage: 0, bank: 0 };
+
+        const ownedSource = ownedSourceData.total;
+        const ownedDust = ownedDustData.total;
+        const ownedTarget = ownedTargetData.total;
 
         const neededSource = qSource * batchSize;
         const neededDust = qDust * batchSize;
@@ -289,14 +329,17 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
         const buySource = Math.max(0, neededSource - ownedSource);
         const buyDust = Math.max(0, neededDust - ownedDust);
         const buyTarget = Math.max(0, neededTarget - ownedTarget);
+        const buyWine = qWine * batchSize;
+        const buyCrystals = s.type === 'LODE' ? batchSize : 0;
 
         return {
             strategy: s,
             batchSize,
             allocatedGold,
-            neededSource, buySource, ownedSource,
-            neededDust, buyDust, ownedDust,
-            neededTarget, buyTarget, ownedTarget,
+            neededSource, buySource, ownedSource, ownedSourceData,
+            neededDust, buyDust, ownedDust, ownedDustData,
+            neededTarget, buyTarget, ownedTarget, ownedTargetData,
+            buyWine, buyCrystals,
             profit: s.profitPerCraft * batchSize,
             priceSource: prices[s.sourceId]?.buys?.unit_price || 0,
         };
@@ -320,6 +363,7 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                 budget={budgetGold}
                 setBudget={setBudgetGold}
                 wallet={availableGold}
+                materials={materials}
             />
 
             {/* FINANCIAL PROJECTION PANEL */}
@@ -387,7 +431,12 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                                                     {item.buySource % 250 > 0 ? ` + ${item.buySource % 250}` : ''}
                                                 </div>
                                             )}
-                                            {item.ownedSource > 0 && <div className="text-[7px] text-zinc-500 uppercase tracking-tight">{isEng ? 'Have' : 'Tienes'}: {item.ownedSource}</div>}
+                                            {item.ownedSource > 0 && (
+                                                <div className="text-[7px] text-zinc-500 uppercase tracking-tight flex flex-col items-end opacity-60">
+                                                    {item.ownedSourceData.storage > 0 && <span>{isEng ? 'Storage' : 'Mat'}: {item.ownedSourceData.storage}</span>}
+                                                    {item.ownedSourceData.bank > 0 && <span className="text-indigo-400">{isEng ? 'Bank' : 'Banco'}: {item.ownedSourceData.bank}</span>}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                     {item.neededDust > 0 && (
@@ -401,7 +450,12 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                                                         {item.buyDust % 250 > 0 ? ` + ${item.buyDust % 250}` : ''}
                                                     </div>
                                                 )}
-                                                {item.ownedDust > 0 && <div className="text-[7px] text-zinc-500 uppercase tracking-tight">{isEng ? 'Have' : 'Tienes'}: {item.ownedDust}</div>}
+                                                {item.ownedDust > 0 && (
+                                                    <div className="text-[7px] text-zinc-500 uppercase tracking-tight flex flex-col items-end opacity-60">
+                                                        {item.ownedDustData.storage > 0 && <span>{isEng ? 'Storage' : 'Mat'}: {item.ownedDustData.storage}</span>}
+                                                        {item.ownedDustData.bank > 0 && <span className="text-indigo-400">{isEng ? 'Bank' : 'Banco'}: {item.ownedDustData.bank}</span>}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     )}

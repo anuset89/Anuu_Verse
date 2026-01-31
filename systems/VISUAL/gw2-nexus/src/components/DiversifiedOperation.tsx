@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Cpu, ShoppingCart, Hammer, Coins, CheckCircle, Package, Sparkles, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Cpu, ShoppingCart, Hammer, Coins, CheckCircle, Package, Sparkles, RefreshCw, Zap, Repeat } from 'lucide-react';
 import type { AnuuStrategy, MarketItem } from '../engine/calculator';
 import { IDS, getTranslatedName } from '../engine/calculator';
 
@@ -37,6 +37,9 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
     const [currentStep, setCurrentStep] = useState(1);
     const [manualCompleted, setManualCompleted] = useState<Set<string>>(new Set());
     const [isSyncing, setIsSyncing] = useState(false); // Visual state for sync button
+    const [cycleCount, setCycleCount] = useState(1);
+    const [isFocusMode, setIsFocusMode] = useState(false);
+
 
     // Helper for Smart Clipboard
     const copyToClipboard = (text: string) => {
@@ -191,7 +194,7 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                     <div className="hidden lg:flex flex-col items-end min-w-[120px]">
                         <div className="flex justify-between w-full mb-1">
                             <span className="text-[7px] text-zinc-500 font-black uppercase tracking-widest">{isEng ? 'Mission Progress' : 'Progreso de Misión'}</span>
-                            <span className="text-[7px] text-indigo-400 font-black">SYNC</span>
+                            <span className="text-[7px] text-indigo-400 font-black flex items-center gap-1"><Repeat size={8} /> CYCLE {cycleCount}</span>
                         </div>
                         <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                             <motion.div
@@ -207,6 +210,59 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                     </button>
                 </div>
             </div>
+
+            {/* FOCUS MODE OVERLAY */}
+            <AnimatePresence>
+                {isFocusMode && (
+                    <motion.div
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl p-8 flex flex-col items-center justify-center"
+                    >
+                        <button
+                            onClick={() => setIsFocusMode(false)}
+                            className="absolute top-8 right-8 p-4 bg-white/10 rounded-full hover:bg-white/20 text-white transition-all"
+                        >
+                            <ArrowLeft size={32} />
+                        </button>
+                        <h2 className="text-2xl font-black text-indigo-400 uppercase tracking-[0.5em] mb-12 animate-pulse">
+                            {isEng ? 'SYNTHESIS FOCUS' : 'ENFOQUE DE SÍNTESIS'}
+                        </h2>
+                        <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {assembly.map((a, i) => {
+                                const sourceItem = list.find(l => l.strategy.targetId === a.id);
+                                const isReady = (sourceItem?.ownedSource || 0) >= (sourceItem?.neededSource || 0) && (sourceItem?.ownedDust || 0) >= (sourceItem?.neededDust || 0);
+                                const strategyType = sourceItem?.strategy.type || 'COMMON';
+                                const yieldPerBatch = strategyType === 'FINE' ? 7 : (strategyType === 'COMMON' ? (sourceItem?.strategy.name.includes('Ecto') ? 0.9 : 22) : 1);
+                                const expectedCount = Math.floor(a.batches * yieldPerBatch);
+                                const isDone = isTaskDone(`craft-${a.id}`, a.id, expectedCount);
+
+                                if (isDone) return null; // Hide completed in focus mode
+
+                                return (
+                                    <div key={i} onClick={() => toggleTask(`craft-${a.id}`)} className={`cursor-pointer p-8 rounded-3xl border-2 flex items-center gap-6 transition-all ${isReady ? 'border-amber-500 bg-amber-500/10 shadow-[0_0_50px_rgba(245,158,11,0.2)] scale-105' : 'border-white/10 bg-white/5 opacity-50'}`}>
+                                        <div className="text-5xl">{getItemIcon(a.name)}</div>
+                                        <div>
+                                            <div className="text-2xl font-black text-white uppercase">{a.name}</div>
+                                            <div className="text-lg text-indigo-400 font-mono mt-2">{a.batches} BATCHES</div>
+                                            <div className="text-sm text-zinc-500 mt-1">{a.recipe}</div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        {assembly.every(a => isTaskDone(`craft-${a.id}`, a.id, Math.floor(a.batches * 1))) && (
+                            <div className="text-center mt-12">
+                                <div className="text-emerald-400 text-6xl mb-4"><CheckCircle size={80} /></div>
+                                <div className="text-white text-xl font-black uppercase tracking-widest">ALL TASKS COMPLETE</div>
+                                <button onClick={() => setIsFocusMode(false)} className="mt-8 px-8 py-3 bg-indigo-500 text-white font-black uppercase tracking-widest rounded-xl hover:bg-indigo-400">
+                                    Return to Dashboard
+                                </button>
+                            </div>
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
 
             {/* STEP CONTENT */}
             <div className="min-h-[250px] relative z-10">
@@ -435,8 +491,14 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
 
                     {currentStep === 2 && (
                         <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-                            <h4 className="flex items-center gap-3 text-amber-400 font-black uppercase tracking-widest text-lg mb-6">
-                                <Hammer /> {isEng ? 'Phase 2: Processing' : 'Fase 2: Procesado'}
+                            <h4 className="flex items-center gap-3 text-amber-400 font-black uppercase tracking-widest text-lg mb-6 justify-between">
+                                <span className="flex items-center gap-2"><Hammer /> {isEng ? 'Phase 2: Processing' : 'Fase 2: Procesado'}</span>
+                                <button
+                                    onClick={() => setIsFocusMode(true)}
+                                    className="text-[10px] bg-indigo-500/10 text-indigo-400 px-3 py-1.5 rounded-lg border border-indigo-500/30 flex items-center gap-2 hover:bg-indigo-500 hover:text-white transition-all uppercase tracking-widest"
+                                >
+                                    <Zap size={12} /> {isEng ? 'Focus Mode' : 'Modo Enfoque'}
+                                </button>
                             </h4>
                             <div className="border-l-2 border-indigo-500 pl-4 mb-8">
                                 <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">{isEng ? 'Phase 2: Mystic Assembly' : 'Fase 2: Ensamblaje Místico'}</h4>
@@ -444,6 +506,7 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                     {isEng ? 'Execute forge translations following the exact recipes provided. Do not deviate from these ratios for optimal yield.' : 'Ejecuta las traducciones en la forja siguiendo las recetas exactas proporcionadas. No te desvíes de estos ratios para asegurar el rendimiento óptimo.'}
                                 </p>
                             </div>
+
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {assembly.map((a, i) => {
@@ -458,13 +521,16 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                     const yieldPerBatch = strategyType === 'FINE' ? 7 : (strategyType === 'COMMON' ? (sourceItem?.strategy.name.includes('Ecto') ? 0.9 : 22) : 1);
                                     const expectedCount = Math.floor(a.batches * yieldPerBatch);
 
+                                    // Ready Pulse Logic: Do we have Source + Dust in bag?
+                                    const isReady = (sourceItem?.ownedSource || 0) >= (sourceItem?.neededSource || 0) && (sourceItem?.ownedDust || 0) >= (sourceItem?.neededDust || 0);
+
                                     const isDone = isTaskDone(`craft-${a.id}`, a.id, expectedCount);
 
                                     return (
                                         <div
                                             key={i}
                                             onClick={() => toggleTask(`craft-${a.id}`)}
-                                            className={`flex justify-between items-center p-6 rounded-2xl border transition-all relative group cursor-pointer ${isDone ? 'bg-emerald-500/10 border-emerald-500/40 opacity-50' : 'bg-white/5 border-white/5 hover:border-indigo-500/40'}`}
+                                            className={`flex justify-between items-center p-6 rounded-2xl border transition-all relative group cursor-pointer ${isDone ? 'bg-emerald-500/10 border-emerald-500/40 opacity-50' : (isReady ? 'bg-amber-500/10 border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.2)] animate-pulse' : 'bg-white/5 border-white/5 hover:border-indigo-500/40')}`}
                                         >
                                             <div className="flex items-center gap-4">
                                                 <div className={`text-3xl p-3 rounded-xl border flex items-center justify-center transition-transform ${isDone ? 'bg-emerald-500/20 border-emerald-500/20 text-emerald-400' : 'bg-black/40 border-white/5 group-hover:scale-110'}`}>
@@ -531,15 +597,24 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                         {isEng ? 'Back' : 'Atrás'}
                     </button>
                     <button
-                        onClick={() => currentStep === 3 ? onClose() : setCurrentStep(prev => Math.min(3, prev + 1))}
+                        onClick={() => {
+                            if (currentStep === 3) {
+                                // Cycle Complete!
+                                setCycleCount(prev => prev + 1);
+                                setCurrentStep(1);
+                                setManualCompleted(new Set()); // Reset checks for new cycle
+                            } else {
+                                setCurrentStep(prev => Math.min(3, prev + 1));
+                            }
+                        }}
                         className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${currentStep === 3
-                            ? 'bg-white text-black hover:bg-emerald-500 hover:text-white'
+                            ? 'bg-white text-black hover:bg-emerald-500 hover:text-white shadow-[0_0_30px_rgba(255,255,255,0.3)]'
                             : canAdvance
                                 ? 'bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.5)] animate-pulse hover:bg-indigo-400 scale-105'
                                 : 'bg-white/10 text-zinc-500 hover:bg-white hover:text-black'
                             }`}
                     >
-                        {currentStep === 3 ? (isEng ? 'Finish' : 'Terminar') : (isEng ? 'Next' : 'Siguiente')}
+                        {currentStep === 3 ? (isEng ? 'Complete Cycle & Reinvest' : 'Completar Ciclo y Reinvertir') : (isEng ? 'Next' : 'Siguiente')}
                     </button>
                 </div>
             </div>

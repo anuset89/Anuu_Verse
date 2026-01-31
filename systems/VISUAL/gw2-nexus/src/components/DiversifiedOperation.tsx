@@ -506,86 +506,76 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
         return { strategy: s, freeBatches, costToFinish, score: p.score };
     }).sort((a, b) => (b.freeBatches * b.strategy.profitPerCraft) - (a.freeBatches * a.strategy.profitPerCraft));
 
-    const totalMaintenanceGold = inventoryNeeds.reduce((acc, curr) => acc + curr.costToFinish, 0);
-    const remainingBudgetAfterMaintenance = Math.max(0, budgetGold - totalMaintenanceGold);
-    const weightPerStrategy = 1 / Math.max(1, prioritizedStrategies.length);
+    // --- NEW ADAPTIVE BUDGETER: Sequential Capital Allocation ---
+    const calculateShoppingList = () => {
+        let flexibleBudget = budgetGold;
+        const totalStrats = prioritizedStrategies.length;
+        const defaultWeight = 1 / Math.max(1, totalStrats);
 
-    const shoppingList = inventoryNeeds.map((need) => {
-        const s = need.strategy;
-        const allocatedExtraGold = remainingBudgetAfterMaintenance * weightPerStrategy;
+        return inventoryNeeds.map((need) => {
+            const s = need.strategy;
 
-        // Prices in gold for calculation
-        const pSource = (prices[s.sourceId]?.buys?.unit_price || prices[s.sourceId]?.sells?.unit_price || 0) / 10000;
-        const pDust = (prices[IDS.DUST]?.buys?.unit_price || prices[IDS.DUST]?.sells?.unit_price || 0) / 10000;
-        const pTarget = (prices[s.targetId]?.buys?.unit_price || prices[s.targetId]?.sells?.unit_price || 0) / 10000;
-        const pWine = 0.2560;
+            // Prices in gold for calculation
+            const pSource = (prices[s.sourceId]?.buys?.unit_price || prices[s.sourceId]?.sells?.unit_price || 0) / 10000;
+            const pDust = (prices[IDS.DUST]?.buys?.unit_price || prices[IDS.DUST]?.sells?.unit_price || 0) / 10000;
+            const pTarget = (prices[s.targetId]?.buys?.unit_price || prices[s.targetId]?.sells?.unit_price || 0) / 10000;
+            const pWine = 0.2560;
 
-        // Requirements per craft
-        const qSource = s.type === 'LODE' ? 2 : (s.type === 'RUNE' ? 10 : (s.type === 'COMMON' ? 250 : 50));
-        const qDust = s.type === 'LODE' ? 1 : (s.type === 'RUNE' ? 0 : 5);
-        const qWine = s.type === 'LODE' ? 1 : 0;
-        const qTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : 0.01;
+            // Requirements per craft
+            const qSource = s.type === 'LODE' ? 2 : (s.type === 'RUNE' ? 10 : (s.type === 'COMMON' ? 250 : 50));
+            const qDust = s.type === 'LODE' ? 1 : (s.type === 'RUNE' ? 0 : 5);
+            const qWine = s.type === 'LODE' ? 1 : 0;
+            const qTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : 0.01;
 
-        const ownedSourceData = materials[s.sourceId] || { total: 0, storage: 0, bank: 0, character: 0 };
-        const ownedDustData = materials[IDS.DUST] || { total: 0, storage: 0, bank: 0, character: 0 };
-        const ownedTargetData = materials[s.targetId] || { total: 0, storage: 0, bank: 0, character: 0 };
+            const ownedSourceData = materials[s.sourceId] || { total: 0, storage: 0, bank: 0, character: 0 };
+            const ownedDustData = materials[IDS.DUST] || { total: 0, storage: 0, bank: 0, character: 0 };
+            const ownedTargetData = materials[s.targetId] || { total: 0, storage: 0, bank: 0, character: 0 };
 
-        const ownedSource = ownedSourceData.total;
-        const ownedDust = ownedDustData.total;
-        const ownedTarget = ownedTargetData.total;
+            const ownedSource = ownedSourceData.total;
+            const ownedDust = ownedDustData.total;
 
-        // TACTICAL CALCULATION
-        const costPerCraft = (qSource * pSource) + (qDust * pDust) + (qWine * pWine) + (qTarget * pTarget);
+            const costPerCraft = (qSource * pSource) + (qDust * pDust) + (qWine * pWine) + (qTarget * pTarget);
+            let batchSize = 0;
 
-        // Phase 1: Free Batches (Bottleneck based)
-        let batchSize = need.freeBatches;
-        let localBudget = allocatedExtraGold;
-
-        // Phase 2: Unlock Surplus Inventory (if budget permits)
-        if (localBudget > 0) {
-            // Check if we have surplus of one but lack the other
-            const maxS = ownedSource / qSource;
-            const maxD = qDust > 0 ? ownedDust / qDust : Infinity;
-
-            if (maxS > batchSize) { // Surplus Source, buy Dust
-                const costToUnlockOne = (qDust * pDust) + (qWine * pWine);
-                const canAfford = Math.floor(localBudget / Math.max(0.0001, costToUnlockOne));
-                const neededToExhaust = Math.floor(maxS - batchSize);
-                const unlockAmount = Math.min(canAfford, neededToExhaust);
-                batchSize += unlockAmount;
-                localBudget -= (unlockAmount * costToUnlockOne);
-            } else if (maxD > batchSize && maxD !== Infinity) { // Surplus Dust, buy Source
-                const costToUnlockOne = (qSource * pSource) + (qWine * pWine);
-                const canAfford = Math.floor(localBudget / Math.max(0.0001, costToUnlockOne));
-                const neededToExhaust = Math.floor(maxD - batchSize);
-                const unlockAmount = Math.min(canAfford, neededToExhaust);
-                batchSize += unlockAmount;
-                localBudget -= (unlockAmount * costToUnlockOne);
+            // Step 1: Drain inventory first but ONLY up to what budget permits for fees
+            if (flexibleBudget > 0 && need.freeBatches > 0) {
+                const maintenanceCostPerBatch = qWine * pWine;
+                const canAfford = maintenanceCostPerBatch > 0 ? Math.floor(flexibleBudget / maintenanceCostPerBatch) : need.freeBatches;
+                const executed = Math.min(need.freeBatches, canAfford);
+                batchSize += executed;
+                flexibleBudget -= (executed * maintenanceCostPerBatch);
             }
-        }
 
-        // Phase 3: Fill remaining budget with new crafts
-        if (localBudget > 0 && costPerCraft > 0) {
-            batchSize += Math.floor(localBudget / costPerCraft);
-        }
+            // Step 2: Linear Expansion (Budget Fill)
+            if (flexibleBudget > 0 && costPerCraft > 0) {
+                const extra = Math.floor(flexibleBudget / costPerCraft);
+                batchSize += extra;
+                flexibleBudget -= (extra * costPerCraft);
+            }
 
-        const neededSource = qSource * batchSize;
-        const neededDust = qDust * batchSize;
-        const neededTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : Math.min(batchSize, 5);
+            const neededSource = qSource * batchSize;
+            const neededDust = qDust * batchSize;
+            const neededTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : Math.min(batchSize, 5);
 
-        return {
-            strategy: s,
-            batchSize,
-            allocatedGold: (batchSize * costPerCraft), // Actual allocation used
-            neededSource, buySource: Math.max(0, neededSource - ownedSource), ownedSource, ownedSourceData,
-            neededDust, buyDust: Math.max(0, neededDust - ownedDust), ownedDust, ownedDustData,
-            neededTarget, buyTarget: Math.max(0, neededTarget - ownedTarget), ownedTarget, ownedTargetData,
-            buyWine: qWine * batchSize, buyCrystals: s.type === 'LODE' ? batchSize : 0,
-            profit: s.profitPerCraft * batchSize,
-            priceSource: prices[s.sourceId]?.buys?.unit_price || 0,
-            inventoryScore: need.score,
-        };
-    });
+            return {
+                strategy: s,
+                batchSize,
+                allocatedGold: (batchSize * costPerCraft),
+                neededSource, buySource: Math.max(0, neededSource - ownedSource), ownedSource, ownedSourceData,
+                neededDust, buyDust: Math.max(0, neededDust - ownedDust), ownedDust, ownedDustData,
+                neededTarget, buyTarget: Math.max(0, neededTarget - ownedTargetData.total), ownedTarget: ownedTargetData.total, ownedTargetData,
+                buyWine: qWine * batchSize,
+                buyCrystals: (s.type === 'LODE') ? batchSize : 0,
+                profit: s.profitPerCraft * batchSize,
+                priceSource: pSource * 10000,
+                inventoryScore: need.score,
+                weight: defaultWeight // Simplified for UI consistency
+            };
+        }).filter(item => item.batchSize > 0);
+    };
+
+    const shoppingList = calculateShoppingList();
+    const weightPerStrategy = 1 / Math.max(1, shoppingList.length);
 
     // Financial calculations using Actual Buy Amounts (Auto-Tracker applied)
     const totalGrossSales = shoppingList.reduce((acc, item) => acc + (item.batchSize * (prices[item.strategy.targetId]?.sells?.unit_price || 0) * (item.strategy.type === 'COMMON' ? (item.strategy.name.includes('Ecto') ? 0.9 : 22) : (item.strategy.type === 'FINE' ? 7 : 1))), 0);

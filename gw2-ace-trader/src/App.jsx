@@ -723,14 +723,26 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
                 </div>
             </div>
 
-            {/* Mode Selector */}
-            <div className="flex gap-2 mb-6">
-                {Object.entries(modeConfig).map(([key, cfg]) => (
-                    <button key={key} onClick={() => changeMode(key)} className={`flex-1 p-3 rounded-xl border-2 transition-all ${mode === key ? `bg-${cfg.color}-500/20 border-${cfg.color}-500 text-${cfg.color}-400` : 'bg-zinc-950/40 border-zinc-800 text-zinc-500 hover:border-zinc-600'}`}>
-                        <p className="font-black text-sm">{cfg.label}</p>
-                        <p className="text-[10px] opacity-70">{cfg.desc}</p>
-                    </button>
-                ))}
+            {/* Investment Slider */}
+            <div className="mb-6">
+                <div className="flex justify-between items-center mb-3">
+                    <span className="text-xs text-zinc-500 uppercase font-bold">{lang === 'es' ? 'PORCENTAJE A INVERTIR' : 'INVESTMENT %'}</span>
+                    <span className="text-2xl font-black text-fuchsia-400">{Math.round(investmentRatios[mode] * 100)}%</span>
+                </div>
+                <input type="range" min="5" max="100" step="5" value={Math.round(investmentRatios[mode] * 100)}
+                    onChange={(e) => {
+                        const pct = parseInt(e.target.value);
+                        if (pct <= 15) changeMode('safe');
+                        else if (pct <= 35) changeMode('balanced');
+                        else changeMode('aggro');
+                    }}
+                    className="w-full h-3 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-fuchsia-500"
+                />
+                <div className="flex justify-between mt-2">
+                    <button onClick={() => changeMode('safe')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mode === 'safe' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500' : 'bg-zinc-900 text-zinc-500'}`}>🛡️ 10%</button>
+                    <button onClick={() => changeMode('balanced')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mode === 'balanced' ? 'bg-violet-500/20 text-violet-400 border border-violet-500' : 'bg-zinc-900 text-zinc-500'}`}>⚖️ 25%</button>
+                    <button onClick={() => changeMode('aggro')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mode === 'aggro' ? 'bg-red-500/20 text-red-400 border border-red-500' : 'bg-zinc-900 text-zinc-500'}`}>🔥 50%</button>
+                </div>
             </div>
 
             {/* Investment Summary */}

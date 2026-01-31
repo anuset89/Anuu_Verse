@@ -636,11 +636,11 @@ const NextAction = ({ opportunities, gold, lang, onRefresh, loading }) => {
     );
 };
 
-// v23 AUTOTRACKER - Complete Gold Guide with Investment Modes
+// v24 AUTOTRACKER - Continuous % Slider
 const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
     const t = LANG[lang];
     const [currentStep, setCurrentStep] = useState(1);
-    const [mode, setMode] = useState(() => localStorage.getItem('ace_mode') || 'balanced'); // safe, balanced, aggro
+    const [investPct, setInvestPct] = useState(() => parseInt(localStorage.getItem('ace_invest_pct') || '25'));
     const [sessionEarnings, setSessionEarnings] = useState(() => parseInt(localStorage.getItem('ace_session_earnings') || '0'));
 
     const top = opportunities[0];
@@ -655,9 +655,8 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
         );
     }
 
-    // Investment calculation based on mode
-    const investmentRatios = { safe: 0.1, balanced: 0.25, aggro: 0.5 }; // 10%, 25%, 50% of gold
-    const investmentAmount = Math.floor((gold || 0) * investmentRatios[mode]);
+    // Investment calculation based on slider percentage
+    const investmentAmount = Math.floor((gold || 0) * (investPct / 100));
 
     // Validate: totalCost should be > 1000 copper (10s minimum for real crafts)
     const hasValidData = top.totalCost > 1000 && top.chosen > 0;
@@ -673,11 +672,14 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
     const t5Name = getItemName(top.t5Id, lang);
     const t6Name = getItemName(top.id, lang);
 
-    const modeConfig = {
-        safe: { label: lang === 'es' ? '🛡️ SEGURO' : '🛡️ SAFE', color: 'emerald', desc: lang === 'es' ? '10% de tu oro' : '10% of your gold' },
-        balanced: { label: lang === 'es' ? '⚖️ BALANCEADO' : '⚖️ BALANCED', color: 'violet', desc: lang === 'es' ? '25% de tu oro' : '25% of your gold' },
-        aggro: { label: lang === 'es' ? '🔥 AGRESIVO' : '🔥 AGGRESSIVE', color: 'red', desc: lang === 'es' ? '50% de tu oro' : '50% of your gold' }
+    // Risk indicator based on percentage
+    const getRiskLabel = () => {
+        if (investPct <= 15) return { icon: '🛡️', text: lang === 'es' ? 'SEGURO' : 'SAFE', color: 'text-emerald-400' };
+        if (investPct <= 40) return { icon: '⚖️', text: lang === 'es' ? 'MODERADO' : 'MODERATE', color: 'text-violet-400' };
+        if (investPct <= 70) return { icon: '🔥', text: lang === 'es' ? 'AGRESIVO' : 'AGGRESSIVE', color: 'text-orange-400' };
+        return { icon: '💀', text: 'YOLO', color: 'text-red-400' };
     };
+    const risk = getRiskLabel();
 
     const steps = [
         { id: 1, label: t.stepBuy, action: `${t5Name}`, qty: `x${craftableUnits * 50}`, color: 'blue' },
@@ -685,9 +687,9 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
         { id: 3, label: t.stepSell, action: formatGold(expectedProfit), qty: lang === 'es' ? 'GANANCIA' : 'PROFIT', color: 'emerald' }
     ];
 
-    const changeMode = (newMode) => {
-        setMode(newMode);
-        localStorage.setItem('ace_mode', newMode);
+    const changePct = (pct) => {
+        setInvestPct(pct);
+        localStorage.setItem('ace_invest_pct', pct.toString());
     };
 
     const markStepDone = () => {
@@ -714,7 +716,7 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
                     <div className="bg-fuchsia-600 p-3 rounded-xl"><Target size={28} className="text-white" /></div>
                     <div>
                         <h2 className="text-2xl font-black text-white">{t.autoTracker}</h2>
-                        <p className="text-xs text-zinc-500">{t.step} {currentStep} {t.of} 3 • {modeConfig[mode].label}</p>
+                        <p className="text-xs text-zinc-500">{t.step} {currentStep} {t.of} 3 • {risk.icon} {investPct}%</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -732,21 +734,20 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
             <div className="mb-6">
                 <div className="flex justify-between items-center mb-3">
                     <span className="text-xs text-zinc-500 uppercase font-bold">{lang === 'es' ? 'PORCENTAJE A INVERTIR' : 'INVESTMENT %'}</span>
-                    <span className="text-2xl font-black text-fuchsia-400">{Math.round(investmentRatios[mode] * 100)}%</span>
+                    <div className="flex items-center gap-2">
+                        <span className={`text-sm font-bold ${risk.color}`}>{risk.icon} {risk.text}</span>
+                        <span className="text-3xl font-black text-fuchsia-400">{investPct}%</span>
+                    </div>
                 </div>
-                <input type="range" min="5" max="100" step="5" value={Math.round(investmentRatios[mode] * 100)}
-                    onChange={(e) => {
-                        const pct = parseInt(e.target.value);
-                        if (pct <= 15) changeMode('safe');
-                        else if (pct <= 35) changeMode('balanced');
-                        else changeMode('aggro');
-                    }}
+                <input type="range" min="5" max="100" step="5" value={investPct}
+                    onChange={(e) => changePct(parseInt(e.target.value))}
                     className="w-full h-3 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-fuchsia-500"
                 />
-                <div className="flex justify-between mt-2">
-                    <button onClick={() => changeMode('safe')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mode === 'safe' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500' : 'bg-zinc-900 text-zinc-500'}`}>🛡️ 10%</button>
-                    <button onClick={() => changeMode('balanced')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mode === 'balanced' ? 'bg-violet-500/20 text-violet-400 border border-violet-500' : 'bg-zinc-900 text-zinc-500'}`}>⚖️ 25%</button>
-                    <button onClick={() => changeMode('aggro')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mode === 'aggro' ? 'bg-red-500/20 text-red-400 border border-red-500' : 'bg-zinc-900 text-zinc-500'}`}>🔥 50%</button>
+                <div className="flex justify-between mt-3">
+                    <button onClick={() => changePct(10)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${investPct === 10 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500' : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300'}`}>🛡️ 10%</button>
+                    <button onClick={() => changePct(25)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${investPct === 25 ? 'bg-violet-500/20 text-violet-400 border border-violet-500' : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300'}`}>⚖️ 25%</button>
+                    <button onClick={() => changePct(50)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${investPct === 50 ? 'bg-orange-500/20 text-orange-400 border border-orange-500' : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300'}`}>🔥 50%</button>
+                    <button onClick={() => changePct(100)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${investPct === 100 ? 'bg-red-500/20 text-red-400 border border-red-500' : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300'}`}>💀 100%</button>
                 </div>
             </div>
 

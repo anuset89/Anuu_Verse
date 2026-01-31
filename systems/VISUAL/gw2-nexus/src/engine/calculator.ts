@@ -89,7 +89,7 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
         // Simplified common calculation: ROI = (Sell T6 * AvgYield) / (Cost Materials)
 
         const cost = (t5.buys.unit_price * 50) + (t6.buys.unit_price * 1) + (dust.buys.unit_price * 5);
-        const sell = t6.sells.unit_price * 2; // Conservative average yield: 2 units
+        const sell = t6.sells.unit_price * 7; // Average yield is 5-12, using 7 as safe base.
         const profit = (sell * 0.85) - cost; // 15% TP Tax
         const roi = (profit / cost) * 100;
 

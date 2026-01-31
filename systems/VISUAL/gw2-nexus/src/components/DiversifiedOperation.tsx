@@ -127,6 +127,12 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet }: { lis
                                         </div>
                                         <div className="text-right">
                                             <span className="text-white font-mono font-black text-xl block">{l.count}</span>
+                                            {l.count >= 250 && (
+                                                <span className="text-[10px] text-indigo-400 font-black uppercase tracking-tighter">
+                                                    {Math.floor(l.count / 250)} STACK{Math.floor(l.count / 250) > 1 ? 'S' : ''}
+                                                    {l.count % 250 > 0 ? ` + ${l.count % 250}` : ''}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
@@ -375,6 +381,12 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                                         <span className="text-zinc-500 font-bold uppercase">{isEng ? 'Buy' : 'Comprar'} {getTranslatedName(item.strategy.sourceId, item.strategy.sourceName, isEng)}</span>
                                         <div className="text-right">
                                             <span className={`font-black ${item.buySource < item.neededSource ? 'text-emerald-400' : 'text-white'}`}>{item.buySource} u.</span>
+                                            {item.buySource >= 250 && (
+                                                <div className="text-[7px] text-indigo-400 font-black uppercase tracking-widest leading-none mt-0.5">
+                                                    {Math.floor(item.buySource / 250)} STACK{Math.floor(item.buySource / 250) > 1 ? 'S' : ''}
+                                                    {item.buySource % 250 > 0 ? ` + ${item.buySource % 250}` : ''}
+                                                </div>
+                                            )}
                                             {item.ownedSource > 0 && <div className="text-[7px] text-zinc-500 uppercase tracking-tight">{isEng ? 'Have' : 'Tienes'}: {item.ownedSource}</div>}
                                         </div>
                                     </div>
@@ -383,6 +395,12 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                                             <span className="text-zinc-500 font-bold uppercase">{isEng ? 'Buy Dust' : 'Comprar Polvo'}</span>
                                             <div className="text-right">
                                                 <span className={`font-black ${item.buyDust < item.neededDust ? 'text-emerald-400' : 'text-indigo-300'}`}>{item.buyDust} u.</span>
+                                                {item.buyDust >= 250 && (
+                                                    <div className="text-[7px] text-indigo-400 font-black uppercase tracking-widest leading-none mt-0.5">
+                                                        {Math.floor(item.buyDust / 250)} STACK{Math.floor(item.buyDust / 250) > 1 ? 'S' : ''}
+                                                        {item.buyDust % 250 > 0 ? ` + ${item.buyDust % 250}` : ''}
+                                                    </div>
+                                                )}
                                                 {item.ownedDust > 0 && <div className="text-[7px] text-zinc-500 uppercase tracking-tight">{isEng ? 'Have' : 'Tienes'}: {item.ownedDust}</div>}
                                             </div>
                                         </div>

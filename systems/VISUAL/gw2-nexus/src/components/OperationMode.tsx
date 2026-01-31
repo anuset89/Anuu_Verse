@@ -156,7 +156,15 @@ export const OperationMode = ({ strategy, materials, wallet, prices, onBack, isE
                                         <div><div className="text-[9px] text-indigo-400 font-black uppercase mb-1 tracking-widest font-display">Buy Order</div><GoldDisplay amount={item.priceOrder} size="sm" /></div>
                                         <div className="bg-black/40 px-6 py-4 rounded-2xl border border-indigo-500/20 shadow-inner min-w-[140px] col-span-2 lg:col-span-1">
                                             <div className="text-[9px] text-indigo-400 font-black uppercase mb-1 flex items-center gap-2 justify-end font-display">{isEng ? 'Quantity' : 'Cantidad'} <TrendingUp size={10} /></div>
-                                            <div className="text-2xl font-black text-white font-display leading-none mb-1">{item.buy.toLocaleString()} <span className="text-[12px] text-zinc-600 font-mono">u.</span></div>
+                                            <div className="text-2xl font-black text-white font-display leading-none mb-1">
+                                                {item.buy.toLocaleString()} <span className="text-[12px] text-zinc-600 font-mono">u.</span>
+                                            </div>
+                                            {item.buy >= 250 && (
+                                                <div className="text-[10px] font-black text-indigo-400 uppercase tracking-tighter mb-2">
+                                                    {Math.floor(item.buy / 250)} STACK{Math.floor(item.buy / 250) > 1 ? 'S' : ''}
+                                                    {item.buy % 250 > 0 ? ` + ${item.buy % 250} u.` : ''}
+                                                </div>
+                                            )}
                                             {item.supply > 50000 && (
                                                 <div className="text-[7px] text-emerald-400 font-black uppercase tracking-[0.2em] animate-pulse">
                                                     {isEng ? '✦ SMART START: 1-10 units suggested (Auto-renewable)' : '✦ INICIO INTELIGENTE: 1-10 unidades sugeridas (Auto-generable)'}

@@ -94,11 +94,11 @@ export const IDS_TO_NAME_ES: Record<number, string> = {
     95856: "Pergamino Antiguo",
     13357: "Pendiente de Mithril",
     24295: "Sangre Poderosa", 24341: "Hueso Antiguo", 24351: "Garra Poderosa", 24357: "Colmillo Antiguo",
-    24289: "Escama Blindada", 24300: "Tótem Elaborado", 24283: "Veneno Poderoso", 24277: "Polvo Cristalino",
+    24289: "Escama Blindada", 24300: "Tótem Elaborado", 24283: "Veneno Poderoso",
     19703: "Mineral de Oricalco", 19725: "Madera Antigua", 19732: "Cuero Endurecido", 19745: "Gasa",
     24304: "Núcleo de Ónix", 24305: "Piedra de Imán de Ónix",
     24329: "Núcleo Fundido", 24330: "Piedra de Imán Fundida",
-    24334: "Núcleo Fundido", 24335: "Piedra de Imán Fundida",
+    24334: "Núcleo Glacial", 24335: "Piedra de Imán Glacial",
     24324: "Núcleo de Destructor", 24325: "Piedra de Imán de Destructor",
     24320: "Núcleo de Cristal", 24321: "Piedra de Imán de Cristal",
     24339: "Núcleo Corrupto", 24338: "Piedra de Imán Corrupta",
@@ -110,7 +110,7 @@ export const IDS_TO_NAME_ES: Record<number, string> = {
     19721: "Globo de Ectoplasma",
     19976: "Moneda Mística",
     19675: "Trébol Místico",
-    24277: "Polvo Cristalino Centelleante"
+    24277: "Polvo Cristalino"
 };
 
 export const getTranslatedName = (id: number, fallback: string, isEng: boolean) => {
@@ -128,6 +128,9 @@ export interface AnuuStrategy {
     profitPerCraft: number;
     roi: number;
     supplyQty: number;
+    sellPrice: number;
+    recipe?: string;
+    verdict?: string;
 }
 
 export interface MarketItem {
@@ -140,10 +143,10 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
     const strategies: AnuuStrategy[] = [];
 
     // 1. T5 to T6 Fine Materials (Promotion)
-    const types: (keyof typeof IDS)[] = ['BLOOD', 'BONE', 'CLAW', 'FANG', 'SCALE', 'TOTEM', 'VENOM', 'DUST'];
+    const types = ['BLOOD', 'BONE', 'CLAW', 'FANG', 'SCALE', 'TOTEM', 'VENOM', 'DUST'];
     types.forEach(type => {
-        const idT5 = IDS[`${type}_T5` as keyof typeof IDS];
-        const idT6 = IDS[`${type}_T6` as keyof typeof IDS];
+        const idT5 = (IDS as any)[`${type}_T5`];
+        const idT6 = (IDS as any)[`${type}_T6`];
         const p5 = prices[idT5];
         const p6 = prices[idT6];
         const pDust = prices[IDS.DUST];
@@ -162,16 +165,18 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
                 targetId: idT6,
                 profitPerCraft: profit,
                 roi: profit / cost,
-                supplyQty: p5.sells.quantity
+                supplyQty: p5.sells.quantity,
+                sellPrice: p6.sells.unit_price,
+                verdict: 'UPGRADE'
             });
         }
     });
 
     // 2. Common Materials (Promotion)
-    const commonTypes: (keyof typeof IDS)[] = ['ORE', 'WOOD', 'LEATHER', 'CLOTH'];
+    const commonTypes = ['ORE', 'WOOD', 'LEATHER', 'CLOTH'];
     commonTypes.forEach(type => {
-        const idT5 = IDS[`${type}_T5` as keyof typeof IDS];
-        const idT6 = IDS[`${type}_T6` as keyof typeof IDS];
+        const idT5 = (IDS as any)[`${type}_T5`];
+        const idT6 = (IDS as any)[`${type}_T6`];
         const p5 = prices[idT5];
         const p6 = prices[idT6];
         const pDust = prices[IDS.DUST];
@@ -190,7 +195,9 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
                 targetId: idT6,
                 profitPerCraft: profit,
                 roi: profit / cost,
-                supplyQty: p5.sells.quantity
+                supplyQty: p5.sells.quantity,
+                sellPrice: p6.sells.unit_price,
+                verdict: 'VOLUME'
             });
         }
     });
@@ -198,8 +205,8 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
     // 3. Cores to Lodestones
     const lodeTypes = ['ONYX', 'MOLTEN', 'GLACIAL', 'DESTROYER', 'CRYSTAL', 'CORRUPTED', 'CHARGED'];
     lodeTypes.forEach(type => {
-        const idCore = IDS[`CORE_${type}` as keyof typeof IDS];
-        const idLode = IDS[`LODE_${type}` as keyof typeof IDS];
+        const idCore = (IDS as any)[`CORE_${type}`];
+        const idLode = (IDS as any)[`LODE_${type}`];
         const pCore = prices[idCore];
         const pLode = prices[idLode];
         const pDust = prices[IDS.DUST];
@@ -218,7 +225,9 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
                 targetId: idLode,
                 profitPerCraft: profit,
                 roi: profit / cost,
-                supplyQty: pCore.sells.quantity
+                supplyQty: pCore.sells.quantity,
+                sellPrice: pLode.sells.unit_price,
+                verdict: 'UPGRADE'
             });
         }
     });
@@ -240,7 +249,9 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
             targetId: IDS.LUCENT_SHARD,
             profitPerCraft: profit,
             roi: profit / cost,
-            supplyQty: pMote.sells.quantity
+            supplyQty: pMote.sells.quantity,
+            sellPrice: pShard.sells.unit_price,
+            verdict: 'WEEKLY'
         });
     }
 
@@ -256,12 +267,14 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
             id: 'industrial-research',
             name: 'Research Notes (Earrings)',
             type: 'INDUSTRIAL',
-            sourceId: IDS.ORE_T5,
+            sourceId: (IDS as any).ORE_T5,
             sourceName: 'Mithril Ore',
-            targetId: IDS.RESEARCH_NOTE,
+            targetId: (IDS as any).RESEARCH_NOTE,
             profitPerCraft: profit,
             roi: profit / cost,
-            supplyQty: pMithril.sells.quantity
+            supplyQty: pMithril.sells.quantity,
+            sellPrice: 150, // Potential value per note
+            verdict: 'RESEARCH'
         });
     }
 

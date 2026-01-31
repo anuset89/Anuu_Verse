@@ -46,7 +46,7 @@ export const DiversificationHub = ({ strategies, onSelect, isEng, walletGold }: 
             id: 'industrial',
             title: isEng ? 'Industrial Lab' : 'Lab Industrial',
             icon: <FlaskConical className="text-amber-400" size={24} />,
-            items: strategies.filter(s => s.verdict.includes('RESEARCH') || s.verdict.includes('WEEKLY')).slice(0, 3),
+            items: strategies.filter(s => s.verdict?.includes('RESEARCH') || s.verdict?.includes('WEEKLY')).slice(0, 3),
             desc: isEng ? 'Research and systematic item upgrades.' : 'Investigación y mejoras sistemáticas de ítems.',
             stats: { roi: 'STABLE', risk: 'ZERO', speed: 'SYSTEM' },
             color: 'border-amber-500/20 hover:border-amber-500/40'
@@ -101,6 +101,7 @@ export const DiversificationHub = ({ strategies, onSelect, isEng, walletGold }: 
 
                         <div className="flex justify-between items-start mb-4 relative z-10">
                             <div className="p-3 bg-black/40 rounded-xl border border-white/5 group-hover:border-white/20 transition-colors">{p.icon}</div>
+                            {p.items[0]?.verdict && <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">{p.items[0].verdict}</span>}
                             <div className="text-[10px] font-black uppercase tracking-widest text-zinc-500 bg-black/40 px-2 py-1 rounded border border-white/5">
                                 {p.stats.risk === 'LOW' ? (isEng ? 'Low Risk' : 'Riesgo Bajo') : p.stats.risk === 'MED' ? (isEng ? 'Med Risk' : 'Riesgo Medio') : (isEng ? 'High Yield' : 'Alto Rendimiento')}
                             </div>

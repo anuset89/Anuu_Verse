@@ -5,7 +5,7 @@ import { getTranslatedName } from '../engine/calculator';
 import { getItemIcon } from '../utils/icons';
 
 export const StrategicLab = ({ strategies, onSelect, isEng }: { strategies: AnuuStrategy[], onSelect: (s: AnuuStrategy) => void, isEng: boolean }) => {
-    const labItems = strategies.filter(s => s.verdict.includes('RESEARCH') || s.verdict.includes('WEEKLY') || s.verdict.includes('UPGRADE') || s.name.includes('Ecto'));
+    const labItems = strategies.filter(s => s.verdict?.includes('RESEARCH') || s.verdict?.includes('WEEKLY') || s.verdict?.includes('UPGRADE') || s.name.includes('Ecto'));
 
     return (
         <div className="matte-card p-8 border-amber-500/30 bg-black/40 mb-12 relative overflow-hidden">
@@ -26,7 +26,7 @@ export const StrategicLab = ({ strategies, onSelect, isEng }: { strategies: Anuu
                     <div key={idx} className="p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-amber-500/30 transition-all group cursor-pointer" onClick={() => onSelect(item)}>
                         <div className="flex justify-between items-start mb-4">
                             <div className="text-2xl bg-black/40 p-2 rounded-lg border border-white/5">{getItemIcon(item.name)}</div>
-                            <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">{item.verdict}</span>
+                            {item.verdict && <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">{item.verdict}</span>}
                         </div>
                         <h4 className="font-bold text-white uppercase text-xs mb-1 group-hover:text-amber-400 transition-colors">
                             {getTranslatedName(item.targetId, item.name, isEng)}

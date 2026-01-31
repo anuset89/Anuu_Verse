@@ -1,5 +1,3 @@
-import bgNexus from './assets/bg_nexus.png';
-
 import { useState, useEffect, useCallback } from 'react';
 import { analyzeMarket, IDS } from './engine/calculator';
 import type { AnuuStrategy, MarketItem } from './engine/calculator';
@@ -516,11 +514,10 @@ function App() {
     <div
       className="min-h-screen bg-[#050508] text-zinc-400 p-6 md:p-12 font-sans selection:bg-indigo-500/30 overflow-x-hidden relative"
       style={{
-        backgroundImage: `url(${bgNexus})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
-        backgroundBlendMode: 'overlay'
+        background: `radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                     radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                     linear-gradient(to bottom, #09090b, #020617)`,
+        backgroundAttachment: 'fixed'
       }}
     >
       <div className="max-w-6xl mx-auto space-y-10 relative z-10">

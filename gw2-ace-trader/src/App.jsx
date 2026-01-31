@@ -558,10 +558,39 @@ const PhandrelProtocol = ({ prices, lang }) => {
 // v21 CORE - Next Action (SIMPLE + FOCUSED)
 const NextAction = ({ opportunities, gold, lang, onRefresh, loading }) => {
     const top = opportunities[0];
-    if (!top) return null;
+
+    // Loading or no data state
+    if (loading || !top || !top.id) {
+        return (
+            <div className="bg-gradient-to-r from-violet-950/80 to-fuchsia-950/60 border border-fuchsia-500/40 rounded-2xl p-5 mb-6 shadow-xl">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-fuchsia-600 p-2.5 rounded-xl animate-pulse"><Target size={20} className="text-white" /></div>
+                        <div>
+                            <p className="text-[10px] text-fuchsia-400 font-black uppercase">{lang === 'es' ? 'CARGANDO...' : 'LOADING...'}</p>
+                            <p className="text-sm text-zinc-500">{lang === 'es' ? 'Analizando mercado...' : 'Analyzing market...'}</p>
+                        </div>
+                    </div>
+                    <button onClick={onRefresh} className="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-violet-400">
+                        <RefreshCcw size={14} className={loading ? 'animate-spin' : ''} />
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     const affordable = opportunities.filter(o => gold >= o.totalCost);
     const best = affordable[0] || top;
     const canAfford = gold >= best.totalCost;
+    const t5Name = getItemName(best.t5Id, lang) || 'T5 Mat';
+    const t6Name = getItemName(best.id, lang) || 'T6 Mat';
+    const qty = best.chosen || 1;
+    const profit = best.potentialProfit || 0;
+
+    // Strategy type
+    const strategy = best.synergy ? (lang === 'es' ? '♻️ RECICLAJE' : '♻️ RECYCLE')
+        : profit > 50000 ? (lang === 'es' ? '🔥 ALTA GANANCIA' : '🔥 HIGH PROFIT')
+            : (lang === 'es' ? '📈 CRAFTEO T5→T6' : '📈 CRAFT T5→T6');
 
     return (
         <div className="bg-gradient-to-r from-violet-950/80 to-fuchsia-950/60 border border-fuchsia-500/40 rounded-2xl p-5 mb-6 shadow-xl">
@@ -569,20 +598,20 @@ const NextAction = ({ opportunities, gold, lang, onRefresh, loading }) => {
                 <div className="flex items-center gap-3">
                     <div className="bg-fuchsia-600 p-2.5 rounded-xl"><Target size={20} className="text-white" /></div>
                     <div>
-                        <p className="text-[10px] text-fuchsia-400 font-black uppercase">{lang === 'es' ? 'PRÓXIMA ACCIÓN' : 'NEXT ACTION'}</p>
-                        <h2 className="text-xl font-black text-white">{getItemName(best.id, lang)}</h2>
+                        <p className="text-[10px] text-fuchsia-400 font-black uppercase">{strategy}</p>
+                        <h2 className="text-xl font-black text-white">{t6Name}</h2>
                     </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                    <span className="text-blue-400">{getItemName(best.t5Id, lang)}</span>
-                    <span className="text-fuchsia-500">→</span>
-                    <span className="text-violet-400">x{best.chosen}</span>
-                    <span className="text-fuchsia-500">→</span>
-                    <span className="text-emerald-400 font-black">{formatGold(best.potentialProfit)}</span>
+                <div className="flex items-center gap-2 text-sm bg-zinc-950/40 px-4 py-2 rounded-xl">
+                    <span className="text-blue-400 font-medium">{lang === 'es' ? 'Compra' : 'Buy'} {t5Name}</span>
+                    <span className="text-fuchsia-500 font-black">→</span>
+                    <span className="text-violet-400 font-bold">{lang === 'es' ? 'Craftea' : 'Craft'} x{qty}</span>
+                    <span className="text-fuchsia-500 font-black">→</span>
+                    <span className="text-emerald-400 font-black text-lg">{formatGold(profit)}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${canAfford ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
-                        {canAfford ? '✓' : '✗'}
+                    <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${canAfford ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                        {canAfford ? (lang === 'es' ? '✓ LISTO' : '✓ READY') : (lang === 'es' ? '✗ FALTA ORO' : '✗ NEED GOLD')}
                     </span>
                     <button onClick={onRefresh} className="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-violet-400">
                         <RefreshCcw size={14} className={loading ? 'animate-spin' : ''} />

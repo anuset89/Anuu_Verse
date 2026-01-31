@@ -555,74 +555,40 @@ const PhandrelProtocol = ({ prices, lang }) => {
         </div>
     );
 };
-
-// v21 Daily Action Panel
-const DailyActionPanel = ({ opportunities, shards, lang, watchlist, onToggleWatch }) => {
-    const t = LANG[lang];
-    const today = new Date().getDay();
-    const dayNames = { es: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'], en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] };
-
-    const getDayTip = () => {
-        if (today === 5) return t.fridayTip;
-        if (today === 6) return t.saturdayTip;
-        if (today === 0) return t.sundayTip;
-        return t.weekdayTip;
-    };
-
+// v21 CORE - Next Action (SIMPLE + FOCUSED)
+const NextAction = ({ opportunities, gold, lang, onRefresh, loading }) => {
     const top = opportunities[0];
     if (!top) return null;
-
-    const craftsFromShards = Math.floor((shards || 0) * 2);
+    const affordable = opportunities.filter(o => gold >= o.totalCost);
+    const best = affordable[0] || top;
+    const canAfford = gold >= best.totalCost;
 
     return (
-        <div className="bg-gradient-to-br from-violet-950/40 to-zinc-900 border-2 border-fuchsia-500/30 rounded-3xl p-6 mb-8 shadow-2xl">
-            <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
-                <div>
-                    <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-2">{t.dailyAction}</h2>
-                    <div className="bg-fuchsia-500/20 px-4 py-2 rounded-xl border border-fuchsia-500/30 inline-block">
-                        <span className="text-fuchsia-400 font-bold">{t.todayIs}: <span className="text-white">{dayNames[lang][today]}</span></span>
-                    </div>
-                    <p className="text-sm text-zinc-400 mt-3 max-w-md">{getDayTip()}</p>
-                </div>
-
-                <div className="flex flex-col md:flex-row gap-4 items-center">
-                    <div className="bg-zinc-950/60 p-4 rounded-xl border border-blue-500/30 text-center min-w-[140px]">
-                        <p className="text-[10px] text-blue-400 font-black uppercase mb-2">{t.buyNow}</p>
-                        <p className="text-sm text-white font-bold">{getItemName(top.t5Id, lang)}</p>
-                        <p className="text-xs text-zinc-500 mt-1">x{top.chosen * 50}</p>
-                    </div>
-                    <span className="text-fuchsia-500 text-2xl font-black">→</span>
-                    <div className="bg-zinc-950/60 p-4 rounded-xl border border-violet-500/30 text-center min-w-[140px]">
-                        <p className="text-[10px] text-violet-400 font-black uppercase mb-2">{t.craftNow}</p>
-                        <p className="text-sm text-white font-bold">{getItemName(top.id, lang)}</p>
-                        <p className="text-xs text-zinc-500 mt-1">x{top.chosen}</p>
-                    </div>
-                    <span className="text-fuchsia-500 text-2xl font-black">→</span>
-                    <div className="bg-zinc-950/60 p-4 rounded-xl border border-fuchsia-500/30 text-center min-w-[140px]">
-                        <p className="text-[10px] text-fuchsia-400 font-black uppercase mb-2">{t.sellNow}</p>
-                        <p className="text-lg text-fuchsia-400 font-mono font-black">{formatGold(top.potentialProfit)}</p>
+        <div className="bg-gradient-to-r from-violet-950/80 to-fuchsia-950/60 border border-fuchsia-500/40 rounded-2xl p-5 mb-6 shadow-xl">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <div className="bg-fuchsia-600 p-2.5 rounded-xl"><Target size={20} className="text-white" /></div>
+                    <div>
+                        <p className="text-[10px] text-fuchsia-400 font-black uppercase">{lang === 'es' ? 'PRÓXIMA ACCIÓN' : 'NEXT ACTION'}</p>
+                        <h2 className="text-xl font-black text-white">{getItemName(best.id, lang)}</h2>
                     </div>
                 </div>
-
-                <div className="bg-indigo-950/40 p-4 rounded-xl border border-indigo-500/30 text-center">
-                    <p className="text-[10px] text-indigo-400 font-black uppercase mb-1">{t.shardsAvailable}</p>
-                    <p className="text-2xl text-indigo-300 font-mono font-black">{shards || '?'}</p>
-                    <p className="text-xs text-zinc-500 mt-2">{t.craftsWithShards}: <span className="text-white font-bold">{craftsFromShards}</span></p>
+                <div className="flex items-center gap-2 text-sm">
+                    <span className="text-blue-400">{getItemName(best.t5Id, lang)}</span>
+                    <span className="text-fuchsia-500">→</span>
+                    <span className="text-violet-400">x{best.chosen}</span>
+                    <span className="text-fuchsia-500">→</span>
+                    <span className="text-emerald-400 font-black">{formatGold(best.potentialProfit)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${canAfford ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                        {canAfford ? '✓' : '✗'}
+                    </span>
+                    <button onClick={onRefresh} className="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-violet-400">
+                        <RefreshCcw size={14} className={loading ? 'animate-spin' : ''} />
+                    </button>
                 </div>
             </div>
-
-            {watchlist && watchlist.length > 0 && (
-                <div className="mt-6 pt-4 border-t border-zinc-800">
-                    <p className="text-xs text-fuchsia-400 font-black uppercase mb-3">{t.watchlist}</p>
-                    <div className="flex flex-wrap gap-2">
-                        {watchlist.map(id => (
-                            <button key={id} onClick={() => onToggleWatch(id)} className="bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-400 text-xs font-bold px-3 py-1.5 rounded-full border border-fuchsia-500/30 transition-colors">
-                                ⭐ {getItemName(id, lang)}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
@@ -929,7 +895,7 @@ const App = () => {
             </header>
 
             <OracleBar alpha={globalAlpha} route={bestRoute} lang={lang} />
-            <DailyActionPanel opportunities={opportunities} shards={userData.wallet[23]} lang={lang} watchlist={watchlist} onToggleWatch={toggleWatch} />
+            <NextAction opportunities={opportunities} gold={userData.wallet?.[1] || 0} lang={lang} onRefresh={() => { fetchMarketData(); fetchUserData(); }} loading={loading} />
             <div className="mb-12">
                 <KilonovaScanner data={kilonovaData} loading={kiloLoading} onScan={runKilonovaScan} lang={lang} />
             </div>

@@ -592,7 +592,7 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
         return { strategy: s, freeBatches, costToFinish, score: p.score };
     }).sort((a, b) => (b.freeBatches * b.strategy.profitPerCraft) - (a.freeBatches * a.strategy.profitPerCraft));
 
-    // --- NEW ADAPTIVE BUDGETER: Sequential Capital Allocation ---
+    // --- BUDGET ENGINE v3: Integrated Listing Fee Calculation ---
     const calculateShoppingList = () => {
         const totalStrats = prioritizedStrategies.length;
         const defaultWeight = 1 / Math.max(1, totalStrats);
@@ -603,75 +603,86 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
             batchSize: 0
         }));
 
-        // Simple Budget Reserve: 15% for listing fees (scales with budget, not potential sales)
-        // This prevents the issue where massive potential inventory creates an impossible reserve
-        const listingFeeReserve = budgetGold * 0.15;
-        let flexibleBudget = budgetGold - listingFeeReserve;
+        // Track both direct costs AND projected listing fees together
+        let totalDirectCost = 0;      // Wine, Seeds, Materials
+        let totalProjectedListingFee = 0; // 5% of gross sales
+        const walletLimit = budgetGold; // Hard cap = what you have
 
-        // Minimum viable budget check (at least 10 silver to operate)
-        if (flexibleBudget < 0.1) {
-            return []; // Not enough capital to operate
-        }
+        // Helper: Check if adding a batch would exceed wallet
+        const canAffordBatch = (directCost: number, sellValue: number) => {
+            const newDirectCost = totalDirectCost + directCost;
+            const newListingFee = totalProjectedListingFee + (sellValue * 0.05);
+            return (newDirectCost + newListingFee) <= walletLimit;
+        };
 
         // PASS 1: Inventory Maintenance (Process what we HAVE first)
-        // This includes Wine for LODE and SEED costs for Promotions
         results.forEach(res => {
             const s = res.strategy;
             const qWine = s.type === 'LODE' ? 1 : 0;
-            const pWine = 0.2560; // Wine cost in gold
+            const pWine = 0.2560;
 
-            // Seed requirement for Promotions (COMMON, FINE)
+            // Seed requirement for Promotions
             const isPromotion = s.type === 'COMMON' || s.type === 'FINE';
             const pSeed = isPromotion ? (prices[s.targetId]?.buys?.unit_price || prices[s.targetId]?.sells?.unit_price || 0) / 10000 : 0;
             const ownedSeeds = materials[s.targetId]?.total || 0;
 
-            if (flexibleBudget > 0 && res.freeBatches > 0) {
+            // Sell value per batch (for listing fee calculation)
+            const sellPrice = (prices[s.targetId]?.sells?.unit_price || 0) / 10000;
+            const yieldPerBatch = s.type === 'FINE' ? 7 : (s.type === 'COMMON' ? 22 : 1);
+            const sellValuePerBatch = sellPrice * yieldPerBatch;
+
+            if (res.freeBatches > 0) {
                 let executed = 0;
                 for (let i = 0; i < res.freeBatches; i++) {
-                    let batchCost = qWine * pWine;
+                    let batchDirectCost = qWine * pWine;
 
-                    // Do we need to buy a seed for this batch?
-                    // We need `executed + 1` seeds total. If we have fewer than that, we must buy.
+                    // Do we need to buy a seed?
                     if (isPromotion && (executed + 1) > ownedSeeds) {
-                        batchCost += pSeed;
+                        batchDirectCost += pSeed;
                     }
 
-                    if (flexibleBudget >= batchCost) {
-                        flexibleBudget -= batchCost;
+                    // Check if we can afford this batch including its listing fee contribution
+                    if (canAffordBatch(batchDirectCost, sellValuePerBatch)) {
+                        totalDirectCost += batchDirectCost;
+                        totalProjectedListingFee += sellValuePerBatch * 0.05;
                         executed++;
                     } else {
-                        break; // Not enough budget for this batch's fees/seeds
+                        break; // Can't afford this batch
                     }
                 }
                 res.batchSize += executed;
             }
         });
 
-        // PASS 2: Expansion (Buy NEW materials with remaining budget)
-        // Only runs if we have budget left after securing inventory processing
-        if (flexibleBudget > 0.5) { // Minimum 50 silver to bother expanding
+        // PASS 2: Expansion (Buy NEW materials) - Only if we have headroom
+        const currentTotal = totalDirectCost + totalProjectedListingFee;
+        const remainingBudget = walletLimit - currentTotal;
+
+        if (remainingBudget > 0.5) {
             results.forEach(res => {
                 const s = res.strategy;
 
-                // Get prices (in Gold)
                 const pSource = (prices[s.sourceId]?.buys?.unit_price || prices[s.sourceId]?.sells?.unit_price || 0) / 10000;
                 const pDust = (prices[IDS.DUST]?.buys?.unit_price || prices[IDS.DUST]?.sells?.unit_price || 0) / 10000;
                 const pSeed = (prices[s.targetId]?.buys?.unit_price || prices[s.targetId]?.sells?.unit_price || 0) / 10000;
                 const pWine = 0.2560;
 
-                // Quantities per batch
                 const qSource = s.type === 'LODE' ? 2 : (s.type === 'RUNE' ? 10 : (s.type === 'COMMON' ? 250 : 50));
                 const qDust = s.type === 'LODE' ? 1 : (s.type === 'RUNE' ? 0 : 5);
                 const qWine = s.type === 'LODE' ? 1 : 0;
                 const qSeed = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : 1;
 
-                // Full Cost to buy Everything for 1 batch
                 const costPerCraft = (qSource * pSource) + (qDust * pDust) + (qWine * pWine) + (qSeed * pSeed);
 
-                if (flexibleBudget > 0 && costPerCraft > 0) {
-                    const extra = Math.floor(flexibleBudget / costPerCraft);
-                    res.batchSize += extra;
-                    flexibleBudget -= (extra * costPerCraft);
+                const sellPrice = (prices[s.targetId]?.sells?.unit_price || 0) / 10000;
+                const yieldPerBatch = s.type === 'FINE' ? 7 : (s.type === 'COMMON' ? 22 : 1);
+                const sellValuePerBatch = sellPrice * yieldPerBatch;
+
+                // Try to add expansion batches one by one
+                while (canAffordBatch(costPerCraft, sellValuePerBatch) && costPerCraft > 0) {
+                    totalDirectCost += costPerCraft;
+                    totalProjectedListingFee += sellValuePerBatch * 0.05;
+                    res.batchSize++;
                 }
             });
         }

@@ -655,24 +655,52 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
         );
     }
 
-    // Investment calculation based on slider percentage
-    const investmentAmount = Math.floor((gold || 0) * (investPct / 100));
+    // PROPORTIONAL CALCULATION ENGINE with useMemo for optimization
+    const calculation = useMemo(() => {
+        const budget = Math.floor((gold || 0) * (investPct / 100));
+        if (budget <= 0) return null;
 
-    // Validate: totalCost should be > 1000 copper (10s minimum for real crafts)
-    const hasValidData = top.totalCost > 1000 && top.chosen > 0;
-    const unitCost = hasValidData ? top.totalCost / top.chosen : 0;
-    const unitProfit = hasValidData ? (top.potentialProfit || 0) / top.chosen : 0;
+        // Filter valid opportunities
+        const validOpps = opportunities.filter(o =>
+            o.totalCost > 1000 && o.chosen > 0 && o.potentialProfit > 0
+        );
+        if (validOpps.length === 0) return null;
 
-    // Limit to max 250 crafts per session (reasonable T6 crafting limit)
-    const rawCrafts = unitCost > 0 ? Math.floor(investmentAmount / unitCost) : 0;
-    const craftableUnits = hasValidData ? Math.min(250, Math.max(1, rawCrafts)) : 0;
-    const actualCost = Math.floor(craftableUnits * unitCost);
-    const expectedProfit = Math.floor(craftableUnits * unitProfit);
+        // Calculate unit economics
+        const oppData = validOpps.map(o => ({
+            id: o.id, t5Id: o.t5Id,
+            unitCost: o.totalCost / o.chosen,
+            unitProfit: o.potentialProfit / o.chosen,
+            roi: o.roi || 0,
+            name: getItemName(o.id, lang),
+            t5Name: getItemName(o.t5Id, lang)
+        })).filter(o => o.unitCost > 0).sort((a, b) => b.roi - a.roi);
 
-    const t5Name = getItemName(top.t5Id, lang);
-    const t6Name = getItemName(top.id, lang);
+        // Greedy allocation by ROI
+        let remaining = budget;
+        const allocations = [];
 
-    // Risk indicator based on percentage
+        for (const opp of oppData) {
+            if (remaining < opp.unitCost) continue;
+            const maxUnits = Math.min(50, Math.floor(remaining / opp.unitCost));
+            if (maxUnits <= 0) continue;
+
+            allocations.push({ ...opp, units: maxUnits, cost: Math.floor(maxUnits * opp.unitCost), profit: Math.floor(maxUnits * opp.unitProfit), t5Qty: maxUnits * 50 });
+            remaining -= maxUnits * opp.unitCost;
+            if (remaining < 1000) break;
+        }
+
+        const totalCost = allocations.reduce((s, a) => s + a.cost, 0);
+        const totalProfit = allocations.reduce((s, a) => s + a.profit, 0);
+        const totalCrafts = allocations.reduce((s, a) => s + a.units, 0);
+
+        return { allocations, totalCost, totalProfit, totalCrafts, avgROI: totalCost > 0 ? (totalProfit / totalCost) * 100 : 0, itemCount: allocations.length };
+    }, [opportunities, gold, investPct, lang]);
+
+    const t5Name = calculation?.allocations[0]?.t5Name || getItemName(top.t5Id, lang);
+    const t6Name = calculation?.allocations[0]?.name || getItemName(top.id, lang);
+
+    // Risk indicator
     const getRiskLabel = () => {
         if (investPct <= 15) return { icon: '🛡️', text: lang === 'es' ? 'SEGURO' : 'SAFE', color: 'text-emerald-400' };
         if (investPct <= 40) return { icon: '⚖️', text: lang === 'es' ? 'MODERADO' : 'MODERATE', color: 'text-violet-400' };
@@ -681,11 +709,11 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
     };
     const risk = getRiskLabel();
 
-    const steps = [
-        { id: 1, label: t.stepBuy, action: `${t5Name}`, qty: `x${craftableUnits * 50}`, color: 'blue' },
-        { id: 2, label: t.stepCraft, action: `${t6Name}`, qty: `x${craftableUnits}`, color: 'violet' },
-        { id: 3, label: t.stepSell, action: formatGold(expectedProfit), qty: lang === 'es' ? 'GANANCIA' : 'PROFIT', color: 'emerald' }
-    ];
+    const steps = calculation ? [
+        { id: 1, label: t.stepBuy, action: `${calculation.itemCount} items`, qty: `${calculation.totalCrafts * 50} T5`, color: 'blue' },
+        { id: 2, label: t.stepCraft, action: `${calculation.itemCount} tipos`, qty: `x${calculation.totalCrafts}`, color: 'violet' },
+        { id: 3, label: t.stepSell, action: formatGold(calculation.totalProfit), qty: `${calculation.avgROI.toFixed(1)}% ROI`, color: 'emerald' }
+    ] : [];
 
     const changePct = (pct) => {
         setInvestPct(pct);
@@ -694,7 +722,7 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
 
     const markStepDone = () => {
         if (currentStep === 3) {
-            const newEarnings = sessionEarnings + expectedProfit;
+            const newEarnings = sessionEarnings + (calculation?.totalProfit || 0);
             setSessionEarnings(newEarnings);
             localStorage.setItem('ace_session_earnings', newEarnings.toString());
             setCurrentStep(1);
@@ -753,22 +781,31 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
 
             {/* Investment Summary */}
             <div className="bg-zinc-950/60 rounded-2xl p-4 mb-6 border border-zinc-800">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <p className="text-[10px] text-zinc-500 uppercase font-bold">{lang === 'es' ? 'INVERSIÓN' : 'INVESTMENT'}</p>
-                        <p className="text-2xl font-black text-white">{formatGold(actualCost)}</p>
+                {!calculation ? (
+                    <div className="flex items-center justify-center gap-3 py-4">
+                        <div className="w-5 h-5 border-2 border-fuchsia-500 border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-zinc-400 text-sm">{lang === 'es' ? 'Calculando distribución óptima...' : 'Calculating optimal distribution...'}</p>
                     </div>
-                    <div className="text-fuchsia-500 text-3xl">→</div>
-                    <div>
-                        <p className="text-[10px] text-zinc-500 uppercase font-bold">{lang === 'es' ? 'CRAFTEOS' : 'CRAFTS'}</p>
-                        <p className="text-2xl font-black text-violet-400">x{craftableUnits}</p>
+                ) : (
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <p className="text-[10px] text-zinc-500 uppercase font-bold">{lang === 'es' ? 'INVERSIÓN' : 'INVESTMENT'}</p>
+                            <p className="text-2xl font-black text-white">{formatGold(calculation.totalCost)}</p>
+                        </div>
+                        <div className="text-fuchsia-500 text-3xl">→</div>
+                        <div className="text-center">
+                            <p className="text-[10px] text-zinc-500 uppercase font-bold">{lang === 'es' ? 'CRAFTEOS' : 'CRAFTS'}</p>
+                            <p className="text-2xl font-black text-violet-400">x{calculation.totalCrafts}</p>
+                            <p className="text-[10px] text-zinc-600">{calculation.itemCount} items</p>
+                        </div>
+                        <div className="text-fuchsia-500 text-3xl">→</div>
+                        <div className="text-right">
+                            <p className="text-[10px] text-emerald-400 uppercase font-bold">{lang === 'es' ? 'GANANCIA' : 'PROFIT'}</p>
+                            <p className="text-2xl font-black text-emerald-400">{formatGold(calculation.totalProfit)}</p>
+                            <p className="text-[10px] text-emerald-600">{calculation.avgROI.toFixed(1)}% ROI</p>
+                        </div>
                     </div>
-                    <div className="text-fuchsia-500 text-3xl">→</div>
-                    <div>
-                        <p className="text-[10px] text-emerald-400 uppercase font-bold">{lang === 'es' ? 'GANANCIA' : 'PROFIT'}</p>
-                        <p className="text-2xl font-black text-emerald-400">{formatGold(expectedProfit)}</p>
-                    </div>
-                </div>
+                )}
             </div>
 
             {/* Steps */}

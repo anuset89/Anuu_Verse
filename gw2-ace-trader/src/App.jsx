@@ -75,7 +75,14 @@ const LANG = {
         sundayTip: '⚠️ DOMINGO: Prepárate para reset semanal. Compra materiales baratos.',
         weekdayTip: '💼 DÍA LABORAL: Menos competencia. Buenos precios de compra.',
         shardsAvailable: 'Shards Disponibles', craftsWithShards: 'Crafteos Posibles',
-        watchlist: '⭐ WATCHLIST', addToWatch: 'Añadir a Favoritos'
+        watchlist: '⭐ WATCHLIST', addToWatch: 'Añadir a Favoritos',
+        // v22 AutoTracker
+        autoTracker: '🎯 AUTOTRACKER', step: 'PASO', of: 'de',
+        stepBuy: 'COMPRAR', stepCraft: 'CRAFTEAR', stepSell: 'VENDER',
+        todayEarnings: 'Ganancia Hoy', sessionStart: 'Inicio Sesión',
+        nextStep: 'Siguiente Paso', markDone: 'Marcar Hecho ✓',
+        dailyGoal: 'Meta Diaria', progress: 'Progreso',
+        quickRoutes: 'Rutas Rápidas', startRoute: 'Iniciar'
     },
     en: {
         title: 'ACE ENGINE', subtitle: 'GW2 Trading Terminal', manual: 'MANUAL', link: 'Link API', linked: 'API Connected',
@@ -144,7 +151,14 @@ const LANG = {
         sundayTip: '⚠️ SUNDAY: Prepare for weekly reset. Buy cheap materials.',
         weekdayTip: '💼 WEEKDAY: Less competition. Good buy prices.',
         shardsAvailable: 'Shards Available', craftsWithShards: 'Possible Crafts',
-        watchlist: '⭐ WATCHLIST', addToWatch: 'Add to Favorites'
+        watchlist: '⭐ WATCHLIST', addToWatch: 'Add to Favorites',
+        // v22 AutoTracker
+        autoTracker: '🎯 AUTOTRACKER', step: 'STEP', of: 'of',
+        stepBuy: 'BUY', stepCraft: 'CRAFT', stepSell: 'SELL',
+        todayEarnings: 'Today\'s Earnings', sessionStart: 'Session Start',
+        nextStep: 'Next Step', markDone: 'Mark Done ✓',
+        dailyGoal: 'Daily Goal', progress: 'Progress',
+        quickRoutes: 'Quick Routes', startRoute: 'Start'
     }
 };
 
@@ -622,6 +636,114 @@ const NextAction = ({ opportunities, gold, lang, onRefresh, loading }) => {
     );
 };
 
+// v22 AUTOTRACKER - Main Gold Guide
+const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
+    const t = LANG[lang];
+    const [currentStep, setCurrentStep] = useState(1);
+    const [sessionEarnings, setSessionEarnings] = useState(() => parseInt(localStorage.getItem('ace_session_earnings') || '0'));
+    const [dailyGoal] = useState(100000); // 10g default goal
+
+    const top = opportunities[0];
+    if (!top || !top.id) {
+        return (
+            <div className="bg-gradient-to-br from-violet-950 to-zinc-900 border-2 border-fuchsia-500/30 rounded-3xl p-8 mb-8 shadow-2xl">
+                <div className="flex items-center justify-center gap-4">
+                    <div className="w-8 h-8 border-4 border-fuchsia-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-fuchsia-400 font-bold">{lang === 'es' ? 'Analizando mercado...' : 'Analyzing market...'}</p>
+                </div>
+            </div>
+        );
+    }
+
+    const t5Name = getItemName(top.t5Id, lang);
+    const t6Name = getItemName(top.id, lang);
+    const qty = top.chosen || 1;
+    const profit = top.potentialProfit || 0;
+    const cost = top.totalCost || 0;
+    const canAfford = gold >= cost;
+
+    const steps = [
+        { id: 1, label: t.stepBuy, desc: `${t5Name} x${qty * 50}`, cost: formatGold(cost), color: 'blue' },
+        { id: 2, label: t.stepCraft, desc: `${t6Name} x${qty}`, cost: '—', color: 'violet' },
+        { id: 3, label: t.stepSell, desc: formatGold(profit), cost: '+', color: 'emerald' }
+    ];
+
+    const markStepDone = () => {
+        if (currentStep === 3) {
+            const newEarnings = sessionEarnings + profit;
+            setSessionEarnings(newEarnings);
+            localStorage.setItem('ace_session_earnings', newEarnings.toString());
+            setCurrentStep(1);
+        } else {
+            setCurrentStep(currentStep + 1);
+        }
+    };
+
+    const progressPct = Math.min((sessionEarnings / dailyGoal) * 100, 100);
+
+    return (
+        <div className="bg-gradient-to-br from-violet-950 to-zinc-900 border-2 border-fuchsia-500/30 rounded-3xl p-6 mb-8 shadow-2xl">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-4">
+                    <div className="bg-fuchsia-600 p-3 rounded-xl"><Target size={28} className="text-white" /></div>
+                    <div>
+                        <h2 className="text-2xl font-black text-white">{t.autoTracker}</h2>
+                        <p className="text-xs text-zinc-500">{t.step} {currentStep} {t.of} 3</p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-4">
+                    <div className="text-right">
+                        <p className="text-[10px] text-zinc-500 uppercase">{t.todayEarnings}</p>
+                        <p className="text-lg font-mono font-black text-emerald-400">{formatGold(sessionEarnings)}</p>
+                    </div>
+                    <button onClick={onRefresh} className="p-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-fuchsia-400">
+                        <RefreshCcw size={20} className={loading ? 'animate-spin' : ''} />
+                    </button>
+                </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mb-6">
+                <div className="flex justify-between text-xs mb-2">
+                    <span className="text-zinc-500">{t.dailyGoal}: {formatGold(dailyGoal)}</span>
+                    <span className="text-fuchsia-400 font-bold">{progressPct.toFixed(0)}%</span>
+                </div>
+                <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-fuchsia-600 to-violet-500 transition-all" style={{ width: `${progressPct}%` }}></div>
+                </div>
+            </div>
+
+            {/* Steps */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+                {steps.map(step => (
+                    <div key={step.id} className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${currentStep === step.id ? `bg-${step.color}-500/20 border-${step.color}-500` : 'bg-zinc-950/40 border-zinc-800 opacity-50'}`} onClick={() => setCurrentStep(step.id)}>
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black ${currentStep > step.id ? 'bg-emerald-500 text-white' : currentStep === step.id ? `bg-${step.color}-500 text-white` : 'bg-zinc-700 text-zinc-400'}`}>
+                                {currentStep > step.id ? '✓' : step.id}
+                            </span>
+                            <span className={`text-sm font-black uppercase ${currentStep === step.id ? `text-${step.color}-400` : 'text-zinc-500'}`}>{step.label}</span>
+                        </div>
+                        <p className="text-white font-bold text-lg">{step.desc}</p>
+                    </div>
+                ))}
+            </div>
+
+            {/* Action Button */}
+            <div className="flex gap-4">
+                <button onClick={markStepDone} className="flex-1 bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-500 hover:to-violet-500 text-white font-black py-4 rounded-2xl text-lg transition-all shadow-lg shadow-fuchsia-900/50">
+                    {currentStep === 3 ? (lang === 'es' ? '✓ COMPLETAR Y SIGUIENTE' : '✓ COMPLETE & NEXT') : t.markDone}
+                </button>
+                {!canAfford && currentStep === 1 && (
+                    <div className="bg-red-500/20 border border-red-500/30 text-red-400 px-6 py-4 rounded-2xl flex items-center gap-2">
+                        <AlertTriangle size={20} /> {lang === 'es' ? 'Falta oro' : 'Need gold'}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
 // --- APP ---
 const App = () => {
     const [lang, setLang] = useState(localStorage.getItem('ace_lang') || 'es');
@@ -924,7 +1046,7 @@ const App = () => {
             </header>
 
             <OracleBar alpha={globalAlpha} route={bestRoute} lang={lang} />
-            <NextAction opportunities={opportunities} gold={userData.wallet?.[1] || 0} lang={lang} onRefresh={() => { fetchMarketData(); fetchUserData(); }} loading={loading} />
+            <AutoTracker opportunities={opportunities} gold={userData.wallet?.[1] || 0} lang={lang} onRefresh={() => { fetchMarketData(); fetchUserData(); }} loading={loading} />
             <div className="mb-12">
                 <KilonovaScanner data={kilonovaData} loading={kiloLoading} onScan={runKilonovaScan} lang={lang} />
             </div>

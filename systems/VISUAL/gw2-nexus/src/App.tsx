@@ -6,6 +6,28 @@ import { gw2 } from './api/gw2';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Brain, RefreshCcw, AlertTriangle, ShieldCheck, Cpu, Settings, ArrowLeft, Copy, CheckCircle, Package, FlaskConical, ArrowRight, Layers, Database } from 'lucide-react';
 
+// --- HELPER: Gold Formatter ---
+const GoldDisplay = ({ amount, size = "md" }: { amount: number, size?: "sm" | "md" | "lg" | "xl" }) => {
+  const g = Math.floor(amount / 10000);
+  const s = Math.floor((amount % 10000) / 100);
+  const c = Math.floor(amount % 100);
+
+  const sizeClasses = {
+    "sm": "text-xs",
+    "md": "text-sm",
+    "lg": "text-xl",
+    "xl": "text-3xl"
+  };
+
+  return (
+    <div className={`font-mono font-bold flex items-baseline gap-1 ${sizeClasses[size]}`}>
+      <span className="text-amber-400">{g}g</span>
+      <span className="text-zinc-400">{s}s</span>
+      {size !== "xl" && <span className="text-amber-700">{c}c</span>}
+    </div>
+  );
+};
+
 // --- COMPONENTS ---
 
 const AnuuMediator = ({ thought, status }: { thought: string, status: 'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE' }) => {
@@ -127,10 +149,11 @@ interface OperationProps {
   strategy: AnuuStrategy;
   materials: Record<number, number>;
   wallet: Record<number, number>; // CurrencyID -> Amount
+  prices: Record<number, MarketItem>;
   onBack: () => void;
 }
 
-const OperationMode = ({ strategy, materials, wallet, onBack }: OperationProps) => {
+const OperationMode = ({ strategy, materials, wallet, prices, onBack }: OperationProps) => {
   const [step, setStep] = useState(1);
   const [batchSize, setBatchSize] = useState(10); // Default 10 crafts
 
@@ -138,14 +161,48 @@ const OperationMode = ({ strategy, materials, wallet, onBack }: OperationProps) 
   const ownedT5 = materials[strategy.sourceId] || 0;
   const ownedDust = materials[IDS.DUST] || 0;
   const ownedShards = wallet[23] || 0; // 23 is Spirit Shards currency ID
+  const availableGold = wallet[1] || 0; // 1 is Coin
 
   const neededT5 = 50 * batchSize;
   const neededDust = 5 * batchSize;
   const neededShards = 5 * batchSize;
 
+  // T6 Catalyst (usually needs 1 T6 to start)
+  const ownedT6 = materials[strategy.targetId] || 0;
+  const neededT6 = 1 * batchSize;
+
+  // Missing amounts
   const missingT5 = Math.max(0, neededT5 - ownedT5);
   const missingDust = Math.max(0, neededDust - ownedDust);
+  const missingT6 = Math.max(0, neededT6 - ownedT6);
   const missingShards = Math.max(0, neededShards - ownedShards);
+
+  // Calculate Max Affordable
+  const priceT5 = prices[strategy.sourceId]?.buys?.unit_price || 0;
+  const priceDust = prices[IDS.DUST]?.buys?.unit_price || 0;
+  const priceT6 = prices[strategy.targetId]?.buys?.unit_price || 0;
+
+  // Cost if buying everything from scratch (conservative estimate)
+  // 50 T5 + 5 Dust + 1 T6
+  const costPerCraft = (50 * priceT5) + (5 * priceDust) + (1 * priceT6);
+
+  // Max attempts by Shards
+  const maxByShards = Math.floor(ownedShards / 5);
+
+  // Max attempts by Gold (ignoring materials owned, purely "how many could I buy")
+  // If we consider owned materials, it's more complex, but let's do a simple "Buying Power" estimate.
+  const maxByGold = costPerCraft > 0 ? Math.floor(availableGold / costPerCraft) : 9999;
+
+  // "Safe Max" (min of both)
+  const safeMax = Math.min(maxByShards, maxByGold);
+
+  // Actual Gold Cost for CURRENT batch
+  const costToBuyT5 = missingT5 * priceT5;
+  const costToBuyDust = missingDust * priceDust;
+  const costToBuyT6 = missingT6 * priceT6;
+  const totalGoldCost = costToBuyT5 + costToBuyDust + costToBuyT6;
+
+  const canAfford = availableGold >= totalGoldCost;
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -185,20 +242,44 @@ const OperationMode = ({ strategy, materials, wallet, onBack }: OperationProps) 
       {/* STEP 1: ACQUISITION */}
       {step === 1 && (
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8 space-y-8">
-          <div className="flex items-center gap-4 bg-zinc-950 p-4 rounded-xl border border-indigo-500/20">
-            <Package className="text-indigo-400" size={32} />
-            <div>
-              <h3 className="text-lg font-bold text-white">Configurar Lote</h3>
-              <p className="text-sm text-zinc-400">¿Cuántas transmutaciones vas a realizar?</p>
+
+          {/* CONFIG & SUMMARY */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="col-span-1 lg:col-span-2 flex items-center gap-4 bg-zinc-950 p-6 rounded-xl border border-indigo-500/20">
+              <Package className="text-indigo-400" size={32} />
+              <div>
+                <h3 className="text-lg font-bold text-white">Configurar Lote</h3>
+                <p className="text-sm text-zinc-400">¿Cuántas transmutaciones vas a realizar?</p>
+              </div>
+              <div className="ml-auto flex items-center gap-2">
+                <input
+                  type="number"
+                  value={batchSize}
+                  onChange={(e) => setBatchSize(Math.max(1, parseInt(e.target.value) || 0))}
+                  className="bg-black border border-zinc-700 rounded-lg px-4 py-2 text-white font-mono w-24 text-right focus:border-indigo-500 outline-none"
+                />
+                <div className="flex flex-col gap-1">
+                  <button
+                    onClick={() => setBatchSize(Math.max(1, safeMax))}
+                    className="text-[10px] bg-zinc-800 hover:bg-indigo-900 text-indigo-300 px-2 py-0.5 rounded border border-zinc-700 transition-colors"
+                  >
+                    MAX ({safeMax})
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="ml-auto flex items-center gap-2">
-              <input
-                type="number"
-                value={batchSize}
-                onChange={(e) => setBatchSize(Math.max(1, parseInt(e.target.value) || 0))}
-                className="bg-black border border-zinc-700 rounded-lg px-4 py-2 text-white font-mono w-24 text-right focus:border-indigo-500 outline-none"
-              />
-              <span className="text-zinc-500 text-sm font-bold">intentos</span>
+
+            {/* FINANCIAL SUMMARY */}
+            <div className={`col-span-1 flex flex-col justify-center p-6 rounded-xl border ${canAfford ? 'bg-emerald-950/10 border-emerald-500/20' : 'bg-red-950/10 border-red-500/20'}`}>
+              <div className="text-zinc-500 text-xs font-bold uppercase mb-1">Coste Compra Faltante</div>
+              <div className="flex items-center justify-between">
+                <GoldDisplay amount={totalGoldCost} size="lg" />
+                {!canAfford && <AlertTriangle className="text-red-500" size={20} />}
+              </div>
+              <div className="mt-2 text-xs flex justify-between border-t border-white/5 pt-2">
+                <span>Tu Liquidez Dispo:</span>
+                <GoldDisplay amount={availableGold} size="sm" />
+              </div>
             </div>
           </div>
 
@@ -206,19 +287,30 @@ const OperationMode = ({ strategy, materials, wallet, onBack }: OperationProps) 
             {/* Source Material */}
             <div className="bg-zinc-950 p-6 rounded-xl border border-zinc-800 relative group">
               <h4 className="text-zinc-500 text-xs font-bold uppercase mb-2">Material Base (T5)</h4>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-2">
                 <span className="text-xl font-bold text-white">{strategy.sourceName}</span>
                 <div className="text-right">
                   <span className="block text-2xl font-mono text-indigo-400">x{neededT5}</span>
-                  <span className={`text-xs font-bold ${missingT5 === 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                    {missingT5 === 0 ? 'EN STOCK' : `COMPRAR ${missingT5}`}
-                  </span>
                 </div>
               </div>
-              <div className="flex justify-between text-xs text-zinc-500 mb-4">
-                <span>Almacén: {ownedT5}</span>
-                <span>Total: {neededT5}</span>
+
+              <div className="bg-zinc-900/50 p-3 rounded-lg mb-4 space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-zinc-500">En Almacén:</span>
+                  <span className="text-zinc-300">{ownedT5}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-zinc-500">Faltantes:</span>
+                  <span className={`font-bold ${missingT5 > 0 ? 'text-red-400' : 'text-emerald-400'}`}>{missingT5}</span>
+                </div>
+                {missingT5 > 0 && (
+                  <div className="flex justify-between text-xs pt-1 border-t border-zinc-800 mt-1">
+                    <span className="text-indigo-300 font-bold">Coste:</span>
+                    <GoldDisplay amount={costToBuyT5} size="sm" />
+                  </div>
+                )}
               </div>
+
               {missingT5 > 0 && (
                 <button
                   onClick={() => copyToClipboard(strategy.sourceName)}
@@ -232,19 +324,30 @@ const OperationMode = ({ strategy, materials, wallet, onBack }: OperationProps) 
             {/* Dust */}
             <div className="bg-zinc-950 p-6 rounded-xl border border-zinc-800 relative group">
               <h4 className="text-zinc-500 text-xs font-bold uppercase mb-2">Catalizador 1</h4>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-2">
                 <span className="text-xl font-bold text-white">Crystalline Dust</span>
                 <div className="text-right">
                   <span className="block text-2xl font-mono text-cyan-400">x{neededDust}</span>
-                  <span className={`text-xs font-bold ${missingDust === 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                    {missingDust === 0 ? 'EN STOCK' : `COMPRAR ${missingDust}`}
-                  </span>
                 </div>
               </div>
-              <div className="flex justify-between text-xs text-zinc-500 mb-4">
-                <span>Almacén: {ownedDust}</span>
-                <span>Total: {neededDust}</span>
+
+              <div className="bg-zinc-900/50 p-3 rounded-lg mb-4 space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-zinc-500">En Almacén:</span>
+                  <span className="text-zinc-300">{ownedDust}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-zinc-500">Faltantes:</span>
+                  <span className={`font-bold ${missingDust > 0 ? 'text-red-400' : 'text-emerald-400'}`}>{missingDust}</span>
+                </div>
+                {missingDust > 0 && (
+                  <div className="flex justify-between text-xs pt-1 border-t border-zinc-800 mt-1">
+                    <span className="text-indigo-300 font-bold">Coste:</span>
+                    <GoldDisplay amount={costToBuyDust} size="sm" />
+                  </div>
+                )}
               </div>
+
               {missingDust > 0 && (
                 <button
                   onClick={() => copyToClipboard("Crystalline Dust")}
@@ -258,28 +361,54 @@ const OperationMode = ({ strategy, materials, wallet, onBack }: OperationProps) 
             {/* T6 (Catalyst) */}
             <div className="bg-zinc-950 p-6 rounded-xl border border-zinc-800 relative group">
               <h4 className="text-zinc-500 text-xs font-bold uppercase mb-2">Catalizador 2 (T6)</h4>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-2">
                 <span className="text-xl font-bold text-white">{strategy.name}</span>
-                <span className="text-2xl font-mono text-purple-400">x{1 * batchSize}</span>
+                <div className="text-right">
+                  <span className="block text-2xl font-mono text-purple-400">x{neededT6}</span>
+                </div>
               </div>
-              <p className="text-xs text-zinc-500 italic">Necesitas 1 unidad para iniciar la reacción.</p>
+
+              <div className="bg-zinc-900/50 p-3 rounded-lg mb-4 space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-zinc-500">En Almacén:</span>
+                  <span className="text-zinc-300">{ownedT6}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-zinc-500">Faltantes:</span>
+                  <span className={`font-bold ${missingT6 > 0 ? 'text-red-400' : 'text-emerald-400'}`}>{missingT6}</span>
+                </div>
+                {missingT6 > 0 && (
+                  <div className="flex justify-between text-xs pt-1 border-t border-zinc-800 mt-1">
+                    <span className="text-indigo-300 font-bold">Coste:</span>
+                    <GoldDisplay amount={costToBuyT6} size="sm" />
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Spirit Shards */}
             <div className="bg-zinc-950 p-6 rounded-xl border border-zinc-800 relative group">
               <h4 className="text-zinc-500 text-xs font-bold uppercase mb-2">Catalizador Espiritual</h4>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-2">
                 <span className="text-xl font-bold text-white">Philosopher's Stone</span>
                 <div className="text-right">
                   <span className="block text-2xl font-mono text-pink-400">x{neededShards}</span>
-                  <span className={`text-xs font-bold ${missingShards === 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                    {missingShards === 0 ? 'OK' : `FALTAN ${missingShards}`}
-                  </span>
                 </div>
               </div>
-              <div className="text-xs text-zinc-500">
-                Shards Disponibles: {ownedShards} <br />
-                (Coste: {neededShards} Shards)
+
+              <div className="bg-zinc-900/50 p-3 rounded-lg mb-4 space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-zinc-500">Tus Shards:</span>
+                  <span className="text-zinc-300">{ownedShards}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-zinc-500">Shards Coste:</span>
+                  <span className={`font-bold ${missingShards > 0 ? 'text-red-400' : 'text-emerald-400'}`}>{missingShards}</span>
+                </div>
+                <div className="flex justify-between text-xs pt-1 border-t border-zinc-800 mt-1">
+                  <span className="text-pink-300 font-bold">Valor/Shard:</span>
+                  <span className="text-zinc-300">~60s</span>
+                </div>
               </div>
             </div>
           </div>
@@ -336,11 +465,13 @@ const OperationMode = ({ strategy, materials, wallet, onBack }: OperationProps) 
 
           <div className="bg-zinc-950 p-6 rounded-xl border border-zinc-700 flex flex-col items-center">
             <span className="text-zinc-500 text-xs font-bold uppercase mb-2">Precio de Venta Recomendado</span>
-            <div className="flex items-end gap-2">
-              <span className="text-4xl font-bold text-white">{Math.floor(strategy.sellPrice / 10000)}g {Math.floor((strategy.sellPrice % 10000) / 100)}s</span>
-              <span className="text-sm text-zinc-500 mb-2 font-mono">(Undercut 1c)</span>
+            <div className="text-4xl font-bold text-white mb-2">
+              <GoldDisplay amount={strategy.sellPrice} size="xl" />
             </div>
-            <p className="text-xs text-zinc-500 mt-2">Vende todo tu stock de {strategy.name}.</p>
+            <p className="text-xs text-zinc-500 mb-4">Vende todo tu stock de {strategy.name}.</p>
+            <div className="text-sm font-mono text-emerald-400 border-t border-white/5 pt-2">
+              Beneficio Neto Estimado: <span className="font-bold">+{Math.floor((strategy.profitPerCraft * batchSize) / 10000)}g {Math.floor(((strategy.profitPerCraft * batchSize) % 10000) / 100)}s</span>
+            </div>
           </div>
 
           <button
@@ -376,9 +507,11 @@ function App() {
   const [activeStrategy, setActiveStrategy] = useState<AnuuStrategy | null>(null);
   const [materials, setMaterials] = useState<Record<number, number>>({});
   const [wallet, setWallet] = useState<Record<number, number>>({});
+  const [prices, setPrices] = useState<Record<number, MarketItem>>({});
 
   // Anuu Logic State
   const [thought, setThought] = useState("Sistema en espera. Inicia conexión.");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE'>('IDLE');
 
   const fetchData = async () => {
@@ -397,6 +530,7 @@ function App() {
       priceData.forEach((p) => {
         priceMap[p.id] = p;
       });
+      setPrices(priceMap);
 
       // Account Data (if API Key)
       if (apiKey) {
@@ -444,7 +578,7 @@ function App() {
   const handleStrategySelect = (strategy: AnuuStrategy) => {
     setActiveStrategy(strategy);
     setStatus('GUIDE');
-    setThought(`Protocolo ${strategy.name} iniciado. Verificando existencias locales...`);
+    setThought(`Protocolo ${strategy.name} iniciado. Verificando fondos y existencias...`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -453,37 +587,48 @@ function App() {
       <div className="max-w-4xl mx-auto space-y-6">
 
         {/* HEAD - API Key Input */}
-        <div className="flex justify-end gap-2 text-xs">
-          {!apiKey ? (
-            <div className="flex items-center gap-2 bg-red-900/20 text-red-400 px-3 py-1 rounded-full border border-red-900/50">
-              <AlertTriangle size={12} />
-              <span>API Key no configurada (Modo Solo Lectura)</span>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          {/* GLOBAL WALLET HEADER */}
+          {apiKey && wallet[1] !== undefined ? (
+            <div className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 p-2 rounded-xl shadow-lg">
+              <div className="flex items-center gap-2 px-2">
+                <span className="text-xs text-zinc-500 font-bold uppercase">Liquidez:</span>
+                <GoldDisplay amount={wallet[1]} size="md" />
+              </div>
+              <div className="w-px h-6 bg-zinc-800"></div>
+              <div className="flex items-center gap-2 px-2">
+                <Database size={14} className="text-pink-400" />
+                <span className="text-zinc-300 font-mono font-bold">{wallet[23]}</span>
+                <span className="text-xs text-zinc-500">Shards</span>
+              </div>
             </div>
-          ) : (
-            <div className="flex items-center gap-2 bg-emerald-900/20 text-emerald-400 px-3 py-1 rounded-full border border-emerald-900/50">
-              <ShieldCheck size={12} />
-              <span>Conexión Segura Establecida</span>
-            </div>
-          )}
-          <button
-            onClick={() => {
-              const k = prompt("Introduce tu GW2 API Key (permissions: wallet, unlock, inventories):", apiKey);
-              if (k !== null) {
-                setApiKey(k);
-                localStorage.setItem('gw2_api_key', k);
-              }
-            }}
-            className="text-zinc-500 hover:text-zinc-300"
-          >
-            <Settings size={14} />
-          </button>
-          {/* Wallet Status (Mini) */}
-          {apiKey && wallet[23] && (
-            <div className="flex items-center gap-2 bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800 text-pink-400">
-              <Database size={12} />
-              <span>{wallet[23]} Shards</span>
-            </div>
-          )}
+          ) : <div></div>}
+
+          <div className="flex justify-end gap-2 text-xs ml-auto">
+            {!apiKey ? (
+              <div className="flex items-center gap-2 bg-red-900/20 text-red-400 px-3 py-1 rounded-full border border-red-900/50">
+                <AlertTriangle size={12} />
+                <span>API Key no configurada</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 bg-emerald-900/20 text-emerald-400 px-3 py-1 rounded-full border border-emerald-900/50">
+                <ShieldCheck size={12} />
+                <span>Conexión Segura</span>
+              </div>
+            )}
+            <button
+              onClick={() => {
+                const k = prompt("Introduce tu GW2 API Key (permissions: wallet, unlock, inventories):", apiKey);
+                if (k !== null) {
+                  setApiKey(k);
+                  localStorage.setItem('gw2_api_key', k);
+                }
+              }}
+              className="text-zinc-500 hover:text-zinc-300"
+            >
+              <Settings size={14} />
+            </button>
+          </div>
         </div>
 
         {/* ANUU MEDIATOR ZONE */}
@@ -531,10 +676,11 @@ function App() {
                 strategy={activeStrategy}
                 materials={materials}
                 wallet={wallet}
+                prices={prices}
                 onBack={() => {
                   setActiveStrategy(null);
                   setStatus('IDLE');
-                  setThought("Protocolo finalizado. Esperando nueva orden.");
+                  setThought("Protocolo suspendido. Esperando instrucciones.");
                 }}
               />
             </motion.div>
@@ -543,7 +689,7 @@ function App() {
 
         {/* FOOTER - SYSTEM LOG */}
         <div className="border-t border-zinc-800 pt-6 mt-12 text-center text-xs text-zinc-600 font-mono">
-          <p>SYSTEM: ANUU_VERSE // MODULE: GW2_NEXUS // V25.10.3</p>
+          <p>SYSTEM: ANUU_VERSE // MODULE: GW2_NEXUS // V25.10.4</p>
           <p>POWERED BY: THOTH SCHOLAR ENGINE & KALI RISK ASSESSOR & ANUU MEDIATOR</p>
         </div>
       </div>

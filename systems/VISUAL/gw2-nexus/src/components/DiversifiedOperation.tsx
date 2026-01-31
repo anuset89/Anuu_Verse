@@ -500,10 +500,10 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                     <button
                         onClick={() => currentStep === 3 ? onClose() : setCurrentStep(prev => Math.min(3, prev + 1))}
                         className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${currentStep === 3
-                                ? 'bg-white text-black hover:bg-emerald-500 hover:text-white'
-                                : canAdvance
-                                    ? 'bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.5)] animate-pulse hover:bg-indigo-400 scale-105'
-                                    : 'bg-white/10 text-zinc-500 hover:bg-white hover:text-black'
+                            ? 'bg-white text-black hover:bg-emerald-500 hover:text-white'
+                            : canAdvance
+                                ? 'bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.5)] animate-pulse hover:bg-indigo-400 scale-105'
+                                : 'bg-white/10 text-zinc-500 hover:bg-white hover:text-black'
                             }`}
                     >
                         {currentStep === 3 ? (isEng ? 'Finish' : 'Terminar') : (isEng ? 'Next' : 'Siguiente')}
@@ -594,9 +594,6 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
 
     // --- NEW ADAPTIVE BUDGETER: Sequential Capital Allocation ---
     const calculateShoppingList = () => {
-        // Reserve 10% of budget for listing fees (upfront cash requirement)
-        const operationalReserve = budgetGold * 0.10;
-        let flexibleBudget = budgetGold - operationalReserve;
         const totalStrats = prioritizedStrategies.length;
         const defaultWeight = 1 / Math.max(1, totalStrats);
 
@@ -606,53 +603,88 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
             batchSize: 0
         }));
 
+        // --- PRE-CALCULATION: Estimate Gross Sales to determine Listing Fee Reserve ---
+        // We need to know roughly how much we'll sell to reserve 5% for listing fees
+        // Use a conservative estimate: assume we process all freeBatches ONLY
+        let estimatedGrossSales = 0;
+        inventoryNeeds.forEach(need => {
+            const s = need.strategy;
+            const sellPrice = (prices[s.targetId]?.sells?.unit_price || 0) / 10000;
+            const yieldPerBatch = s.type === 'FINE' ? 7 : (s.type === 'COMMON' ? 22 : 1);
+            estimatedGrossSales += need.freeBatches * yieldPerBatch * sellPrice;
+        });
+
+        // Reserve 5% of estimated gross sales for listing fees (minimum 0.1g buffer)
+        const listingFeeReserve = Math.max(0.1, estimatedGrossSales * 0.05);
+        let flexibleBudget = budgetGold - listingFeeReserve;
+
+        // If budget is already negative after reserve, we can't do anything
+        if (flexibleBudget <= 0) {
+            return []; // No operations possible
+        }
+
         // PASS 1: Inventory Maintenance (Process what we HAVE first)
-        // We iterate through all strategies and fund the processing of existing stock
+        // This includes Wine for LODE and SEED costs for Promotions
         results.forEach(res => {
-            const qWine = res.strategy.type === 'LODE' ? 1 : 0;
+            const s = res.strategy;
+            const qWine = s.type === 'LODE' ? 1 : 0;
             const pWine = 0.2560; // Wine cost in gold
-            const maintenanceCostPerBatch = qWine * pWine;
 
-            // freeBatches is pre-calculated based on inventory limits
+            // Seed requirement for Promotions (COMMON, FINE)
+            const isPromotion = s.type === 'COMMON' || s.type === 'FINE';
+            const pSeed = isPromotion ? (prices[s.targetId]?.buys?.unit_price || prices[s.targetId]?.sells?.unit_price || 0) / 10000 : 0;
+            const ownedSeeds = materials[s.targetId]?.total || 0;
+
             if (flexibleBudget > 0 && res.freeBatches > 0) {
-                // Determine how many of the "free" batches we can actually afford the FEES for
-                const canAfford = maintenanceCostPerBatch > 0
-                    ? Math.floor(flexibleBudget / maintenanceCostPerBatch)
-                    : res.freeBatches;
+                let executed = 0;
+                for (let i = 0; i < res.freeBatches; i++) {
+                    let batchCost = qWine * pWine;
 
-                const executed = Math.min(res.freeBatches, canAfford);
+                    // Do we need to buy a seed for this batch?
+                    // We need `executed + 1` seeds total. If we have fewer than that, we must buy.
+                    if (isPromotion && (executed + 1) > ownedSeeds) {
+                        batchCost += pSeed;
+                    }
+
+                    if (flexibleBudget >= batchCost) {
+                        flexibleBudget -= batchCost;
+                        executed++;
+                    } else {
+                        break; // Not enough budget for this batch's fees/seeds
+                    }
+                }
                 res.batchSize += executed;
-
-                // Deduct only the maintenance cost (wine), as mats are owned
-                flexibleBudget -= (executed * maintenanceCostPerBatch);
             }
         });
 
         // PASS 2: Expansion (Buy NEW materials with remaining budget)
-        results.forEach(res => {
-            const s = res.strategy;
+        // Only runs if we have budget left after securing inventory processing
+        if (flexibleBudget > 0.5) { // Minimum 50 silver to bother expanding
+            results.forEach(res => {
+                const s = res.strategy;
 
-            // Get prices (in Gold)
-            const pSource = (prices[s.sourceId]?.buys?.unit_price || prices[s.sourceId]?.sells?.unit_price || 0) / 10000;
-            const pDust = (prices[IDS.DUST]?.buys?.unit_price || prices[IDS.DUST]?.sells?.unit_price || 0) / 10000;
-            const pTarget = (prices[s.targetId]?.buys?.unit_price || prices[s.targetId]?.sells?.unit_price || 0) / 10000;
-            const pWine = 0.2560;
+                // Get prices (in Gold)
+                const pSource = (prices[s.sourceId]?.buys?.unit_price || prices[s.sourceId]?.sells?.unit_price || 0) / 10000;
+                const pDust = (prices[IDS.DUST]?.buys?.unit_price || prices[IDS.DUST]?.sells?.unit_price || 0) / 10000;
+                const pSeed = (prices[s.targetId]?.buys?.unit_price || prices[s.targetId]?.sells?.unit_price || 0) / 10000;
+                const pWine = 0.2560;
 
-            // Quantities
-            const qSource = s.type === 'LODE' ? 2 : (s.type === 'RUNE' ? 10 : (s.type === 'COMMON' ? 250 : 50));
-            const qDust = s.type === 'LODE' ? 1 : (s.type === 'RUNE' ? 0 : 5);
-            const qWine = s.type === 'LODE' ? 1 : 0;
-            const qTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : 0.01;
+                // Quantities per batch
+                const qSource = s.type === 'LODE' ? 2 : (s.type === 'RUNE' ? 10 : (s.type === 'COMMON' ? 250 : 50));
+                const qDust = s.type === 'LODE' ? 1 : (s.type === 'RUNE' ? 0 : 5);
+                const qWine = s.type === 'LODE' ? 1 : 0;
+                const qSeed = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : 1;
 
-            // Full Cost to buy Everything for 1 batch
-            const costPerCraft = (qSource * pSource) + (qDust * pDust) + (qWine * pWine) + (qTarget * pTarget);
+                // Full Cost to buy Everything for 1 batch
+                const costPerCraft = (qSource * pSource) + (qDust * pDust) + (qWine * pWine) + (qSeed * pSeed);
 
-            if (flexibleBudget > 0 && costPerCraft > 0) {
-                const extra = Math.floor(flexibleBudget / costPerCraft);
-                res.batchSize += extra;
-                flexibleBudget -= (extra * costPerCraft);
-            }
-        });
+                if (flexibleBudget > 0 && costPerCraft > 0) {
+                    const extra = Math.floor(flexibleBudget / costPerCraft);
+                    res.batchSize += extra;
+                    flexibleBudget -= (extra * costPerCraft);
+                }
+            });
+        }
 
         // Final Mapping to ShoppingListItem format
         return results.map(res => {

@@ -63,5 +63,17 @@ export const gw2 = {
         } catch {
             return [];
         }
+    },
+
+    async getTokenInfo(apiKey: string) {
+        try {
+            const res = await axios.get(`${API_BASE}/tokeninfo`, {
+                headers: { Authorization: `Bearer ${apiKey}` }
+            });
+            return res.data; // { permissions: string[] }
+        } catch (e) {
+            console.error("Token Info Error", e);
+            return null;
+        }
     }
 };

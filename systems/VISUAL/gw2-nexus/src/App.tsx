@@ -190,7 +190,6 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: Operatio
   const maxByShards = Math.floor(ownedShards / 5);
 
   // Max attempts by Gold (ignoring materials owned, purely "how many could I buy")
-  // If we consider owned materials, it's more complex, but let's do a simple "Buying Power" estimate.
   const maxByGold = costPerCraft > 0 ? Math.floor(availableGold / costPerCraft) : 9999;
 
   // "Safe Max" (min of both)
@@ -508,6 +507,7 @@ function App() {
   const [materials, setMaterials] = useState<Record<number, number>>({});
   const [wallet, setWallet] = useState<Record<number, number>>({});
   const [prices, setPrices] = useState<Record<number, MarketItem>>({});
+  const [permissions, setPermissions] = useState<string[]>([]);
 
   // Anuu Logic State
   const [thought, setThought] = useState("Sistema en espera. Inicia conexión.");
@@ -534,23 +534,35 @@ function App() {
 
       // Account Data (if API Key)
       if (apiKey) {
-        // Fetch Materials
-        const mats = await gw2.getMaterials(apiKey);
-        const matMap: Record<number, number> = {};
+        // Check Token Permissions
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        mats.forEach((m: any) => {
-          matMap[m.id] = m.count;
-        });
-        setMaterials(matMap);
+        const info: any = await gw2.getTokenInfo(apiKey);
+        if (info && info.permissions) {
+          setPermissions(info.permissions);
 
-        // Fetch Wallet
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const walletData: any[] = await gw2.getWallet(apiKey) as any[];
-        const walletMap: Record<number, number> = {};
-        walletData.forEach(w => {
-          walletMap[w.id] = w.value;
-        });
-        setWallet(walletMap);
+          if (info.permissions.includes('inventories')) {
+            const mats = await gw2.getMaterials(apiKey);
+            const matMap: Record<number, number> = {};
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            mats.forEach((m: any) => {
+              matMap[m.id] = m.count;
+            });
+            setMaterials(matMap);
+          }
+
+          if (info.permissions.includes('wallet')) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const walletData: any[] = await gw2.getWallet(apiKey) as any[];
+            const walletMap: Record<number, number> = {};
+            walletData.forEach(w => {
+              walletMap[w.id] = w.value;
+            });
+            setWallet(walletMap);
+          }
+        } else {
+          setThought("Error: API Key no válida o expirada.");
+          setStatus('ALERT');
+        }
       }
 
       setThought("Calculando rutas optimizadas por recursos...");
@@ -559,7 +571,7 @@ function App() {
 
       const best = strats[0];
       if (apiKey) {
-        // Personalized message
+        // If we reach here, we've successfully processed the API Key permissions and data.
         setThought(`Sincronización completa. Inventario mapeado. Oportunidad óptima: ${best.name} (${best.roi.toFixed(1)}% ROI).`);
       } else {
         setThought(`Análisis completado. Oportunidad óptima detectada: ${best.name}. Conecta API Key para análisis de inventario.`);
@@ -602,18 +614,29 @@ function App() {
                 <span className="text-xs text-zinc-500">Shards</span>
               </div>
             </div>
+          ) : apiKey ? (
+            <div className="text-xs text-zinc-500 bg-zinc-900/50 p-2 rounded border border-zinc-800">Esperando datos de Billetera...</div>
           ) : <div></div>}
 
-          <div className="flex justify-end gap-2 text-xs ml-auto">
+          <div className="flex justify-end gap-2 text-xs ml-auto items-center">
             {!apiKey ? (
               <div className="flex items-center gap-2 bg-red-900/20 text-red-400 px-3 py-1 rounded-full border border-red-900/50">
                 <AlertTriangle size={12} />
                 <span>API Key no configurada</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 bg-emerald-900/20 text-emerald-400 px-3 py-1 rounded-full border border-emerald-900/50">
+              <div className="flex items-center gap-2 bg-emerald-900/20 text-emerald-400 px-3 py-1 rounded-full border border-emerald-900/50 group relative cursor-help">
                 <ShieldCheck size={12} />
                 <span>Conexión Segura</span>
+                {/* Permissions Tooltip */}
+                <div className="absolute top-full right-0 mt-2 bg-black border border-zinc-700 p-2 rounded shadow-xl hidden group-hover:block w-48 z-50">
+                  <p className="font-bold text-zinc-300 mb-1">Permisos:</p>
+                  <div className="flex flex-col gap-1">
+                    <span className={permissions.includes('account') ? 'text-emerald-400' : 'text-red-400'}>• Account</span>
+                    <span className={permissions.includes('inventories') ? 'text-emerald-400' : 'text-red-400'}>• Inventories</span>
+                    <span className={permissions.includes('wallet') ? 'text-emerald-400' : 'text-red-400'}>• Wallet</span>
+                  </div>
+                </div>
               </div>
             )}
             <button
@@ -689,7 +712,7 @@ function App() {
 
         {/* FOOTER - SYSTEM LOG */}
         <div className="border-t border-zinc-800 pt-6 mt-12 text-center text-xs text-zinc-600 font-mono">
-          <p>SYSTEM: ANUU_VERSE // MODULE: GW2_NEXUS // V25.10.4</p>
+          <p>SYSTEM: ANUU_VERSE // MODULE: GW2_NEXUS // V25.11.0</p>
           <p>POWERED BY: THOTH SCHOLAR ENGINE & KALI RISK ASSESSOR & ANUU MEDIATOR</p>
         </div>
       </div>

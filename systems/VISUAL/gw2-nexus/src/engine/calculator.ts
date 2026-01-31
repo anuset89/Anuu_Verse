@@ -80,11 +80,18 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
         if (!prices[s] || !prices[t]) return;
         const cost = (prices[s].buys.unit_price * 50) + (prices[t].buys.unit_price * 1) + (dust.buys.unit_price * 5);
         const profit = (prices[t].sells.unit_price * 7 * 0.85) - cost;
+        const roi = (profit / cost) * 100;
+        const volatility = (prices[t].sells.unit_price - prices[t].buys.unit_price) / prices[t].sells.unit_price * 100;
+        const liquidityScore = Math.min(prices[t].sells.quantity / 10000, 1) * 30; // Max 30 points for high supply
+        const roiScore = Math.max(0, Math.min(roi, 50)); // Cap at 50 points
+        const stabilityScore = Math.max(0, 20 - volatility); // Lower volatility = higher score
+        const score = roiScore + liquidityScore + stabilityScore;
         results.push({
             sourceId: s, targetId: t, name: IDS_TO_NAME[t], sourceName: IDS_TO_NAME[s],
             costPerUnit: cost, sellPrice: prices[t].sells.unit_price, profitPerCraft: profit,
-            roi: (profit / cost) * 100, volatility: (prices[t].sells.unit_price - prices[t].buys.unit_price) / prices[t].sells.unit_price * 100,
-            score: (profit / 10000) * 10 + 5, verdict: "HIGH PROFIT", supplyQty: prices[t].sells.quantity, type: 'FINE'
+            roi, volatility, score,
+            verdict: roi > 15 ? "HIGH PROFIT" : roi > 5 ? "STABLE" : "BREAKEVEN",
+            supplyQty: prices[t].sells.quantity, type: 'FINE'
         });
     });
 
@@ -95,11 +102,18 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
         if (!prices[s] || !prices[t]) return;
         const cost = (prices[s].buys.unit_price * 250) + (prices[t].buys.unit_price * 1) + (dust.buys.unit_price * 5);
         const profit = (prices[t].sells.unit_price * 22 * 0.85) - cost;
+        const roi = (profit / cost) * 100;
+        const volatility = (prices[t].sells.unit_price - prices[t].buys.unit_price) / prices[t].sells.unit_price * 100;
+        const liquidityScore = Math.min(prices[t].sells.quantity / 50000, 1) * 40; // Common mats have higher supply threshold
+        const roiScore = Math.max(0, Math.min(roi, 40));
+        const stabilityScore = Math.max(0, 20 - volatility);
+        const score = roiScore + liquidityScore + stabilityScore;
         results.push({
             sourceId: s, targetId: t, name: IDS_TO_NAME[t], sourceName: IDS_TO_NAME[s],
             costPerUnit: cost, sellPrice: prices[t].sells.unit_price, profitPerCraft: profit,
-            roi: (profit / cost) * 100, volatility: (prices[t].sells.unit_price - prices[t].buys.unit_price) / prices[t].sells.unit_price * 100,
-            score: (profit / 10000) * 8, verdict: "MASS PRODUCTION", supplyQty: prices[t].sells.quantity, type: 'COMMON'
+            roi, volatility, score,
+            verdict: roi > 10 ? "MASS PRODUCTION" : roi > 3 ? "VIABLE" : "LOW MARGIN",
+            supplyQty: prices[t].sells.quantity, type: 'COMMON'
         });
     });
 
@@ -113,11 +127,18 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
         const wineCost = 2560; // 25s 60c from Miyani
         const cost = (prices[s].buys.unit_price * 2) + wineCost + dust.buys.unit_price;
         const profit = (prices[t].sells.unit_price * 0.85) - cost;
+        const roi = (profit / cost) * 100;
+        const volatility = (prices[t].sells.unit_price - prices[t].buys.unit_price) / prices[t].sells.unit_price * 100;
+        const liquidityScore = Math.min(prices[t].sells.quantity / 5000, 1) * 25; // Lodestones have lower supply
+        const roiScore = Math.max(0, Math.min(roi, 50));
+        const stabilityScore = Math.max(0, 25 - volatility);
+        const score = roiScore + liquidityScore + stabilityScore;
         results.push({
             sourceId: s, targetId: t, name: IDS_TO_NAME[t], sourceName: IDS_TO_NAME[s],
             costPerUnit: cost, sellPrice: prices[t].sells.unit_price, profitPerCraft: profit,
-            roi: (profit / cost) * 100, volatility: (prices[t].sells.unit_price - prices[t].buys.unit_price) / prices[t].sells.unit_price * 100,
-            score: (profit / 1000) * 5, verdict: "RARE UPGRADE", supplyQty: prices[t].sells.quantity, type: 'LODE'
+            roi, volatility, score,
+            verdict: roi > 20 ? "RARE UPGRADE" : roi > 10 ? "PROFITABLE" : "RISKY",
+            supplyQty: prices[t].sells.quantity, type: 'LODE'
         });
     });
 
@@ -127,11 +148,18 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
         const t = IDS.LUCENT_SHARD;
         const cost = prices[s].buys.unit_price * 10;
         const profit = (prices[t].sells.unit_price * 0.85) - cost;
+        const roi = (profit / cost) * 100;
+        const volatility = (prices[t].sells.unit_price - prices[t].buys.unit_price) / prices[t].sells.unit_price * 100;
+        const liquidityScore = Math.min(prices[t].sells.quantity / 3000, 1) * 20;
+        const roiScore = Math.max(0, Math.min(roi, 60));
+        const stabilityScore = Math.max(0, 20 - volatility);
+        const score = roiScore + liquidityScore + stabilityScore;
         results.push({
             sourceId: s, targetId: t, name: IDS_TO_NAME[t], sourceName: IDS_TO_NAME[s],
             costPerUnit: cost, sellPrice: prices[t].sells.unit_price, profitPerCraft: profit,
-            roi: (profit / cost) * 100, volatility: (prices[t].sells.unit_price - prices[t].buys.unit_price) / prices[t].sells.unit_price * 100,
-            score: (profit / 100) * 2, verdict: "SPECULATIVE", supplyQty: prices[t].sells.quantity, type: 'RUNE'
+            roi, volatility, score,
+            verdict: roi > 25 ? "SPECULATIVE" : roi > 10 ? "RISKY" : "VOLATILE",
+            supplyQty: prices[t].sells.quantity, type: 'RUNE'
         });
     }
 

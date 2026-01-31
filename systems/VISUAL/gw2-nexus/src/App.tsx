@@ -4,7 +4,7 @@ import { analyzeMarket, IDS } from './engine/calculator';
 import type { AnuuStrategy, MarketItem } from './engine/calculator';
 import { gw2 } from './api/gw2';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Brain, RefreshCcw, AlertTriangle, ShieldCheck, Cpu, Settings, ArrowLeft, Copy, CheckCircle, Package, FlaskConical, ArrowRight, Layers } from 'lucide-react';
+import { Brain, RefreshCcw, AlertTriangle, ShieldCheck, Cpu, Settings, ArrowLeft, Copy, CheckCircle, Package, FlaskConical, ArrowRight, Layers, Database } from 'lucide-react';
 
 // --- COMPONENTS ---
 
@@ -116,13 +116,32 @@ const StrategyCard = ({ strategy, onClick }: { strategy: AnuuStrategy, onClick: 
   );
 };
 
-const OperationMode = ({ strategy, onBack }: { strategy: AnuuStrategy, onBack: () => void }) => {
+interface OperationProps {
+  strategy: AnuuStrategy;
+  materials: Record<number, number>;
+  wallet: Record<number, number>; // CurrencyID -> Amount
+  onBack: () => void;
+}
+
+const OperationMode = ({ strategy, materials, wallet, onBack }: OperationProps) => {
   const [step, setStep] = useState(1);
   const [batchSize, setBatchSize] = useState(10); // Default 10 crafts
 
+  // Resources Logic
+  const ownedT5 = materials[strategy.sourceId] || 0;
+  const ownedDust = materials[IDS.DUST] || 0;
+  const ownedShards = wallet[23] || 0; // 23 is Spirit Shards currency ID
+
+  const neededT5 = 50 * batchSize;
+  const neededDust = 5 * batchSize;
+  const neededShards = 5 * batchSize;
+
+  const missingT5 = Math.max(0, neededT5 - ownedT5);
+  const missingDust = Math.max(0, neededDust - ownedDust);
+  const missingShards = Math.max(0, neededShards - ownedShards);
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    // Could show toast here
   };
 
   return (
@@ -182,14 +201,25 @@ const OperationMode = ({ strategy, onBack }: { strategy: AnuuStrategy, onBack: (
               <h4 className="text-zinc-500 text-xs font-bold uppercase mb-2">Material Base (T5)</h4>
               <div className="flex justify-between items-center mb-4">
                 <span className="text-xl font-bold text-white">{strategy.sourceName}</span>
-                <span className="text-2xl font-mono text-indigo-400">x{50 * batchSize}</span>
+                <div className="text-right">
+                  <span className="block text-2xl font-mono text-indigo-400">x{neededT5}</span>
+                  <span className={`text-xs font-bold ${missingT5 === 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                    {missingT5 === 0 ? 'EN STOCK' : `COMPRAR ${missingT5}`}
+                  </span>
+                </div>
               </div>
-              <button
-                onClick={() => copyToClipboard(strategy.sourceName)}
-                className="w-full flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-800 py-3 rounded-lg text-sm font-bold border border-zinc-700 transition-colors"
-              >
-                <Copy size={16} /> Copiar Nombre
-              </button>
+              <div className="flex justify-between text-xs text-zinc-500 mb-4">
+                <span>Almacén: {ownedT5}</span>
+                <span>Total: {neededT5}</span>
+              </div>
+              {missingT5 > 0 && (
+                <button
+                  onClick={() => copyToClipboard(strategy.sourceName)}
+                  className="w-full flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-800 py-3 rounded-lg text-sm font-bold border border-zinc-700 transition-colors"
+                >
+                  <Copy size={16} /> Copiar Nombre
+                </button>
+              )}
             </div>
 
             {/* Dust */}
@@ -197,14 +227,25 @@ const OperationMode = ({ strategy, onBack }: { strategy: AnuuStrategy, onBack: (
               <h4 className="text-zinc-500 text-xs font-bold uppercase mb-2">Catalizador 1</h4>
               <div className="flex justify-between items-center mb-4">
                 <span className="text-xl font-bold text-white">Crystalline Dust</span>
-                <span className="text-2xl font-mono text-cyan-400">x{5 * batchSize}</span>
+                <div className="text-right">
+                  <span className="block text-2xl font-mono text-cyan-400">x{neededDust}</span>
+                  <span className={`text-xs font-bold ${missingDust === 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                    {missingDust === 0 ? 'EN STOCK' : `COMPRAR ${missingDust}`}
+                  </span>
+                </div>
               </div>
-              <button
-                onClick={() => copyToClipboard("Crystalline Dust")}
-                className="w-full flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-800 py-3 rounded-lg text-sm font-bold border border-zinc-700 transition-colors"
-              >
-                <Copy size={16} /> Copiar Nombre
-              </button>
+              <div className="flex justify-between text-xs text-zinc-500 mb-4">
+                <span>Almacén: {ownedDust}</span>
+                <span>Total: {neededDust}</span>
+              </div>
+              {missingDust > 0 && (
+                <button
+                  onClick={() => copyToClipboard("Crystalline Dust")}
+                  className="w-full flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-800 py-3 rounded-lg text-sm font-bold border border-zinc-700 transition-colors"
+                >
+                  <Copy size={16} /> Copiar Nombre
+                </button>
+              )}
             </div>
 
             {/* T6 (Catalyst) */}
@@ -222,9 +263,17 @@ const OperationMode = ({ strategy, onBack }: { strategy: AnuuStrategy, onBack: (
               <h4 className="text-zinc-500 text-xs font-bold uppercase mb-2">Catalizador Espiritual</h4>
               <div className="flex justify-between items-center mb-4">
                 <span className="text-xl font-bold text-white">Philosopher's Stone</span>
-                <span className="text-2xl font-mono text-pink-400">x{5 * batchSize}</span>
+                <div className="text-right">
+                  <span className="block text-2xl font-mono text-pink-400">x{neededShards}</span>
+                  <span className={`text-xs font-bold ${missingShards === 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                    {missingShards === 0 ? 'OK' : `FALTAN ${missingShards}`}
+                  </span>
+                </div>
               </div>
-              <p className="text-xs text-zinc-400">Cómpralas a <span className="text-white font-bold">Miyani</span> junto a la Forja Mística.</p>
+              <div className="text-xs text-zinc-500">
+                Shards Disponibles: {ownedShards} <br />
+                (Coste: {neededShards} Shards)
+              </div>
             </div>
           </div>
         </div>
@@ -318,21 +367,21 @@ function App() {
   const [apiKey, setApiKey] = useState(localStorage.getItem('gw2_api_key') || '');
   const [strategies, setStrategies] = useState<AnuuStrategy[]>([]);
   const [activeStrategy, setActiveStrategy] = useState<AnuuStrategy | null>(null);
+  const [materials, setMaterials] = useState<Record<number, number>>({});
+  const [wallet, setWallet] = useState<Record<number, number>>({});
 
   // Anuu Logic State
   const [thought, setThought] = useState("Sistema en espera. Inicia conexión.");
-  // Add 'GUIDE' to allowed types in useState declaration or infer automatically.
-  // The type in AnuuMediator is strict, so we should match it or cast.
   const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE'>('IDLE');
 
   const fetchData = async () => {
     setStatus('THINKING');
-    setThought("Conectando a la Red de Comercio del León Negro...");
-    setActiveStrategy(null); // Reset active view
+    setThought("Sincronizando con la Red de Comercio y Bóveda del León Negro...");
+    setActiveStrategy(null);
 
     try {
       const allIds = Object.values(IDS).filter(x => typeof x === 'number');
-      setThought(`Descargando precios para ${allIds.length} items esenciales...`);
+      setThought(`Descargando precios y analizando inventario...`);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const priceData: any[] = await gw2.getPrices(allIds) as any[];
@@ -342,25 +391,41 @@ function App() {
         priceMap[p.id] = p;
       });
 
-      setThought("Procesando vectores de beneficio...");
+      // Account Data (if API Key)
+      if (apiKey) {
+        // Fetch Materials
+        const mats = await gw2.getMaterials(apiKey);
+        const matMap: Record<number, number> = {};
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        mats.forEach((m: any) => {
+          matMap[m.id] = m.count;
+        });
+        setMaterials(matMap);
+
+        // Fetch Wallet
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const walletData: any[] = await gw2.getWallet(apiKey) as any[];
+        const walletMap: Record<number, number> = {};
+        walletData.forEach(w => {
+          walletMap[w.id] = w.value;
+        });
+        setWallet(walletMap);
+      }
+
+      setThought("Calculando rutas optimizadas por recursos...");
       const strats = analyzeMarket(priceMap);
       setStrategies(strats);
 
       const best = strats[0];
-      if (best && best.score > 50) {
-        setThought(`Análisis completado. Oportunidad óptima detectada: ${best.name} (${best.roi.toFixed(1)}% ROI). Recomiendo ejecución inmediata.`);
-        setStatus('ALERT');
-      } else if (best) {
-        setThought(`Mercado estable pero poco rentable. Mejor opción: ${best.name}. Proceder con cautela.`);
-        setStatus('IDLE');
+      if (apiKey) {
+        // Personalized message
+        setThought(`Sincronización completa. Inventario mapeado. Oportunidad óptima: ${best.name} (${best.roi.toFixed(1)}% ROI).`);
       } else {
-        setThought("Datos insuficientes para formular estrategia.");
-        setStatus('IDLE');
+        setThought(`Análisis completado. Oportunidad óptima detectada: ${best.name}. Conecta API Key para análisis de inventario.`);
       }
 
-      if (apiKey) {
-        await gw2.getWallet(apiKey);
-      }
+      if (best && best.score > 50) setStatus('ALERT');
+      else setStatus('IDLE');
 
     } catch (err) {
       console.error(err);
@@ -372,7 +437,7 @@ function App() {
   const handleStrategySelect = (strategy: AnuuStrategy) => {
     setActiveStrategy(strategy);
     setStatus('GUIDE');
-    setThought(`Protocolo ${strategy.name} iniciado. Sigue los pasos para asegurar el beneficio.`);
+    setThought(`Protocolo ${strategy.name} iniciado. Verificando existencias locales...`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -395,7 +460,7 @@ function App() {
           )}
           <button
             onClick={() => {
-              const k = prompt("Introduce tu GW2 API Key (permissions: wallet, unlock):", apiKey);
+              const k = prompt("Introduce tu GW2 API Key (permissions: wallet, unlock, inventories):", apiKey);
               if (k !== null) {
                 setApiKey(k);
                 localStorage.setItem('gw2_api_key', k);
@@ -405,6 +470,13 @@ function App() {
           >
             <Settings size={14} />
           </button>
+          {/* Wallet Status (Mini) */}
+          {apiKey && wallet[23] && (
+            <div className="flex items-center gap-2 bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800 text-pink-400">
+              <Database size={12} />
+              <span>{wallet[23]} Shards</span>
+            </div>
+          )}
         </div>
 
         {/* ANUU MEDIATOR ZONE */}
@@ -450,6 +522,8 @@ function App() {
             >
               <OperationMode
                 strategy={activeStrategy}
+                materials={materials}
+                wallet={wallet}
                 onBack={() => {
                   setActiveStrategy(null);
                   setStatus('IDLE');
@@ -462,8 +536,8 @@ function App() {
 
         {/* FOOTER - SYSTEM LOG */}
         <div className="border-t border-zinc-800 pt-6 mt-12 text-center text-xs text-zinc-600 font-mono">
-          <p>SYSTEM: ANUU_VERSE // MODULE: GW2_NEXUS // V25.10.2</p>
-          <p>POWERED BY: THOTH SCHOLAR ENGINE & KALI RISK ASSESSOR</p>
+          <p>SYSTEM: ANUU_VERSE // MODULE: GW2_NEXUS // V25.10.3</p>
+          <p>POWERED BY: THOTH SCHOLAR ENGINE & KALI RISK ASSESSOR & ANUU MEDIATOR</p>
         </div>
       </div>
     </div>

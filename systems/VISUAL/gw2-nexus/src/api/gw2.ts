@@ -51,6 +51,8 @@ export const gw2 = {
         }
     },
 
+
+
     async getMaterials(apiKey: string) {
         if (!apiKey) return [];
         try {

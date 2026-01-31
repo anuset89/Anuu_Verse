@@ -34,35 +34,8 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
     prices: Record<number, MarketItem>,
     onRefresh?: () => Promise<void>
 }) => {
-    const [currentStep, setCurrentStep] = useState(1);
-    const [manualCompleted, setManualCompleted] = useState<Set<string>>(new Set());
-    const [isSyncing, setIsSyncing] = useState(false); // Visual state for sync button
-    const [cycleCount, setCycleCount] = useState(1);
-    const [isFocusMode, setIsFocusMode] = useState(false);
 
-
-    // Helper for Smart Clipboard
-    const copyToClipboard = (text: string) => {
-        navigator.clipboard.writeText(text);
-    };
-
-    // Wrapper for Refresh to show animation
-    const handleForceSync = () => {
-        if (onRefresh) {
-            setIsSyncing(true);
-            onRefresh();
-            setTimeout(() => setIsSyncing(false), 1000); // Visual feedback duration
-        }
-    };
-
-    const toggleTask = (taskId: string) => {
-        const next = new Set(manualCompleted);
-        if (next.has(taskId)) next.delete(taskId);
-        else next.add(taskId);
-        setManualCompleted(next);
-    };
-
-    // 1. Logistics: Consolidate Shopping List
+    // 1. Logistics Analysis: Do we need to spend money?
     const logistics = list.reduce((acc, item) => {
         if (item.buySource > 0) {
             const name = getTranslatedName(item.strategy.sourceId, item.strategy.sourceName, isEng);
@@ -101,6 +74,44 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
         return acc;
     }, [] as { id: number, name: string, count: number, type: string, price: number }[]);
 
+    const totalOrderGold = logistics.reduce((sum, l) => sum + (l.price * l.count), 0);
+    const hasWork = list.some(i => i.batchSize > 0);
+
+    // SMART START: If we have work to do but no money to spend, start at Step 2 (Synthesis)
+    const [currentStep, setCurrentStep] = useState(() => {
+        if (hasWork && totalOrderGold === 0) return 2;
+        return 1;
+    });
+
+    const [manualCompleted, setManualCompleted] = useState<Set<string>>(new Set());
+    const [isSyncing, setIsSyncing] = useState(false); // Visual state for sync button
+    const [cycleCount, setCycleCount] = useState(1);
+    const [isFocusMode, setIsFocusMode] = useState(currentStep === 2); // Auto-focus if starting at step 2
+
+
+    // Helper for Smart Clipboard
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+    };
+
+    // Wrapper for Refresh to show animation
+    const handleForceSync = () => {
+        if (onRefresh) {
+            setIsSyncing(true);
+            onRefresh();
+            setTimeout(() => setIsSyncing(false), 1000); // Visual feedback duration
+        }
+    };
+
+    const toggleTask = (taskId: string) => {
+        const next = new Set(manualCompleted);
+        if (next.has(taskId)) next.delete(taskId);
+        else next.add(taskId);
+        setManualCompleted(next);
+    };
+
+    // Logistics calculation hoisted above for Smart Start logic
+
     // Logic to check if a task is "Auto-Completed" by inventory
     const isTaskDone = (taskId: string, itemId?: number, reqCount?: number) => {
         if (manualCompleted.has(taskId)) return true;
@@ -115,7 +126,7 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
         return false;
     };
 
-    const totalOrderGold = logistics.reduce((sum, l) => sum + (l.price * l.count), 0);
+    // totalOrderGold hoisted
 
     // 2. Assembly: Forge Recipes
     const assembly = list.filter(item => item.batchSize > 0).map(item => ({

@@ -608,37 +608,81 @@ function App() {
 
   const fetchData = useCallback(async () => {
     setStatus('THINKING');
+    setThought(isEng ? 'Connecting to Nexus...' : 'Conectando con Nexus...');
+
     try {
+      // 1. Fetch Market Prices (No auth needed)
       const allIds = Object.values(IDS).filter((x): x is number => typeof x === 'number');
       const priceData = await gw2.getPrices(allIds);
       const priceMap: Record<number, MarketItem> = {};
       priceData.forEach((p: MarketItem) => { priceMap[p.id] = p; });
       setPrices(priceMap);
+      console.log('[Nexus] Prices loaded:', Object.keys(priceMap).length, 'items');
 
-      if (apiKey) {
-        const matsPromise = gw2.getMaterials(apiKey).then(mats => {
-          const matMap: Record<number, number> = {};
-          mats.forEach((m: { id: number, count: number }) => { matMap[m.id] = m.count; });
-          return matMap;
-        });
-        const walletPromise = gw2.getWallet(apiKey).then(wData => {
-          const walletMap: Record<number, number> = {};
-          wData.forEach((w: { id: number, value: number }) => { walletMap[w.id] = w.value; });
-          return walletMap;
-        });
-        const [mResult, wResult] = await Promise.allSettled([matsPromise, walletPromise]);
-        if (mResult.status === 'fulfilled') setMaterials(mResult.value);
-        if (wResult.status === 'fulfilled') setWallet(wResult.value);
+      // 2. If API Key exists, fetch account data
+      if (apiKey && apiKey.length > 10) {
+        console.log('[Nexus] API Key detected, verifying...');
+
+        // Verify token permissions first
+        const tokenInfo = await gw2.getTokenInfo(apiKey);
+        console.log('[Nexus] Token permissions:', tokenInfo?.permissions);
+
+        const hasWalletPerm = tokenInfo?.permissions?.includes('wallet');
+        const hasInventoriesPerm = tokenInfo?.permissions?.includes('inventories');
+
+        if (!hasWalletPerm) {
+          console.warn('[Nexus] API Key missing "wallet" permission!');
+          setThought(isEng ? 'API Key missing "wallet" permission. Please regenerate key.' : 'La API Key no tiene permiso "wallet". Regenera la clave.');
+        }
+
+        // Fetch Materials
+        if (hasInventoriesPerm) {
+          try {
+            const mats = await gw2.getMaterials(apiKey);
+            const matMap: Record<number, number> = {};
+            if (Array.isArray(mats)) {
+              mats.forEach((m: { id: number, count: number }) => { matMap[m.id] = m.count; });
+              setMaterials(matMap);
+              console.log('[Nexus] Materials loaded:', Object.keys(matMap).length);
+            }
+          } catch (e) {
+            console.error('[Nexus] Materials fetch failed:', e);
+          }
+        }
+
+        // Fetch Wallet
+        if (hasWalletPerm) {
+          try {
+            const wData = await gw2.getWallet(apiKey);
+            const walletMap: Record<number, number> = {};
+            if (Array.isArray(wData)) {
+              wData.forEach((w: { id: number, value: number }) => { walletMap[w.id] = w.value; });
+              setWallet(walletMap);
+              console.log('[Nexus] Wallet loaded. Gold (id=1):', walletMap[1], 'copper');
+            }
+          } catch (e) {
+            console.error('[Nexus] Wallet fetch failed:', e);
+          }
+        }
+      } else {
+        console.log('[Nexus] No API Key configured. Running in anonymous mode.');
+        setThought(isEng ? 'No API Key. Add one in Settings for personalized recommendations.' : 'Sin API Key. Añade una en Configuración para recomendaciones personalizadas.');
       }
+
+      // 3. Analyze market strategies
       const strats = analyzeMarket(priceMap);
       setStrategies(strats);
-      setThought(strats[0] && strats[0].roi > 0
-        ? (isEng ? `Detected ${strats.filter(s => s.roi > 0).length} profitable routes.` : `Se han detectado ${strats.filter(s => s.roi > 0).length} rutas rentables.`)
-        : (isEng ? "Stable market, scanning for anomalies." : "Mercado estable, escaneando anomalías."));
+
+      if (apiKey) {
+        setThought(strats[0] && strats[0].roi > 0
+          ? (isEng ? `Detected ${strats.filter(s => s.roi > 0).length} profitable routes.` : `Se han detectado ${strats.filter(s => s.roi > 0).length} rutas rentables.`)
+          : (isEng ? "Stable market, scanning for anomalies." : "Mercado estable, escaneando anomalías."));
+      }
       setStatus('IDLE');
-    } catch {
+    } catch (err) {
+      console.error('[Nexus] Critical fetch error:', err);
       setStatus('ALERT');
-      setThought(isEng ? "Nexus Link failure." : "Falla en la Nexus Link.");
+      setThought(isEng ? "Nexus Link failure. Check console for details." : "Falla en la Nexus Link. Revisa la consola.");
     }
   }, [apiKey, isEng]);
 
@@ -699,9 +743,10 @@ function App() {
               {lang === 'es' ? 'ESP' : 'ENG'}
             </button>
             <button onClick={fetchData} className="matte-card p-3.5 hover:text-white text-zinc-600 transition-all border-white/5"><RefreshCcw size={20} className={status === 'THINKING' ? 'animate-spin' : ''} /></button>
-            <button onClick={() => setShowSettings(true)} className="matte-card p-3.5 hover:text-white text-zinc-600 transition-all border-white/5 relative">
+            <button onClick={() => setShowSettings(true)} className={`matte-card p-3.5 hover:text-white transition-all border-white/5 relative flex items-center gap-2 ${!apiKey ? 'text-amber-400 border-amber-500/30' : 'text-zinc-600'}`}>
+              {!apiKey && <span className="text-[9px] font-black uppercase tracking-widest hidden md:inline">{isEng ? 'Add API Key' : 'Añade tu API'}</span>}
               <Settings size={20} />
-              {!apiKey && <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full animate-pulse border-2 border-black"></span>}
+              {!apiKey && <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full animate-pulse border-2 border-black"></span>}
             </button>
           </div>
         </div>

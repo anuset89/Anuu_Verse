@@ -6,11 +6,12 @@ import type { AnuuStrategy } from '../engine/calculator';
 import { getTranslatedName } from '../engine/calculator';
 import { GoldDisplay } from './common/GoldDisplay';
 
-export const StrategyGrimoire = ({ strategies, onSelectSingle, isEng, materials }: {
+export const StrategyGrimoire = ({ strategies, onSelectSingle, isEng, materials, icons }: {
     strategies: AnuuStrategy[],
     onSelectSingle: (strat: AnuuStrategy) => void,
     isEng: boolean,
-    materials: Record<number, { total: number }>
+    materials: Record<number, { total: number }>,
+    icons: Record<number, string>
 }) => {
     const [filter, setFilter] = useState<'all' | 'profitable' | 'lodestone' | 't6'>('profitable');
 
@@ -68,12 +69,18 @@ export const StrategyGrimoire = ({ strategies, onSelectSingle, isEng, materials 
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             className={`text-left p-4 rounded-xl border transition-all group relative overflow-hidden ${materials[strat.sourceId]?.total > 0 ? 'border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.2)] bg-indigo-500/5' :
-                                    strat.roi > 20 ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-400' :
-                                        strat.roi > 0 ? 'bg-black/40 border-white/10 hover:border-indigo-500' :
-                                            'bg-black/20 border-red-500/20 hover:border-red-400'
+                                strat.roi > 20 ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-400' :
+                                    strat.roi > 0 ? 'bg-black/40 border-white/10 hover:border-indigo-500' :
+                                        'bg-black/20 border-red-500/20 hover:border-red-400'
                                 }`}
                         >
-                            <div className="absolute top-0 right-0 p-2 opacity-30 text-2xl">{getIcon(strat.name)}</div>
+                            <div className="absolute top-0 right-0 p-3 opacity-20 w-16 h-16 group-hover:scale-110 transition-transform">
+                                {icons[strat.targetId] ? (
+                                    <img src={icons[strat.targetId]} alt="" className="w-full h-full object-contain" />
+                                ) : (
+                                    <span className="text-2xl">{getIcon(strat.name)}</span>
+                                )}
+                            </div>
 
                             <div className="relative z-10">
                                 <div className="flex items-start justify-between mb-2">

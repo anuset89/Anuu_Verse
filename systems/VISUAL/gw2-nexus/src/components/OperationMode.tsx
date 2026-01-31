@@ -8,6 +8,7 @@ import { GoldDisplay } from './common/GoldDisplay';
 import { getItemIcon } from '../utils/icons';
 
 interface ShoppingListItem {
+    id: number;
     name: string;
     icon: string;
     need: number;
@@ -20,13 +21,14 @@ interface ShoppingListItem {
     location: string;
 }
 
-export const OperationMode = ({ strategy, materials, wallet, prices, onBack, isEng }: {
+export const OperationMode = ({ strategy, materials, wallet, prices, onBack, isEng, icons }: {
     strategy: AnuuStrategy;
     materials: Record<number, { total: number, storage: number, bank: number }>;
     wallet: Record<number, number>;
     prices: Record<number, MarketItem>;
     onBack: () => void;
     isEng: boolean;
+    icons: Record<number, string>;
 }) => {
     const [step, setStep] = useState(1);
     const [batchSize, setBatchSize] = useState(10);
@@ -92,12 +94,12 @@ export const OperationMode = ({ strategy, materials, wallet, prices, onBack, isE
     const safeMax = Math.max(0, Math.min(maxByShards, maxByGold));
 
     const shoppingList: ShoppingListItem[] = [
-        { name: getTranslatedName(strategy.sourceId, strategy.sourceName, isEng), icon: getItemIcon(strategy.sourceName), need: neededSource, have: ownedSource, data: ownedSourceData, buy: buySource, priceOrder: priceOrderSource, priceInsta: priceInstaSource, supply: pSource?.sells.quantity || 0, location: isEng ? 'Trading Post' : 'Bazar' },
-        ...(usesDust ? [{ name: getTranslatedName(IDS.DUST, "Crystalline Dust", isEng), icon: "✨", need: neededDust, have: ownedDust, data: ownedDustData, buy: buyDust, priceOrder: priceOrderDust, priceInsta: prices[IDS.DUST]?.sells.unit_price || 0, supply: pDust?.sells.quantity || 0, location: isEng ? 'Trading Post' : 'Bazar' }] : []),
-        ...(isLode ? [{ name: getTranslatedName(IDS.WINE, "Elonian Wine", isEng), icon: "🍷", need: batchSize, have: 0, data: { storage: 0, bank: 0 }, buy: batchSize, priceOrder: 2560, priceInsta: 2560, supply: 999999, location: isEng ? 'Miyani (25s 60c)' : 'Miyani (25s 60c)' }] : []),
-        ...(isLode ? [{ name: isEng ? 'Mystic Crystal' : 'Cristal místico', icon: "🧊", need: batchSize, have: 0, data: { storage: 0, bank: 0 }, buy: batchSize, priceOrder: 0, priceInsta: 0, supply: 999999, location: isEng ? 'Miyani (Spirit Shards)' : 'Miyani (Shards)' }] : []),
-        ...(!isLode && !isRune && neededStones > 0 ? [{ name: isEng ? 'Philosopher\'s Stones' : 'Piedras filosofales', icon: "💎", need: neededStones, have: 0, data: { storage: 0, bank: 0 }, buy: neededStones, priceOrder: 0, priceInsta: 0, supply: 999999, location: isEng ? 'Miyani (Spirit Shards)' : 'Miyani (Shards)' }] : []),
-        ...(!isLode && !isRune ? [{ name: getTranslatedName(strategy.targetId, strategy.name, isEng), icon: getItemIcon(strategy.name), need: neededTarget, have: ownedTarget, data: ownedTargetData, buy: buyTarget, priceOrder: priceOrderTarget, priceInsta: priceInstaTarget, supply: pTarget?.sells.quantity || 0, location: isEng ? 'Trading Post' : 'Bazar' }] : []),
+        { name: getTranslatedName(strategy.sourceId, strategy.sourceName, isEng), icon: icons[strategy.sourceId] || getItemIcon(strategy.sourceName), id: strategy.sourceId, need: neededSource, have: ownedSource, data: ownedSourceData, buy: buySource, priceOrder: priceOrderSource, priceInsta: priceInstaSource, supply: pSource?.sells.quantity || 0, location: isEng ? 'Trading Post' : 'Bazar' },
+        ...(usesDust ? [{ name: getTranslatedName(IDS.DUST, "Crystalline Dust", isEng), icon: icons[IDS.DUST] || "✨", id: IDS.DUST, need: neededDust, have: ownedDust, data: ownedDustData, buy: buyDust, priceOrder: priceOrderDust, priceInsta: prices[IDS.DUST]?.sells.unit_price || 0, supply: pDust?.sells.quantity || 0, location: isEng ? 'Trading Post' : 'Bazar' }] : []),
+        ...(isLode ? [{ name: getTranslatedName(IDS.WINE, "Elonian Wine", isEng), icon: icons[19632] || "🍷", id: 19632, need: batchSize, have: 0, data: { storage: 0, bank: 0 }, buy: batchSize, priceOrder: 2560, priceInsta: 2560, supply: 999999, location: isEng ? 'Miyani (25s 60c)' : 'Miyani (25s 60c)' }] : []),
+        ...(isLode ? [{ name: isEng ? 'Mystic Crystal' : 'Cristal místico', icon: icons[19925] || "🧊", id: 19925, need: batchSize, have: 0, data: { storage: 0, bank: 0 }, buy: batchSize, priceOrder: 0, priceInsta: 0, supply: 999999, location: isEng ? 'Miyani (Spirit Shards)' : 'Miyani (Shards)' }] : []),
+        ...(!isLode && !isRune && neededStones > 0 ? [{ name: isEng ? 'Philosopher\'s Stones' : 'Piedras filosofales', icon: icons[19924] || "💎", id: 19924, need: neededStones, have: 0, data: { storage: 0, bank: 0 }, buy: neededStones, priceOrder: 0, priceInsta: 0, supply: 999999, location: isEng ? 'Miyani (Spirit Shards)' : 'Miyani (Shards)' }] : []),
+        ...(!isLode && !isRune ? [{ name: getTranslatedName(strategy.targetId, strategy.name, isEng), icon: icons[strategy.targetId] || getItemIcon(strategy.name), id: strategy.targetId, need: neededTarget, have: ownedTarget, data: ownedTargetData, buy: buyTarget, priceOrder: priceOrderTarget, priceInsta: priceInstaTarget, supply: pTarget?.sells.quantity || 0, location: isEng ? 'Trading Post' : 'Bazar' }] : []),
     ];
 
     return (
@@ -161,7 +163,13 @@ export const OperationMode = ({ strategy, materials, wallet, prices, onBack, isE
                             {shoppingList.map((item, idx) => (
                                 <div key={idx} className="p-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 hover:bg-white/2 transition-colors">
                                     <div className="flex items-center gap-6 flex-1 w-full">
-                                        <div className="text-4xl bg-black/40 p-4 rounded-3xl border border-white/5 shadow-inner">{item.icon}</div>
+                                        <div className="w-20 h-20 flex-shrink-0 bg-black/40 rounded-3xl border border-white/5 shadow-inner flex items-center justify-center">
+                                            {item.icon.startsWith('http') ? (
+                                                <img src={item.icon} alt={item.name} className="w-14 h-14 object-contain" />
+                                            ) : (
+                                                <span className="text-4xl">{item.icon}</span>
+                                            )}
+                                        </div>
                                         <div>
                                             <div className="text-base font-bold text-white uppercase font-display tracking-tight mb-1">{item.name}</div>
                                             <div className="flex flex-col md:flex-row gap-2 md:gap-6 mt-1">
@@ -228,7 +236,13 @@ export const OperationMode = ({ strategy, materials, wallet, prices, onBack, isE
 
                             <div className="grid grid-cols-1 md:flex md:justify-center md:items-center gap-4 max-w-4xl mx-auto">
                                 <div className="matte-card p-6 bg-black/40 min-w-[160px] border-white/5">
-                                    <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">{getItemIcon(strategy.sourceName)}</div>
+                                    <div className="w-16 h-16 flex-shrink-0 bg-black/40 rounded-xl mb-3 mx-auto border border-white/5 flex items-center justify-center">
+                                        {icons[strategy.sourceId] ? (
+                                            <img src={icons[strategy.sourceId]} alt="" className="w-12 h-12 object-contain" />
+                                        ) : (
+                                            <span className="text-2xl">{getItemIcon(strategy.sourceName)}</span>
+                                        )}
+                                    </div>
                                     <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Input' : 'Entrada'}</div>
                                     <div className="text-[10px] font-black text-white font-display uppercase tracking-tight">{sourcePerCraft}x {getTranslatedName(strategy.sourceId, strategy.sourceName, isEng)}</div>
                                 </div>
@@ -237,19 +251,37 @@ export const OperationMode = ({ strategy, materials, wallet, prices, onBack, isE
                                     <>
                                         <div className="text-zinc-800 font-black">+</div>
                                         <div className="matte-card p-6 bg-black/40 min-w-[160px] border-white/5">
-                                            <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">{getItemIcon(strategy.name)}</div>
+                                            <div className="w-16 h-16 flex-shrink-0 bg-black/40 rounded-xl mb-3 mx-auto border border-white/5 flex items-center justify-center">
+                                                {icons[strategy.targetId] ? (
+                                                    <img src={icons[strategy.targetId]} alt="" className="w-12 h-12 object-contain" />
+                                                ) : (
+                                                    <span className="text-2xl">{getItemIcon(strategy.name)}</span>
+                                                )}
+                                            </div>
                                             <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Catalyst' : 'Catalizador'}</div>
                                             <div className="text-[10px] font-black text-indigo-400 font-display uppercase tracking-tight">1x {getTranslatedName(strategy.targetId, strategy.name, isEng)}</div>
                                         </div>
                                         <div className="text-zinc-800 font-black">+</div>
                                         <div className="matte-card p-6 bg-black/40 min-w-[160px] border-white/5">
-                                            <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">✨</div>
+                                            <div className="w-16 h-16 flex-shrink-0 bg-black/40 rounded-xl mb-3 mx-auto border border-white/5 flex items-center justify-center">
+                                                {icons[IDS.DUST] ? (
+                                                    <img src={icons[IDS.DUST]} alt="" className="w-12 h-12 object-contain" />
+                                                ) : (
+                                                    <span className="text-2xl">✨</span>
+                                                )}
+                                            </div>
                                             <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Stabilizer' : 'Estabilizador'}</div>
                                             <div className="text-[10px] font-black text-white font-display uppercase tracking-tight">{isEng ? '5x Dust' : '5x Polvo'}</div>
                                         </div>
                                         <div className="text-zinc-800 font-black">+</div>
                                         <div className="matte-card p-6 bg-black/40 min-w-[160px] border-indigo-500/20">
-                                            <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">💎</div>
+                                            <div className="w-16 h-16 flex-shrink-0 bg-black/40 rounded-xl mb-3 mx-auto border border-white/5 flex items-center justify-center">
+                                                {icons[19924] ? (
+                                                    <img src={icons[19924]} alt="" className="w-12 h-12 object-contain" />
+                                                ) : (
+                                                    <span className="text-2xl">💎</span>
+                                                )}
+                                            </div>
                                             <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Exchange' : 'Canje'}</div>
                                             <div className="text-[10px] font-black text-indigo-300 font-display uppercase tracking-tight">{isEng ? '5x Philo Stones' : '5x Piedras Filosofales'}</div>
                                         </div>
@@ -260,19 +292,37 @@ export const OperationMode = ({ strategy, materials, wallet, prices, onBack, isE
                                     <>
                                         <div className="text-zinc-800 font-black">+</div>
                                         <div className="matte-card p-6 bg-black/40 min-w-[160px] border-white/5">
-                                            <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">✨</div>
+                                            <div className="w-16 h-16 flex-shrink-0 bg-black/40 rounded-xl mb-3 mx-auto border border-white/5 flex items-center justify-center">
+                                                {icons[IDS.DUST] ? (
+                                                    <img src={icons[IDS.DUST]} alt="" className="w-12 h-12 object-contain" />
+                                                ) : (
+                                                    <span className="text-2xl">✨</span>
+                                                )}
+                                            </div>
                                             <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Essence' : 'Esencia'}</div>
                                             <div className="text-[10px] font-black text-white font-display uppercase tracking-tight">{isEng ? '1x Dust' : '1x Polvo'}</div>
                                         </div>
                                         <div className="text-zinc-800 font-black">+</div>
                                         <div className="matte-card p-6 bg-black/40 min-w-[160px] border-white/5">
-                                            <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">🍷</div>
+                                            <div className="w-16 h-16 flex-shrink-0 bg-black/40 rounded-xl mb-3 mx-auto border border-white/5 flex items-center justify-center">
+                                                {icons[19632] ? (
+                                                    <img src={icons[19632]} alt="" className="w-12 h-12 object-contain" />
+                                                ) : (
+                                                    <span className="text-2xl">🍷</span>
+                                                )}
+                                            </div>
                                             <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Blend' : 'Mezcla'}</div>
                                             <div className="text-[10px] font-black text-amber-500 font-display uppercase tracking-tight italic">{isEng ? '1x Wine' : '1x Vino'}</div>
                                         </div>
                                         <div className="text-zinc-800 font-black">+</div>
                                         <div className="matte-card p-6 bg-black/40 min-w-[160px] border-indigo-500/20">
-                                            <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">🧊</div>
+                                            <div className="w-16 h-16 flex-shrink-0 bg-black/40 rounded-xl mb-3 mx-auto border border-white/5 flex items-center justify-center">
+                                                {icons[19925] ? (
+                                                    <img src={icons[19925]} alt="" className="w-12 h-12 object-contain" />
+                                                ) : (
+                                                    <span className="text-2xl">🧊</span>
+                                                )}
+                                            </div>
                                             <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Exchange' : 'Canje'}</div>
                                             <div className="text-[10px] font-black text-indigo-300 font-display uppercase tracking-tight">{isEng ? '1x Mystic Crystal' : '1x Cristal Místico'}</div>
                                         </div>

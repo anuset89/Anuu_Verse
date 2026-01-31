@@ -22,7 +22,7 @@ interface ShoppingListItem {
 }
 
 // --- NEXUS TRACKER (TRADING WIZARD) ---
-const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materials, totalGrossSales }: {
+const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materials, totalGrossSales, icons }: {
     list: ShoppingListItem[],
     isEng: boolean,
     onClose: () => void,
@@ -30,7 +30,8 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
     setBudget: (n: number) => void,
     wallet: number,
     materials: Record<number, { total: number, storage: number, bank: number, character: number }>,
-    totalGrossSales: number
+    totalGrossSales: number,
+    icons: Record<number, string>
 }) => {
     const [currentStep, setCurrentStep] = useState(1);
 
@@ -144,7 +145,15 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                             return (
                                                 <div key={idx} className="flex flex-col gap-2 p-5 bg-black/60 rounded-3xl border border-white/5 shadow-2xl group hover:border-indigo-500/30 transition-all">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="text-3xl drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] group-hover:scale-110 transition-transform">{getItemIcon(item.strategy.name)}</div>
+                                                        <div className="w-10 h-10 flex-shrink-0 bg-black/40 rounded-lg border border-white/5 overflow-hidden flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                            {icons[item.strategy.targetId] ? (
+                                                                <img src={icons[item.strategy.targetId]} alt="" className="w-8 h-8 object-contain" />
+                                                            ) : (
+                                                                <span className="text-2xl drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                                                                    {getItemIcon(item.strategy.name)}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         <div className="flex flex-col">
                                                             <span className="text-[11px] font-black text-white uppercase tracking-tight truncate leading-tight">
                                                                 {getTranslatedName(item.strategy.targetId, item.strategy.name, isEng)}
@@ -191,7 +200,13 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                                         {item.ownedSource > 0 && (
                                                             <div className="flex items-center justify-between">
                                                                 <div className="flex items-center gap-3">
-                                                                    <span className="text-2xl">{getItemIcon(item.strategy.sourceName)}</span>
+                                                                    <div className="w-10 h-10 flex-shrink-0 bg-black/40 rounded-lg border border-white/5 overflow-hidden flex items-center justify-center">
+                                                                        {icons[item.strategy.sourceId] ? (
+                                                                            <img src={icons[item.strategy.sourceId]} alt="" className="w-8 h-8 object-contain" />
+                                                                        ) : (
+                                                                            <span className="text-2xl">{getItemIcon(item.strategy.sourceName)}</span>
+                                                                        )}
+                                                                    </div>
                                                                     <div className="flex flex-col">
                                                                         <span className="text-[10px] font-black text-white uppercase truncate max-w-[140px] leading-tight">{getTranslatedName(item.strategy.sourceId, item.strategy.sourceName, isEng)}</span>
                                                                         <div className="flex gap-1.5 opacity-60">
@@ -396,13 +411,14 @@ const GoldDisplay = ({ amount, size = "md" }: { amount: number, size?: "sm" | "m
     );
 };
 
-export const DiversifiedOperation = ({ strategies, wallet, prices, materials, onBack, isEng }: {
+export const DiversifiedOperation = ({ strategies, wallet, prices, materials, onBack, isEng, icons }: {
     strategies: AnuuStrategy[];
     wallet: Record<number, number>;
     prices: Record<number, MarketItem>;
     materials: Record<number, { total: number, storage: number, bank: number, character: number }>; // Inventory
     onBack: () => void;
     isEng: boolean;
+    icons: Record<number, string>;
 }) => {
     const availableGold = (wallet[1] || 0) / 10000; // Convert copper to gold
     const [budgetGold, setBudgetGold] = useState(availableGold >= 1 ? Math.floor(availableGold) : 100);
@@ -552,6 +568,7 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                 wallet={availableGold}
                 materials={materials}
                 totalGrossSales={totalGrossSales}
+                icons={icons}
             />
 
             {/* FINANCIAL PROJECTION PANEL */}
@@ -607,7 +624,13 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                                 </div>
 
                                 <div className="flex items-center gap-4 mb-6">
-                                    <div className="text-3xl bg-black/40 p-3 rounded-2xl border border-white/5">{getItemIcon(item.strategy.name)}</div>
+                                    <div className="w-12 h-12 flex-shrink-0 bg-black/40 rounded-2xl border border-white/5 overflow-hidden flex items-center justify-center">
+                                        {icons[item.strategy.targetId] ? (
+                                            <img src={icons[item.strategy.targetId]} alt="" className="w-10 h-10 object-contain" />
+                                        ) : (
+                                            <span className="text-3xl">{getItemIcon(item.strategy.name)}</span>
+                                        )}
+                                    </div>
                                     <div>
                                         <h3 className="font-bold text-white uppercase text-xs font-display">{getTranslatedName(item.strategy.targetId, item.strategy.name, isEng)}</h3>
                                         <div className="text-[9px] text-zinc-500 uppercase tracking-wide">{isEng ? 'Route' : 'Ruta'}: {item.strategy.type}</div>

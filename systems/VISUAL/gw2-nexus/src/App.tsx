@@ -27,6 +27,7 @@ function App() {
   const [wallet, setWallet] = useState<Record<number, number>>({});
   const [prices, setPrices] = useState<Record<number, MarketItem>>({});
   const [lang, setLang] = useState<'es' | 'en'>((localStorage.getItem('gw2_lang') as 'es' | 'en') || 'es');
+  const [icons, setIcons] = useState<Record<number, string>>({});
   const isEng = lang === 'en';
   const [thought, setThought] = useState(isEng ? "Projecting trade routes..." : "Proyectando rutas comerciales...");
   const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE'>('IDLE');
@@ -145,6 +146,16 @@ function App() {
 
         return bScore - aScore;
       });
+
+      // 4. Fetch Item Details for Icons
+      const itemDetails = await gw2.getItems(allIds);
+      const iconMap: Record<number, string> = {};
+      if (Array.isArray(itemDetails)) {
+        itemDetails.forEach((item: { id: number, icon: string }) => {
+          iconMap[item.id] = item.icon;
+        });
+        setIcons(iconMap);
+      }
 
       setStrategies(prioritizedStrats);
 
@@ -279,21 +290,25 @@ function App() {
             <motion.div key="dash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
               <OracleCommandZone strategy={strategies[0]} onExecute={(s) => setMultiStrategy([s])} isEng={isEng} materials={materials} />
               <DiversificationHub strategies={strategies} onSelect={handleMultiSelect} isEng={isEng} />
-              <StrategicLab strategies={strategies} isEng={isEng} onSelect={(s) => setActiveStrategy(s)} />
-              <StrategyGrimoire strategies={strategies} onSelectSingle={(strat) => setActiveStrategy(strat)} isEng={isEng} materials={materials} />
+              <StrategicLab strategies={strategies} isEng={isEng} onSelect={(s) => setActiveStrategy(s)} icons={icons} />
+              <StrategyGrimoire strategies={strategies} onSelectSingle={(strat) => setActiveStrategy(strat)} isEng={isEng} materials={materials} icons={icons} />
             </motion.div>
           ) : multiStrategy ? (
             <DiversifiedOperation
-              strategies={multiStrategy}
-              wallet={wallet}
-              prices={prices}
               materials={materials}
-              onBack={() => setMultiStrategy(null)}
+              prices={prices}
+              wallet={wallet}
+              strategies={strategies}
+              icons={icons}
               isEng={isEng}
+              onBack={() => {
+                setActiveStrategy(null);
+                setMultiStrategy(null);
+              }}
             />
           ) : (
             <motion.div key="op" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-              <OperationMode strategy={activeStrategy!} materials={materials} wallet={wallet} prices={prices} isEng={isEng} onBack={() => { setActiveStrategy(null); }} />
+              <OperationMode strategy={activeStrategy!} materials={materials} wallet={wallet} prices={prices} isEng={isEng} icons={icons} onBack={() => { setActiveStrategy(null); }} />
             </motion.div>
           )}
         </AnimatePresence>

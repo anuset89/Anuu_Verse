@@ -4,7 +4,12 @@ import type { AnuuStrategy } from '../engine/calculator';
 import { getTranslatedName } from '../engine/calculator';
 import { getItemIcon } from '../utils/icons';
 
-export const StrategicLab = ({ strategies, onSelect, isEng }: { strategies: AnuuStrategy[], onSelect: (s: AnuuStrategy) => void, isEng: boolean }) => {
+export const StrategicLab = ({ strategies, onSelect, isEng, icons }: {
+    strategies: AnuuStrategy[],
+    onSelect: (s: AnuuStrategy) => void,
+    isEng: boolean,
+    icons: Record<number, string>
+}) => {
     const labItems = strategies.filter(s => s.verdict?.includes('RESEARCH') || s.verdict?.includes('WEEKLY') || s.verdict?.includes('UPGRADE') || s.name.includes('Ecto'));
 
     return (
@@ -25,7 +30,13 @@ export const StrategicLab = ({ strategies, onSelect, isEng }: { strategies: Anuu
                 {labItems.map((item, idx) => (
                     <div key={idx} className="p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-amber-500/30 transition-all group cursor-pointer" onClick={() => onSelect(item)}>
                         <div className="flex justify-between items-start mb-4">
-                            <div className="text-2xl bg-black/40 p-2 rounded-lg border border-white/5">{getItemIcon(item.name)}</div>
+                            <div className="w-12 h-12 flex-shrink-0 bg-black/40 rounded-xl border border-white/5 overflow-hidden flex items-center justify-center">
+                                {icons[item.targetId] ? (
+                                    <img src={icons[item.targetId]} alt="" className="w-10 h-10 object-contain" />
+                                ) : (
+                                    <span className="text-2xl">{getItemIcon(item.name)}</span>
+                                )}
+                            </div>
                             {item.verdict && <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">{item.verdict}</span>}
                         </div>
                         <h4 className="font-bold text-white uppercase text-xs mb-1 group-hover:text-amber-400 transition-colors">

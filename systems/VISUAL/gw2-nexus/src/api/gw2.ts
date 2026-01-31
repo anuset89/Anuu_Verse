@@ -103,5 +103,17 @@ export const gw2 = {
             console.error("[GW2 API] Characters Error", e);
             return [];
         }
+    },
+
+    async getItems(ids: number[]) {
+        if (!ids.length) return [];
+        try {
+            // GW2 API allows up to 200 IDs at once
+            const res = await axios.get(`${API_BASE}/items?ids=${ids.join(',')}`);
+            return res.data;
+        } catch (e) {
+            console.error("[GW2 API] Items Error", e);
+            return [];
+        }
     }
 };

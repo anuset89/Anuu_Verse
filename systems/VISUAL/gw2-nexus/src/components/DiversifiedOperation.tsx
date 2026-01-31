@@ -200,12 +200,12 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
 
         const neededSource = sourcePerCraft * batchSize;
         const neededDust = (usesDust ? dustPerCraft : 0) * batchSize;
-        // Seed logic for promotions: min(batchSize, 5)
-        const neededTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : Math.min(batchSize, 5);
+        // Seed logic for promotions: Strictly 1 unit is enough to start the chain (output becomes input for next)
+        const neededTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : (batchSize > 0 ? 1 : 0);
 
         // Calculate purchase mandates (Buy = Need - Have)
         const buySource = Math.max(0, neededSource - ownedSource);
-        const buyDust = Math.max(0, neededDust - ownedDust); // Note: Dust is shared, simple check per strategy for now
+        const buyDust = Math.max(0, neededDust - ownedDust);
         const buyTarget = Math.max(0, neededTarget - ownedTarget);
 
         return {
@@ -228,136 +228,133 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
     const roiPercentage = totalInvested > 0 ? (netProfit / totalInvested) * 100 : 0;
 
     return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 pb-32">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <button onClick={onBack} className="matte-card px-5 py-3 text-zinc-500 text-[10px] hover:text-white transition-all uppercase tracking-[0.2em] font-black border-white/5 flex items-center gap-2 group">
-                    <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> {isEng ? 'Back to Dashboard' : 'Volver al Tablero'}
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-8 pb-12">
+            {/* HEADER */}
+            <div className="flex items-center gap-4 mb-2">
+                <button onClick={onBack} className="p-3 rounded-full hover:bg-white/10 transition-colors group">
+                    <ArrowLeft className="text-zinc-400 group-hover:text-white transition-colors" />
                 </button>
-                <div className="flex flex-col items-start md:items-end">
-                    <h2 className="text-2xl md:text-3xl font-black text-white uppercase font-display tracking-tight flex items-center gap-3">
-                        <Cpu className="text-indigo-500" /> {isEng ? 'Diversified Protocol' : 'Protocolo Diversificado'}
-                    </h2>
-                    <span className="text-[9px] font-black px-3 py-1 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-widest">
-                        {isEng ? 'Multi-Market Analysis' : 'Análisis Multi-Mercado'}
-                    </span>
-                </div>
-            </div>
-
-            {/* Budget & Financial Breakdown */}
-            <div className="matte-card p-8 flex flex-col md:flex-row gap-8 items-start justify-between bg-gradient-to-r from-indigo-900/10 to-purple-900/10 border-indigo-500/20">
-
-                {/* Left: Input */}
                 <div>
-                    <h3 className="text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">{isEng ? 'Investment Budget' : 'Presupuesto de Inversión'}</h3>
-                    <div className="flex items-end gap-2">
-                        <input
-                            type="number"
-                            value={budgetGold}
-                            onChange={(e) => setBudgetGold(Math.max(1, parseInt(e.target.value) || 0))}
-                            className="bg-transparent text-4xl font-black text-white w-32 border-b border-indigo-500/50 focus:border-indigo-400 focus:outline-none font-display text-right"
-                        />
-                        <span className="text-xl font-black text-amber-500 mb-1">GOLD</span>
-                    </div>
-                    <p className="text-[9px] text-zinc-600 mt-2 uppercase tracking-wide">
-                        {isEng ? 'Wallet Available:' : 'Disponible en Cartera:'} <span className="text-zinc-400 font-bold">{Math.floor(availableGold)}g</span>
+                    <h2 className="text-2xl font-black text-white uppercase tracking-tighter font-display italic">
+                        {isEng ? 'Diversified Operations' : 'Operaciones Diversificadas'}
+                    </h2>
+                    <p className="text-[10px] text-zinc-500 font-bold tracking-widest uppercase flex items-center gap-2">
+                        {isEng ? 'Protocol v6.1: Active' : 'Protocolo v6.1: Activo'}
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     </p>
                 </div>
+            </div>
 
-                {/* Right: Detailed Breakdown */}
-                <div className="text-right space-y-1">
-                    <h3 className="text-zinc-600 text-[8px] font-black uppercase tracking-[0.3em] mb-3 border-b border-white/5 pb-1">{isEng ? 'Financial Projection' : 'Proyección Financiera'}</h3>
+            {/* BUDGET CONTROL */}
+            <div className="flex items-center gap-4 bg-black/20 p-4 rounded-xl border border-white/5 mx-1">
+                <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest">{isEng ? 'Set Investment Budget' : 'Presupuesto de Inversión'}:</span>
+                <div className="flex items-center gap-2">
+                    <input
+                        type="number"
+                        value={budgetGold}
+                        onChange={(e) => setBudgetGold(Math.max(1, parseInt(e.target.value) || 0))}
+                        className="bg-transparent text-xl font-black text-white w-24 border-b border-indigo-500/50 focus:border-indigo-400 focus:outline-none font-display text-right"
+                    />
+                    <span className="text-[10px] font-black text-amber-500 uppercase">GOLD</span>
+                </div>
+                <div className="text-[9px] text-zinc-600 ml-auto uppercase tracking-wide border-l border-white/10 pl-4">
+                    {isEng ? 'Wallet Available:' : 'Cartera Disponible:'} <span className="text-zinc-400 font-bold">{Math.floor(availableGold)}g</span>
+                </div>
+            </div>
 
-                    <div className="flex justify-end gap-4 text-[10px] items-center">
-                        <span className="text-zinc-500 uppercase tracking-wide">{isEng ? 'Est. Total Investment' : 'Inversión Total Est.'}</span>
-                        <GoldDisplay amount={totalInvested} size="sm" />
+            {/* MISSION CONTROL (CENTRALIZED TRACKER) */}
+            <NexusTracker list={shoppingList} isEng={isEng} />
+
+            {/* FINANCIAL PROJECTION PANEL */}
+            <div className="mt-8">
+                <h3 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] mb-4 pl-1">{isEng ? 'Financial Telemetry' : 'Telemetría Financiera'}</h3>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="matte-card p-4 border-l-2 border-indigo-500 bg-black/40">
+                        <div className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">{isEng ? 'Total Investment' : 'Inversión Total'}</div>
+                        <GoldDisplay amount={totalInvested} size="lg" />
                     </div>
-
-                    <div className="flex justify-end gap-4 text-[10px] items-center">
-                        <span className="text-zinc-500 uppercase tracking-wide">{isEng ? 'Est. Gross Sales' : 'Ventas Brutas Est.'}</span>
-                        <span className="font-mono font-bold text-zinc-300">
-                            {Math.floor(totalGrossSales / 10000)}g <span className="text-[9px] text-zinc-600">BRUTO</span>
-                        </span>
+                    <div className="matte-card p-4 border-l-2 border-emerald-500 bg-black/40">
+                        <div className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">{isEng ? 'Gross Sales' : 'Ventas Brutas'}</div>
+                        <GoldDisplay amount={totalGrossSales} size="lg" />
                     </div>
-
-                    <div className="flex justify-end gap-4 text-[10px] items-center">
-                        <span className="text-red-400/60 uppercase tracking-wide">{isEng ? 'Trading Post Fees (15%)' : 'Tasas Trading Post (15%)'}</span>
-                        <span className="font-mono font-bold text-red-400/80">-{Math.floor(tpFees / 10000)}g</span>
+                    <div className="matte-card p-4 border-l-2 border-red-500/50 bg-black/40">
+                        <div className="text-[8px] text-zinc-500 font-black uppercase tracking-widest mb-1">{isEng ? 'Trading Post Fees (15%)' : 'Tasas Bazar (15%)'}</div>
+                        <div className="text-red-400 font-mono font-bold">-<GoldDisplay amount={tpFees} size="lg" /></div>
                     </div>
-
-                    <div className="border-t border-white/10 pt-2 mt-2 flex justify-end gap-4 items-center">
-                        <div className="flex flex-col items-end">
-                            <span className="text-[9px] text-emerald-500/80 uppercase tracking-widest">{isEng ? 'Net Profit' : 'Beneficio Neto'}</span>
-                            <GoldDisplay amount={netProfit} size="lg" />
+                    <div className="matte-card p-4 border-l-2 border-emerald-400 bg-emerald-500/10 shadow-[0_0_30px_rgba(16,185,129,0.1)] relative overflow-hidden">
+                        <div className="relative z-10">
+                            <div className="text-[8px] text-emerald-400 font-black uppercase tracking-widest mb-1 flex items-center gap-2">
+                                <Cpu size={12} className="animate-pulse" /> {isEng ? 'Net Profit' : 'Beneficio Neto'}
+                            </div>
+                            <GoldDisplay amount={netProfit} size="xl" />
+                            <div className="text-[10px] text-emerald-300 font-black tracking-widest mt-1">ROI: +{roiPercentage.toFixed(1)}%</div>
                         </div>
-                    </div>
-
-                    <div className="text-[12px] text-emerald-400 font-black uppercase tracking-widest pt-1 font-display text-glow">
-                        +{roiPercentage.toFixed(1)}% ROI
                     </div>
                 </div>
             </div>
 
-            {/* Strategy Breakdown */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {shoppingList.map((item, idx) => (
-                    <div key={idx} className="matte-card p-6 border-white/5 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-3 opacity-10 text-6xl font-black text-zinc-700">{idx + 1}</div>
-                        <div className="relative z-10">
-                            <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">{isEng ? 'Allocation' : 'Asignación'}: {Math.round(weightPerStrategy * 100)}% ({Math.floor(item.allocatedGold)}g)</h4>
-                            <div className="h-1 w-full bg-zinc-800 rounded-full mb-6 overflow-hidden">
-                                <div className="h-full bg-indigo-500" style={{ width: `${weightPerStrategy * 100}%` }}></div>
-                            </div>
+            {/* STRATEGY BREAKDOWN */}
+            <div className="pt-8 border-t border-white/5">
+                <h3 className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] mb-6 text-center">{isEng ? 'Detailed Strategy Breakdown' : 'Desglose Detallado de Estrategia'}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {shoppingList.map((item, idx) => (
+                        <div key={idx} className="matte-card p-6 border-white/5 relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-3 opacity-10 text-6xl font-black text-zinc-700">{idx + 1}</div>
+                            <div className="relative z-10">
+                                <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">{isEng ? 'Allocation' : 'Asignación'}: {Math.round(weightPerStrategy * 100)}% ({Math.floor(item.allocatedGold)}g)</h4>
+                                <div className="h-1 w-full bg-zinc-800 rounded-full mb-6 overflow-hidden">
+                                    <div className="h-full bg-indigo-500" style={{ width: `${weightPerStrategy * 100}%` }}></div>
+                                </div>
 
-                            <div className="flex items-center gap-4 mb-6">
-                                <div className="text-3xl bg-black/40 p-3 rounded-2xl border border-white/5">{getItemIcon(item.strategy.name)}</div>
-                                <div>
-                                    <h3 className="font-bold text-white uppercase text-xs font-display">{item.strategy.name}</h3>
-                                    <div className="text-[9px] text-zinc-500 uppercase tracking-wide">{isEng ? 'Route' : 'Ruta'}: {item.strategy.type}</div>
-                                    {item.strategy.recipe && (
-                                        <div className="mt-2 text-[7px] text-zinc-600 leading-tight border-t border-white/5 pt-1">
-                                            {item.strategy.recipe}
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="text-3xl bg-black/40 p-3 rounded-2xl border border-white/5">{getItemIcon(item.strategy.name)}</div>
+                                    <div>
+                                        <h3 className="font-bold text-white uppercase text-xs font-display">{item.strategy.name}</h3>
+                                        <div className="text-[9px] text-zinc-500 uppercase tracking-wide">{isEng ? 'Route' : 'Ruta'}: {item.strategy.type}</div>
+                                        {item.strategy.recipe && (
+                                            <div className="mt-2 text-[7px] text-zinc-600 leading-tight border-t border-white/5 pt-1">
+                                                {item.strategy.recipe}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="bg-black/40 rounded-xl p-4 space-y-3 border border-white/5">
+                                    <div className="flex justify-between items-center text-[10px]">
+                                        <span className="text-zinc-500 font-bold uppercase">{isEng ? 'Buy Source' : 'Comprar Fuente'}</span>
+                                        <div className="text-right">
+                                            <span className={`font-black ${item.buySource < item.neededSource ? 'text-emerald-400' : 'text-white'}`}>{item.buySource} u.</span>
+                                            {item.ownedSource > 0 && <div className="text-[7px] text-zinc-500 uppercase tracking-tight">{isEng ? 'Have' : 'Tienes'}: {item.ownedSource}</div>}
+                                        </div>
+                                    </div>
+                                    {item.neededDust > 0 && (
+                                        <div className="flex justify-between items-center text-[10px]">
+                                            <span className="text-zinc-500 font-bold uppercase">{isEng ? 'Buy Dust' : 'Comprar Polvo'}</span>
+                                            <div className="text-right">
+                                                <span className={`font-black ${item.buyDust < item.neededDust ? 'text-emerald-400' : 'text-indigo-300'}`}>{item.buyDust} u.</span>
+                                                {item.ownedDust > 0 && <div className="text-[7px] text-zinc-500 uppercase tracking-tight">{isEng ? 'Have' : 'Tienes'}: {item.ownedDust}</div>}
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between items-center text-[10px] border-t border-white/5 pt-2 mt-2">
+                                        <span className="text-zinc-500 font-bold uppercase">{isEng ? 'Operations' : 'Operaciones'}</span>
+                                        <span className="text-white font-black">{item.batchSize} x</span>
+                                    </div>
+                                    {item.neededTarget > 0 && (
+                                        <div className="pt-2 text-center">
+                                            <div className="text-[7px] text-zinc-600 font-black uppercase tracking-[0.2em] mb-1">SEED TARGET</div>
+                                            <div className="flex justify-between items-center text-[9px]">
+                                                <span className="text-zinc-500">Buy: <span className={item.buyTarget < item.neededTarget ? 'text-emerald-400' : 'text-white'}>{item.buyTarget}</span></span>
+                                                {item.ownedTarget > 0 && <span className="text-zinc-600">Have: {item.ownedTarget}</span>}
+                                            </div>
                                         </div>
                                     )}
                                 </div>
                             </div>
-
-                            <div className="bg-black/40 rounded-xl p-4 space-y-3 border border-white/5">
-                                <div className="flex justify-between items-center text-[10px]">
-                                    <span className="text-zinc-500 font-bold uppercase">{isEng ? 'Buy Source' : 'Comprar Fuente'}</span>
-                                    <div className="text-right">
-                                        <span className={`font-black ${item.buySource < item.neededSource ? 'text-emerald-400' : 'text-white'}`}>{item.buySource} u.</span>
-                                        {item.ownedSource > 0 && <div className="text-[7px] text-zinc-500 uppercase tracking-tight">{isEng ? 'Have' : 'Tienes'}: {item.ownedSource}</div>}
-                                    </div>
-                                </div>
-                                {item.neededDust > 0 && (
-                                    <div className="flex justify-between items-center text-[10px]">
-                                        <span className="text-zinc-500 font-bold uppercase">{isEng ? 'Buy Dust' : 'Comprar Polvo'}</span>
-                                        <div className="text-right">
-                                            <span className={`font-black ${item.buyDust < item.neededDust ? 'text-emerald-400' : 'text-indigo-300'}`}>{item.buyDust} u.</span>
-                                            {item.ownedDust > 0 && <div className="text-[7px] text-zinc-500 uppercase tracking-tight">{isEng ? 'Have' : 'Tienes'}: {item.ownedDust}</div>}
-                                        </div>
-                                    </div>
-                                )}
-                                <div className="flex justify-between items-center text-[10px] border-t border-white/5 pt-2 mt-2">
-                                    <span className="text-zinc-500 font-bold uppercase">{isEng ? 'Operations' : 'Operaciones'}</span>
-                                    <span className="text-white font-black">{item.batchSize} x</span>
-                                </div>
-                                {item.neededTarget > 0 && (
-                                    <div className="pt-2 text-center">
-                                        <div className="text-[7px] text-zinc-600 font-black uppercase tracking-[0.2em] mb-1">SEED TARGET</div>
-                                        <div className="flex justify-between items-center text-[9px]">
-                                            <span className="text-zinc-500">Buy: <span className={item.buyTarget < item.neededTarget ? 'text-emerald-400' : 'text-white'}>{item.buyTarget}</span></span>
-                                            {item.ownedTarget > 0 && <span className="text-zinc-600">Have: {item.ownedTarget}</span>}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
-
-            <NexusTracker list={shoppingList} isEng={isEng} />
 
             <div className="p-6 bg-black/20 border-t border-white/5 text-[9px] text-zinc-600 font-black uppercase text-center tracking-widest font-display mt-8">
                 {isEng ? 'Diversification reduces risk. Execute all 3 orders simultaneously.' : 'La diversificación reduce el riesgo. Ejecuta las 3 órdenes simultáneamente.'}

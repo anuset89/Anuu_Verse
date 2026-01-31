@@ -660,10 +660,10 @@ const AutoTracker = ({ opportunities, gold, lang, onRefresh, loading }) => {
     const investmentAmount = Math.floor(gold * investmentRatios[mode]);
 
     // Calculate how many crafts we can do with this investment
-    const unitCost = top.totalCost / top.chosen; // Cost per single craft
-    const craftableUnits = Math.max(1, Math.floor(investmentAmount / unitCost));
-    const actualCost = craftableUnits * unitCost;
-    const expectedProfit = (top.potentialProfit / top.chosen) * craftableUnits;
+    const unitCost = (top.totalCost || 1) / (top.chosen || 1); // Cost per single craft
+    const craftableUnits = unitCost > 0 ? Math.max(1, Math.floor(investmentAmount / unitCost) || 1) : 1;
+    const actualCost = Math.floor(craftableUnits * unitCost) || 0;
+    const expectedProfit = Math.floor(((top.potentialProfit || 0) / (top.chosen || 1)) * craftableUnits) || 0;
 
     const t5Name = getItemName(top.t5Id, lang);
     const t6Name = getItemName(top.id, lang);

@@ -93,7 +93,7 @@ const DiversificationHub = ({ strategies, onSelect, isEng, walletGold }: { strat
       title: isEng ? 'Balanced Flow' : 'Equilibrado',
       icon: <Scale className="text-emerald-400" size={24} />,
       items: strategies.filter(s => s.roi > 20 && s.roi < 40).slice(0, 3),
-      desc: isEng ? 'Crecimiento estable con riesgo minimizado.' : 'Crecimiento estable con riesgo minimizado.',
+      desc: isEng ? 'Stable growth with minimized risk.' : 'Crecimiento estable con riesgo minimizado.',
       stats: { roi: 'MED', risk: 'MIN', speed: 'MED' },
       color: 'border-emerald-500/20 hover:border-emerald-500/40'
     },
@@ -182,48 +182,131 @@ const DiversificationHub = ({ strategies, onSelect, isEng, walletGold }: { strat
 };
 
 // --- NEXUS CODEX (KNOWLEDGE BASE) ---
-const NexusCodex = ({ isEng }: { isEng: boolean }) => {
+const StrategyGrimoire = ({ strategies, onSelectSingle, isEng }: {
+  strategies: AnuuStrategy[],
+  onSelectSingle: (strat: AnuuStrategy) => void,
+  isEng: boolean
+}) => {
+  const [filter, setFilter] = useState<'all' | 'profitable' | 'lodestone' | 't6'>('profitable');
+
+  const getIcon = (name: string) => {
+    if (name.toLowerCase().includes('lodestone')) return '💎';
+    if (name.toLowerCase().includes('blood') || name.toLowerCase().includes('claw') || name.toLowerCase().includes('fang') || name.toLowerCase().includes('scale') || name.toLowerCase().includes('venom') || name.toLowerCase().includes('totem') || name.toLowerCase().includes('bone')) return '🧪';
+    return '✨';
+  };
+
+  const filteredStrategies = strategies.filter(s => {
+    if (filter === 'all') return true;
+    if (filter === 'profitable') return s.roi > 0;
+    if (filter === 'lodestone') return s.type === 'LODE';
+    if (filter === 't6') return s.type === 'FINE' || s.type === 'COMMON';
+    return true;
+  });
+
   return (
-    <div className="matte-card p-8 md:p-12 border-white/5 bg-black/20 mt-16">
-      <div className="flex items-center gap-4 mb-8">
-        <Brain className="text-indigo-500" size={24} />
-        <h3 className="text-xl font-black text-white uppercase tracking-[0.3em] font-display">{isEng ? 'Nexus Codex' : 'Códice Nexus'}</h3>
+    <div className="matte-card p-8 md:p-12 border-white/5 bg-black/20 mt-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div className="flex items-center gap-4">
+          <Brain className="text-indigo-500" size={24} />
+          <div>
+            <h3 className="text-xl font-black text-white uppercase tracking-[0.2em] font-display">{isEng ? 'Strategy Grimoire' : 'Grimorio de Rutas'}</h3>
+            <p className="text-[9px] text-zinc-500 uppercase tracking-widest">{isEng ? 'Click any route for Single Focus Mode' : 'Pulsa cualquier ruta para Modo Enfocado'}</p>
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          {(['profitable', 'all', 't6', 'lodestone'] as const).map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${filter === f ? 'bg-indigo-600 text-white' : 'bg-black/40 text-zinc-500 hover:text-white'}`}
+            >
+              {f === 'profitable' ? (isEng ? 'Profitable' : 'Rentables') :
+                f === 'all' ? (isEng ? 'All' : 'Todas') :
+                  f === 't6' ? 'T6' :
+                    'Lodestones'}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div className="space-y-3">
-          <h4 className="text-[10px] font-black text-white uppercase tracking-widest border-b border-white/10 pb-2 mb-2 flex items-center gap-2">
-            <FlaskConical size={12} className="text-violet-400" /> T5 → T6 Protocol
+      {filteredStrategies.length === 0 ? (
+        <div className="text-center py-12 text-zinc-600 text-sm">
+          {isEng ? 'No routes match current filter' : 'No hay rutas con este filtro'}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredStrategies.map((strat, idx) => (
+            <motion.button
+              key={idx}
+              onClick={() => onSelectSingle(strat)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={`text-left p-4 rounded-xl border transition-all group relative overflow-hidden ${strat.roi > 20 ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-400' :
+                strat.roi > 0 ? 'bg-black/40 border-white/10 hover:border-indigo-500' :
+                  'bg-black/20 border-red-500/20 hover:border-red-400'
+                }`}
+            >
+              <div className="absolute top-0 right-0 p-2 opacity-30 text-2xl">{getIcon(strat.name)}</div>
+
+              <div className="relative z-10">
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="text-xs font-black text-white uppercase tracking-wide pr-8">{strat.name}</h4>
+                </div>
+
+                <div className="flex items-center gap-2 mb-3">
+                  <span className={`text-[9px] px-2 py-0.5 rounded font-bold uppercase ${strat.type === 'LODE' ? 'bg-amber-500/20 text-amber-400' : 'bg-violet-500/20 text-violet-400'
+                    }`}>{strat.type === 'LODE' ? 'Lodestone' : 'T6 Mat'}</span>
+                </div>
+
+                <div className="flex items-end justify-between">
+                  <div>
+                    <div className="text-[8px] text-zinc-600 uppercase tracking-wider mb-1">{isEng ? 'Profit/Op' : 'Beneficio/Op'}</div>
+                    <GoldDisplay amount={strat.profitPerCraft} size="sm" />
+                  </div>
+                  <div className={`text-lg font-black ${strat.roi > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {strat.roi > 0 ? '+' : ''}{strat.roi.toFixed(1)}%
+                  </div>
+                </div>
+              </div>
+
+              <div className="absolute inset-0 bg-indigo-500/0 group-hover:bg-indigo-500/5 transition-colors pointer-events-none"></div>
+            </motion.button>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-8 pt-6 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-6 text-[9px]">
+        <div>
+          <h4 className="font-black text-white uppercase tracking-widest mb-2 flex items-center gap-2">
+            <FlaskConical size={12} className="text-violet-400" /> T5 → T6
           </h4>
-          <p className="text-[10px] text-zinc-500 leading-relaxed">
-            {isEng ? 'Combine 50 T5 materials + 1 T6 material + 5 Crystalline Dust + 5 Philosopher\'s Stones in the Mystic Forge. Yields 5-12 T6 materials (Avg ~7).' : 'Combina 50 materiales T5 + 1 material T6 + 5 Polvos Cristalinos + 5 Piedras Filosofales. Genera 5-12 materiales T6 (Media ~7).'}
+          <p className="text-zinc-500 leading-relaxed">
+            {isEng ? '50 T5 + 1 T6 + 5 Dust + 5 Stones → ~7 T6' : '50 T5 + 1 T6 + 5 Polvo + 5 Piedras → ~7 T6'}
           </p>
         </div>
-
-        <div className="space-y-3">
-          <h4 className="text-[10px] font-black text-white uppercase tracking-widest border-b border-white/10 pb-2 mb-2 flex items-center gap-2">
+        <div>
+          <h4 className="font-black text-white uppercase tracking-widest mb-2 flex items-center gap-2">
             <Star size={12} className="text-amber-400" /> Lodestones
           </h4>
-          <p className="text-[10px] text-zinc-500 leading-relaxed">
-            {isEng ? '2 Cores + 1 Crystalline Dust + 1 Elonian Wine + 1 Mystic Crystal. Essential for Legendary crafting. High value, lower velocity.' : '2 Núcleos + 1 Polvo Cristalino + 1 Vino Eloniano + 1 Cristal Místico. Esencial para legendarias. Alto valor, menor velocidad.'}
+          <p className="text-zinc-500 leading-relaxed">
+            {isEng ? '2 Cores + 1 Dust + 1 Wine + 1 Crystal' : '2 Núcleos + 1 Polvo + 1 Vino + 1 Cristal'}
           </p>
         </div>
-
-        <div className="space-y-3">
-          <h4 className="text-[10px] font-black text-white uppercase tracking-widest border-b border-white/10 pb-2 mb-2 flex items-center gap-2">
-            <Scale size={12} className="text-emerald-400" /> Tax & Fees
+        <div>
+          <h4 className="font-black text-white uppercase tracking-widest mb-2 flex items-center gap-2">
+            <Scale size={12} className="text-emerald-400" /> Fees
           </h4>
-          <p className="text-[10px] text-zinc-500 leading-relaxed">
-            {isEng ? 'Trading Post takes 15% total (5% listing fee + 10% exchange fee). All Nexus calculations include this deduction for TRUE net profit.' : 'El Bazar cobra un 15% total (5% listado + 10% intercambio). Nexus ya descuenta esto para mostrar el beneficio neto REAL.'}
+          <p className="text-zinc-500 leading-relaxed">
+            {isEng ? '15% TP tax included in all calculations' : '15% de tasas ya incluidas en cálculos'}
           </p>
         </div>
-
-        <div className="space-y-3">
-          <h4 className="text-[10px] font-black text-white uppercase tracking-widest border-b border-white/10 pb-2 mb-2 flex items-center gap-2">
-            <Zap size={12} className="text-cyan-400" /> Spirit Shards
+        <div>
+          <h4 className="font-black text-white uppercase tracking-widest mb-2 flex items-center gap-2">
+            <Zap size={12} className="text-cyan-400" /> Shards
           </h4>
-          <p className="text-[10px] text-zinc-500 leading-relaxed">
-            {isEng ? 'The core currency for profit. Obtained by XP gain after lvl 80. Used to buy Philosopher\'s Stones and Mystic Crystals from Miyani.' : 'La moneda base del beneficio. Se gana con XP tras nivel 80. Usada para comprar Piedras Filosofales y Cristales Místicos a Miyani.'}
+          <p className="text-zinc-500 leading-relaxed">
+            {isEng ? 'Buy Stones & Crystals from Miyani' : 'Compra Piedras y Cristales a Miyani'}
           </p>
         </div>
       </div>
@@ -435,13 +518,13 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack, isEng }: {
                     <div className="matte-card p-6 bg-black/40 min-w-[160px] border-white/5">
                       <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">✨</div>
                       <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Stabilizer' : 'Estabilizador'}</div>
-                      <div className="text-[10px] font-black text-white font-display uppercase tracking-tight">5x Dust</div>
+                      <div className="text-[10px] font-black text-white font-display uppercase tracking-tight">{isEng ? '5x Dust' : '5x Polvo'}</div>
                     </div>
                     <div className="text-zinc-800 font-black">+</div>
                     <div className="matte-card p-6 bg-black/40 min-w-[160px] border-indigo-500/20">
                       <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">💎</div>
                       <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Exchange' : 'Canje'}</div>
-                      <div className="text-[10px] font-black text-indigo-300 font-display uppercase tracking-tight">5x Philo Stones</div>
+                      <div className="text-[10px] font-black text-indigo-300 font-display uppercase tracking-tight">{isEng ? '5x Philo Stones' : '5x Piedras Filosofales'}</div>
                     </div>
                   </>
                 )}
@@ -452,19 +535,19 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack, isEng }: {
                     <div className="matte-card p-6 bg-black/40 min-w-[160px] border-white/5">
                       <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">✨</div>
                       <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Essence' : 'Esencia'}</div>
-                      <div className="text-[10px] font-black text-white font-display uppercase tracking-tight">1x Dust</div>
+                      <div className="text-[10px] font-black text-white font-display uppercase tracking-tight">{isEng ? '1x Dust' : '1x Polvo'}</div>
                     </div>
                     <div className="text-zinc-800 font-black">+</div>
                     <div className="matte-card p-6 bg-black/40 min-w-[160px] border-white/5">
                       <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">🍷</div>
                       <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Blend' : 'Mezcla'}</div>
-                      <div className="text-[10px] font-black text-amber-500 font-display uppercase tracking-tight italic">1x Wine</div>
+                      <div className="text-[10px] font-black text-amber-500 font-display uppercase tracking-tight italic">{isEng ? '1x Wine' : '1x Vino'}</div>
                     </div>
                     <div className="text-zinc-800 font-black">+</div>
                     <div className="matte-card p-6 bg-black/40 min-w-[160px] border-indigo-500/20">
                       <div className="w-12 h-12 bg-black/40 rounded-xl mb-3 mx-auto flex items-center justify-center text-2xl border border-white/5">🧊</div>
                       <div className="text-[8px] text-zinc-600 font-black uppercase mb-1">{isEng ? 'Exchange' : 'Canje'}</div>
-                      <div className="text-[10px] font-black text-indigo-300 font-display uppercase tracking-tight">1x Mystic Crystal</div>
+                      <div className="text-[10px] font-black text-indigo-300 font-display uppercase tracking-tight">{isEng ? '1x Mystic Crystal' : '1x Cristal Místico'}</div>
                     </div>
                   </>
                 )}
@@ -574,7 +657,7 @@ const SettingsModal = ({ isOpen, onClose, currentKey, onSave, isEng }: { isOpen:
               placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXXXXXXXXX"
               className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-zinc-300 focus:border-indigo-500 focus:outline-none font-mono text-xs shadow-inner"
             />
-            <p className="text-[9px] text-zinc-600 mt-2 leading-relaxed">
+            <p className="text-[10px] text-zinc-600 mt-2 leading-relaxed">
               {isEng ? 'Permissions required: account, wallet, inventories. Key is stored locally in your browser.' : 'Permisos requeridos: account, wallet, inventories. La clave se guarda localmente en tu navegador.'}
             </p>
           </div>
@@ -600,11 +683,11 @@ function App() {
   const [materials, setMaterials] = useState<Record<number, number>>({});
   const [wallet, setWallet] = useState<Record<number, number>>({});
   const [prices, setPrices] = useState<Record<number, MarketItem>>({});
-  const [thought, setThought] = useState("Proyectando rutas comerciales...");
-  const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE'>('IDLE');
   const [lang, setLang] = useState<'es' | 'en'>((localStorage.getItem('gw2_lang') as 'es' | 'en') || 'es');
-  const [showSettings, setShowSettings] = useState(false); // Modal State
   const isEng = lang === 'en';
+  const [thought, setThought] = useState(isEng ? "Projecting trade routes..." : "Proyectando rutas comerciales...");
+  const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE'>('IDLE');
+  const [showSettings, setShowSettings] = useState(false); // Modal State
 
   const fetchData = useCallback(async () => {
     setStatus('THINKING');
@@ -738,10 +821,21 @@ function App() {
             </div>
           )}
 
-          <div className="flex gap-3">
-            <button onClick={() => { const next = lang === 'es' ? 'en' : 'es'; setLang(next); localStorage.setItem('gw2_lang', next); }} className="matte-card px-4 py-2 hover:text-white text-zinc-600 transition-all border-white/5 text-[10px] font-black font-display uppercase">
-              {lang === 'es' ? 'ESP' : 'ENG'}
-            </button>
+          <div className="flex items-center gap-3">
+            <div className="flex gap-1 matte-card p-1 border-white/5">
+              <button
+                onClick={() => { setLang('es'); localStorage.setItem('gw2_lang', 'es'); }}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-black font-display uppercase transition-all ${lang === 'es' ? 'bg-indigo-600 text-white' : 'text-zinc-600 hover:text-white'}`}
+              >
+                ESP
+              </button>
+              <button
+                onClick={() => { setLang('en'); localStorage.setItem('gw2_lang', 'en'); }}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-black font-display uppercase transition-all ${lang === 'en' ? 'bg-indigo-600 text-white' : 'text-zinc-600 hover:text-white'}`}
+              >
+                ENG
+              </button>
+            </div>
             <button onClick={fetchData} className="matte-card p-3.5 hover:text-white text-zinc-600 transition-all border-white/5"><RefreshCcw size={20} className={status === 'THINKING' ? 'animate-spin' : ''} /></button>
             <button onClick={() => setShowSettings(true)} className={`matte-card p-3.5 hover:text-white transition-all border-white/5 relative flex items-center gap-2 ${!apiKey ? 'text-amber-400 border-amber-500/30' : 'text-zinc-600'}`}>
               {!apiKey && <span className="text-[9px] font-black uppercase tracking-widest hidden md:inline">{isEng ? 'Add API Key' : 'Añade tu API'}</span>}
@@ -762,7 +856,7 @@ function App() {
             <motion.div key="dash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
               <DiversificationHub strategies={strategies} onSelect={handleMultiSelect} isEng={isEng} walletGold={wallet[1] || 0} />
               {/* Removed raw strategy grid as per user feedback - Focus on Profiles & Codex */}
-              <NexusCodex isEng={isEng} />
+              <StrategyGrimoire strategies={strategies} onSelectSingle={(strat) => setActiveStrategy(strat)} isEng={isEng} />
             </motion.div>
           ) : multiStrategy ? (
             <DiversifiedOperation
@@ -786,7 +880,7 @@ function App() {
           <span>Crypto-Economic Market Division</span>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

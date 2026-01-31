@@ -84,7 +84,7 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet }: { lis
                         {steps[currentStep - 1].icon}
                     </div>
                     <div>
-                        <h2 className="text-[10px] font-black tracking-[0.3em] text-zinc-500 uppercase font-display">Mission Control</h2>
+                        <h2 className="text-[10px] font-black tracking-[0.3em] text-zinc-500 uppercase font-display">{isEng ? 'Mission Control' : 'Control de Misión'}</h2>
                         <h3 className="text-xl font-black text-white uppercase italic font-display">{steps[currentStep - 1].title}</h3>
                     </div>
                 </div>
@@ -137,7 +137,7 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet }: { lis
                                             </div>
                                             <div>
                                                 <span className={`font-bold uppercase tracking-tight text-xs block ${l.type === 'dust' ? 'text-indigo-300' : 'text-zinc-300'}`}>{l.name}</span>
-                                                <span className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Buy Order</span>
+                                                <span className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">{isEng ? 'Buy Order' : 'Orden de Compra'}</span>
                                             </div>
                                         </div>
                                         <div className="text-right">
@@ -162,7 +162,7 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet }: { lis
                                             <span className="text-amber-400 font-bold bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20 text-xs">{task.batches} {isEng ? 'BATCHES' : 'LOTES'}</span>
                                         </div>
                                         <div className="text-[10px] text-zinc-400 font-mono bg-black/40 p-3 rounded border border-white/5 flex gap-2 items-center">
-                                            <span className="text-amber-500 font-black">RECIPE:</span> {task.recipe}
+                                            <span className="text-amber-500 font-black">{isEng ? 'RECIPE:' : 'RECETA:'}</span> {task.recipe}
                                         </div>
                                     </div>
                                 ))}
@@ -179,7 +179,7 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet }: { lis
                                 {assembly.map((task, i) => (
                                     <div key={i} className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-colors">
                                         <span className="text-zinc-300 uppercase tracking-tight flex items-center gap-3 text-xs font-bold">
-                                            <Package className="text-indigo-400" size={16} /> Sell {task.name}
+                                            <Package className="text-indigo-400" size={16} /> {isEng ? 'Sell' : 'Vender'} {task.name}
                                         </span>
                                         <span className="text-emerald-400 font-mono font-black flex items-center gap-2 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20 text-xs">
                                             <CheckCircle size={12} /> {isEng ? 'LIST ON TP' : 'LISTAR EN BAZAR'}

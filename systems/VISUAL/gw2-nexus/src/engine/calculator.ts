@@ -143,10 +143,10 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
     const strategies: AnuuStrategy[] = [];
 
     // 1. T5 to T6 Fine Materials (Promotion)
-    const types = ['BLOOD', 'BONE', 'CLAW', 'FANG', 'SCALE', 'TOTEM', 'VENOM', 'DUST'];
+    const types = ['BLOOD', 'BONE', 'CLAW', 'FANG', 'SCALE', 'TOTEM', 'VENOM', 'DUST'] as const;
     types.forEach(type => {
-        const idT5 = (IDS as any)[`${type}_T5`];
-        const idT6 = (IDS as any)[`${type}_T6`];
+        const idT5 = IDS[`${type}_T5` as keyof typeof IDS];
+        const idT6 = IDS[`${type}_T6` as keyof typeof IDS];
         const p5 = prices[idT5];
         const p6 = prices[idT6];
         const pDust = prices[IDS.DUST];
@@ -167,16 +167,17 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
                 roi: profit / cost,
                 supplyQty: p5.sells.quantity,
                 sellPrice: p6.sells.unit_price,
-                verdict: 'UPGRADE'
+                verdict: 'UPGRADE',
+                recipe: '50 T5 + 1 T6 + 5 Dust + 5 Stones -> ~7 T6'
             });
         }
     });
 
     // 2. Common Materials (Promotion)
-    const commonTypes = ['ORE', 'WOOD', 'LEATHER', 'CLOTH'];
+    const commonTypes = ['ORE', 'WOOD', 'LEATHER', 'CLOTH'] as const;
     commonTypes.forEach(type => {
-        const idT5 = (IDS as any)[`${type}_T5`];
-        const idT6 = (IDS as any)[`${type}_T6`];
+        const idT5 = IDS[`${type}_T5` as keyof typeof IDS];
+        const idT6 = IDS[`${type}_T6` as keyof typeof IDS];
         const p5 = prices[idT5];
         const p6 = prices[idT6];
         const pDust = prices[IDS.DUST];
@@ -197,16 +198,17 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
                 roi: profit / cost,
                 supplyQty: p5.sells.quantity,
                 sellPrice: p6.sells.unit_price,
-                verdict: 'VOLUME'
+                verdict: 'VOLUME',
+                recipe: '250 T5 + 1 T6 + 5 Dust + 5 Stones -> ~22 T6'
             });
         }
     });
 
     // 3. Cores to Lodestones
-    const lodeTypes = ['ONYX', 'MOLTEN', 'GLACIAL', 'DESTROYER', 'CRYSTAL', 'CORRUPTED', 'CHARGED'];
+    const lodeTypes = ['ONYX', 'MOLTEN', 'GLACIAL', 'DESTROYER', 'CRYSTAL', 'CORRUPTED', 'CHARGED'] as const;
     lodeTypes.forEach(type => {
-        const idCore = (IDS as any)[`CORE_${type}`];
-        const idLode = (IDS as any)[`LODE_${type}`];
+        const idCore = IDS[`CORE_${type}` as keyof typeof IDS];
+        const idLode = IDS[`LODE_${type}` as keyof typeof IDS];
         const pCore = prices[idCore];
         const pLode = prices[idLode];
         const pDust = prices[IDS.DUST];
@@ -227,7 +229,8 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
                 roi: profit / cost,
                 supplyQty: pCore.sells.quantity,
                 sellPrice: pLode.sells.unit_price,
-                verdict: 'UPGRADE'
+                verdict: 'UPGRADE',
+                recipe: '2 Cores + 1 Dust + 1 Wine + 1 Crystal -> 1 Lodestone'
             });
         }
     });
@@ -251,7 +254,8 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
             roi: profit / cost,
             supplyQty: pMote.sells.quantity,
             sellPrice: pShard.sells.unit_price,
-            verdict: 'WEEKLY'
+            verdict: 'WEEKLY',
+            recipe: '10 Motes -> 1 Shard'
         });
     }
 
@@ -267,14 +271,15 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
             id: 'industrial-research',
             name: 'Research Notes (Earrings)',
             type: 'INDUSTRIAL',
-            sourceId: (IDS as any).ORE_T5,
+            sourceId: IDS.ORE_T5,
             sourceName: 'Mithril Ore',
-            targetId: (IDS as any).RESEARCH_NOTE,
+            targetId: IDS.RESEARCH_NOTE,
             profitPerCraft: profit,
             roi: profit / cost,
             supplyQty: pMithril.sells.quantity,
             sellPrice: 150, // Potential value per note
-            verdict: 'RESEARCH'
+            verdict: 'RESEARCH',
+            recipe: '4 Ore -> 1 Research Note'
         });
     }
 

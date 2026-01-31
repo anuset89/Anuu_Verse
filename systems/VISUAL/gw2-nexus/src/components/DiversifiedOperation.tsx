@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Cpu, ShoppingCart, Hammer, Coins, CheckCircle, Package } from 'lucide-react';
+import { ArrowLeft, Cpu, ShoppingCart, Hammer, Coins, CheckCircle, Package, Sparkles } from 'lucide-react';
 import type { AnuuStrategy, MarketItem } from '../engine/calculator';
 import { IDS, getTranslatedName } from '../engine/calculator';
 
@@ -22,14 +22,15 @@ interface ShoppingListItem {
 }
 
 // --- NEXUS TRACKER (TRADING WIZARD) ---
-const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materials }: {
+const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materials, totalGrossSales }: {
     list: ShoppingListItem[],
     isEng: boolean,
     onClose: () => void,
     budget: number,
     setBudget: (n: number) => void,
     wallet: number,
-    materials: Record<number, { total: number, storage: number, bank: number }>
+    materials: Record<number, { total: number, storage: number, bank: number }>,
+    totalGrossSales: number
 }) => {
     const [currentStep, setCurrentStep] = useState(1);
 
@@ -128,15 +129,94 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
             <div className="min-h-[250px] relative z-10">
                 <AnimatePresence mode="wait">
                     {currentStep === 1 && (
-                        <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-                            <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-6 border-l-2 border-emerald-500 pl-3">
-                                {isEng ? 'Phase 1: Place Buy Orders to maximize flip margins.' : 'Fase 1: Coloca Órdenes de Compra para maximizar márgenes.'}
-                            </p>
+                        <motion.div key="step1" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }} className="space-y-8">
+
+                            {/* STRATEGIC BRIEFING & OUTCOME */}
+                            <div className="matte-card bg-indigo-500/5 border-indigo-500/30 p-8 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><CheckCircle size={120} /></div>
+                                <div className="relative z-10">
+                                    <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.4em] mb-6 flex items-center gap-2">
+                                        <Sparkles size={14} className="animate-pulse" /> {isEng ? 'Mission Briefing: Expected Outcome' : 'Briefing de Misión: Resultado Esperado'}
+                                    </h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                        {list.map((item, idx) => {
+                                            const yieldAmount = item.strategy.type === 'FINE' ? item.batchSize * 7 : item.strategy.type === 'COMMON' ? item.batchSize * 22 : item.batchSize;
+                                            return (
+                                                <div key={idx} className="flex flex-col gap-2 p-4 bg-black/60 rounded-2xl border border-white/5 shadow-2xl">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="text-2xl drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">{getItemIcon(item.strategy.name)}</div>
+                                                        <span className="text-[10px] font-black text-white uppercase tracking-tight truncate leading-tight">
+                                                            {getTranslatedName(item.strategy.targetId, item.strategy.name, isEng)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-baseline gap-1">
+                                                        <span className="text-2xl font-black text-indigo-400">+{yieldAmount}</span>
+                                                        <span className="text-[10px] text-zinc-600 font-black uppercase tracking-widest">u.</span>
+                                                    </div>
+                                                    <div className="text-[8px] text-zinc-500 font-bold uppercase tracking-widest mt-1 border-t border-white/5 pt-2 italic">
+                                                        {item.strategy.recipe}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* PRE-FLIGHT: INVENTORY WITHDRAWAL */}
+                            {list.some(item => item.ownedSource > 0 || item.ownedDust > 0) && (
+                                <div className="matte-card bg-amber-500/5 border-amber-500/30 p-6 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none"><Package size={80} /></div>
+                                    <h4 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                                        <Package size={14} /> {isEng ? 'Pre-Flight: Inventory Withdrawal' : 'Pre-Vuelo: Retirada de Inventario'}
+                                    </h4>
+                                    <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-4">
+                                        {isEng ? 'Withdraw these items from your Bank or Material Storage before proceeding:' : 'Retira estos objetos de tu Banco o Almacén de Materiales antes de proceder:'}
+                                    </p>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        {list.map((item, idx) => (
+                                            (item.ownedSource > 0 || item.ownedDust > 0) && (
+                                                <div key={idx} className="space-y-2">
+                                                    {item.ownedSource > 0 && (
+                                                        <div className="flex justify-between items-center p-3 bg-black/40 rounded-xl border border-amber-500/20">
+                                                            <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-300">
+                                                                <span>{getItemIcon(item.strategy.sourceName)}</span>
+                                                                <span className="uppercase truncate max-w-[120px]">{getTranslatedName(item.strategy.sourceId, item.strategy.sourceName, isEng)}</span>
+                                                            </div>
+                                                            <div className="text-amber-500 font-black text-xs">x{Math.min(item.ownedSource, item.neededSource)}</div>
+                                                        </div>
+                                                    )}
+                                                    {item.ownedDust > 0 && (
+                                                        <div className="flex justify-between items-center p-3 bg-black/40 rounded-xl border border-amber-500/20">
+                                                            <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-300">
+                                                                <span>✨</span>
+                                                                <span className="uppercase">{isEng ? 'Crystalline Dust' : 'Polvo Cristalino'}</span>
+                                                            </div>
+                                                            <div className="text-amber-500 font-black text-xs">x{Math.min(item.ownedDust, item.neededDust)}</div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="border-l-2 border-emerald-500 pl-4">
+                                <h4 className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">{isEng ? 'Phase 1: Market Accumulation' : 'Fase 1: Acumulación de Mercado'}</h4>
+                                <p className="text-xs text-zinc-400 leading-relaxed max-w-2xl">
+                                    {isEng ? 'Secure remaining raw materials using Buy Orders. This ensures maximum profit margins by avoiding the "Insta-Buy" premium.' : 'Asegura las materias primas restantes usando Órdenes de Compra. Esto garantiza márgenes de beneficio máximos al evitar el sobrecoste de "Compra Instantánea".'}
+                                </p>
+                            </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {logistics.length === 0 ? (
-                                    <div className="p-4 rounded border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 text-center text-xs font-bold uppercase">
-                                        {isEng ? 'Inventory Sufficient.' : 'Inventario Suficiente.'}
+                                    <div className="p-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 text-center flex flex-col items-center gap-4">
+                                        <div className="p-4 bg-emerald-500/10 rounded-full"><Package size={32} /></div>
+                                        <div>
+                                            <h4 className="text-sm font-black uppercase mb-1">{isEng ? 'Inventory Optimized' : 'Inventario Optimizado'}</h4>
+                                            <p className="text-[10px] opacity-70 uppercase tracking-widest">{isEng ? 'All required materials detected in storage.' : 'Todos los materiales detectados en almacén.'}</p>
+                                        </div>
                                     </div>
                                 ) : (
                                     logistics.map((l, i) => (
@@ -181,16 +261,27 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                             <h4 className="flex items-center gap-3 text-amber-400 font-black uppercase tracking-widest text-lg mb-6">
                                 <Hammer /> {isEng ? 'Phase 2: Processing' : 'Fase 2: Procesado'}
                             </h4>
-                            <div className="space-y-4">
-                                {assembly.map((task, i) => (
-                                    <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-amber-500/30 transition-colors">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-white font-black uppercase tracking-tight text-lg">{task.name}</span>
-                                            <span className="text-amber-400 font-bold bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20 text-xs">{task.batches} {isEng ? 'BATCHES' : 'LOTES'}</span>
+                            <div className="border-l-2 border-indigo-500 pl-4 mb-8">
+                                <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">{isEng ? 'Phase 2: Mystic Assembly' : 'Fase 2: Ensamblaje Místico'}</h4>
+                                <p className="text-xs text-zinc-400 leading-relaxed max-w-2xl">
+                                    {isEng ? 'Execute forge translations following the exact recipes provided. Do not deviate from these ratios for optimal yield.' : 'Ejecuta las traducciones en la forja siguiendo las recetas exactas proporcionadas. No te desvíes de estos ratios para asegurar el rendimiento óptimo.'}
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {assembly.map((a, i) => (
+                                    <div key={i} className="flex justify-between items-center p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-indigo-500/40 transition-all relative group">
+                                        <div className="flex items-center gap-4">
+                                            <div className="text-3xl bg-black/40 p-3 rounded-xl border border-white/5 group-hover:scale-110 transition-transform">{getItemIcon(a.name)}</div>
+                                            <div>
+                                                <span className="text-white font-black uppercase text-xs block mb-1">{a.name}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[8px] text-zinc-500 font-black uppercase tracking-widest bg-black/40 px-2 py-0.5 rounded border border-white/5">{a.batches} {isEng ? 'BATCHES' : 'OPS'}</span>
+                                                    <span className="text-[9px] text-indigo-400 font-bold italic">{a.recipe}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="text-[10px] text-zinc-400 font-mono bg-black/40 p-3 rounded border border-white/5 flex gap-2 items-center">
-                                            <span className="text-amber-500 font-black">{isEng ? 'RECIPE:' : 'RECETA:'}</span> {task.recipe}
-                                        </div>
+                                        <div className="p-2 text-indigo-500/20 group-hover:text-indigo-500/40 transition-colors"><Hammer size={32} /></div>
                                     </div>
                                 ))}
                             </div>
@@ -199,24 +290,18 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
 
                     {currentStep === 3 && (
                         <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-                            <h4 className="flex items-center gap-3 text-indigo-400 font-black uppercase tracking-widest text-lg mb-6">
-                                <Coins /> {isEng ? 'Phase 3: Liquidation' : 'Fase 3: Liquidación'}
-                            </h4>
-                            <div className="space-y-3">
-                                {assembly.map((task, i) => (
-                                    <div key={i} className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-colors">
-                                        <span className="text-zinc-300 uppercase tracking-tight flex items-center gap-3 text-xs font-bold">
-                                            <Package className="text-indigo-400" size={16} /> {isEng ? 'Sell' : 'Vender'} {task.name}
-                                        </span>
-                                        <span className="text-emerald-400 font-mono font-black flex items-center gap-2 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20 text-xs">
-                                            <CheckCircle size={12} /> {isEng ? 'LIST ON TP' : 'LISTAR EN BAZAR'}
-                                        </span>
+                            <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-6 border-l-2 border-red-500 pl-3">
+                                {isEng ? 'Phase 3: Market Liquidation. List items at Sell Price.' : 'Fase 3: Liquidación de Mercado. Publica los ítems a Precio de Venta.'}
+                            </p>
+
+                            <div className="matte-card p-16 text-center relative overflow-hidden h-[300px] flex flex-col items-center justify-center">
+                                <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent pointer-events-none"></div>
+                                <div className="relative z-10">
+                                    <p className="text-zinc-600 mb-6 text-[11px] font-black uppercase tracking-[0.5em] font-display">{isEng ? 'TOTAL PROJECTED RETURN' : 'RETORNO TOTAL PROYECTADO'}</p>
+                                    <GoldDisplay amount={totalGrossSales} size="xl" />
+                                    <div className="mt-8 text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-2 rounded-lg font-black uppercase tracking-widest">
+                                        {isEng ? 'Wait for Sell listings to complete' : 'Espera a que los listados de venta se completen'}
                                     </div>
-                                ))}
-                                <div className="mt-8 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-center">
-                                    <p className="text-[10px] text-indigo-300 font-black uppercase tracking-widest">
-                                        {isEng ? 'Patience yields profit. Never instasell.' : 'La paciencia da beneficios. Nunca vendas instantáneo.'}
-                                    </p>
                                 </div>
                             </div>
                         </motion.div>
@@ -364,6 +449,7 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
                 setBudget={setBudgetGold}
                 wallet={availableGold}
                 materials={materials}
+                totalGrossSales={totalGrossSales}
             />
 
             {/* FINANCIAL PROJECTION PANEL */}

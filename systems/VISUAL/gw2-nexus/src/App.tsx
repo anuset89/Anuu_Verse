@@ -43,6 +43,8 @@ function App() {
       priceData.forEach((p: MarketItem) => { priceMap[p.id] = p; });
       setPrices(priceMap);
 
+      let matMapLocal: Record<number, { total: number, storage: number, bank: number }> = {};
+
       // 2. Fetch account data if API Key exists
       if (apiKey && apiKey.length > 10) {
         const tokenInfo = await gw2.getTokenInfo(apiKey);
@@ -80,6 +82,7 @@ function App() {
               });
             }
             setMaterials(matMap);
+            matMapLocal = matMap;
           } catch (e) {
             console.error('[Nexus] Inventories fetch failed:', e);
           }
@@ -103,7 +106,27 @@ function App() {
 
       // 3. Analyze market strategies
       const strats = analyzeMarket(priceMap);
-      setStrategies(strats);
+
+      // Calculate "Owned" status and "Score" for sorting
+      // Logic: ROI + Bonus for having materials (eliminates upfront gold risk)
+      // Use currentMaterials which is guaranteed to be initialized
+      const prioritizedStrats = [...strats].sort((a, b) => {
+        const aHoldings = matMapLocal[a.sourceId]?.total || 0;
+        const bHoldings = matMapLocal[b.sourceId]?.total || 0;
+
+        // Catalysts (Wine, Shards)
+        const hasWine = matMapLocal[19632]?.total > 0;
+
+        // Boost Score
+        // If we have materials, we effectively increase the "score" by 1000 to move it to the top, 
+        // while maintaining ROI order among owned items.
+        const aScore = a.roi + (aHoldings > 0 ? 1000 : 0) + (a.type === 'LODE' && hasWine ? 100 : 0);
+        const bScore = b.roi + (bHoldings > 0 ? 1000 : 0) + (b.type === 'LODE' && hasWine ? 100 : 0);
+
+        return bScore - aScore;
+      });
+
+      setStrategies(prioritizedStrats);
 
       if (apiKey) {
         setThought(strats[0] && strats[0].roi > 0
@@ -204,7 +227,7 @@ function App() {
             <motion.div key="dash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
               <DiversificationHub strategies={strategies} onSelect={handleMultiSelect} isEng={isEng} walletGold={wallet[1] || 0} />
               <StrategicLab strategies={strategies} isEng={isEng} onSelect={(s) => setActiveStrategy(s)} />
-              <StrategyGrimoire strategies={strategies} onSelectSingle={(strat) => setActiveStrategy(strat)} isEng={isEng} />
+              <StrategyGrimoire strategies={strategies} onSelectSingle={(strat) => setActiveStrategy(strat)} isEng={isEng} materials={materials} />
             </motion.div>
           ) : multiStrategy ? (
             <DiversifiedOperation

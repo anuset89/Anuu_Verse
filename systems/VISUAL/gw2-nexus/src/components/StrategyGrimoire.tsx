@@ -6,10 +6,11 @@ import type { AnuuStrategy } from '../engine/calculator';
 import { getTranslatedName } from '../engine/calculator';
 import { GoldDisplay } from './common/GoldDisplay';
 
-export const StrategyGrimoire = ({ strategies, onSelectSingle, isEng }: {
+export const StrategyGrimoire = ({ strategies, onSelectSingle, isEng, materials }: {
     strategies: AnuuStrategy[],
     onSelectSingle: (strat: AnuuStrategy) => void,
-    isEng: boolean
+    isEng: boolean,
+    materials: Record<number, { total: number }>
 }) => {
     const [filter, setFilter] = useState<'all' | 'profitable' | 'lodestone' | 't6'>('profitable');
 
@@ -66,9 +67,10 @@ export const StrategyGrimoire = ({ strategies, onSelectSingle, isEng }: {
                             onClick={() => onSelectSingle(strat)}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            className={`text-left p-4 rounded-xl border transition-all group relative overflow-hidden ${strat.roi > 20 ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-400' :
-                                strat.roi > 0 ? 'bg-black/40 border-white/10 hover:border-indigo-500' :
-                                    'bg-black/20 border-red-500/20 hover:border-red-400'
+                            className={`text-left p-4 rounded-xl border transition-all group relative overflow-hidden ${materials[strat.sourceId]?.total > 0 ? 'border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.2)] bg-indigo-500/5' :
+                                    strat.roi > 20 ? 'bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-400' :
+                                        strat.roi > 0 ? 'bg-black/40 border-white/10 hover:border-indigo-500' :
+                                            'bg-black/20 border-red-500/20 hover:border-red-400'
                                 }`}
                         >
                             <div className="absolute top-0 right-0 p-2 opacity-30 text-2xl">{getIcon(strat.name)}</div>
@@ -83,6 +85,11 @@ export const StrategyGrimoire = ({ strategies, onSelectSingle, isEng }: {
                                 <div className="flex items-center gap-2 mb-3">
                                     <span className={`text-[9px] px-2 py-0.5 rounded font-bold uppercase ${strat.type === 'LODE' ? 'bg-amber-500/20 text-amber-400' : 'bg-violet-500/20 text-violet-400'
                                         }`}>{strat.type === 'LODE' ? 'Lodestone' : 'T6 Mat'}</span>
+                                    {materials[strat.sourceId]?.total > 0 && (
+                                        <span className="text-[8px] px-2 py-0.5 rounded font-black uppercase bg-indigo-500 text-white animate-pulse">
+                                            {isEng ? 'OWNED' : 'EN POSESIÓN'}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="flex items-end justify-between">

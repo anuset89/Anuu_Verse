@@ -420,25 +420,49 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
         return { strategy: s, score };
     }).sort((a, b) => b.score - a.score);
 
-    // 2. Distribute weight based on priority (highest stock first)
+    // --- NEW ADAPTIVE BUDGETER: Inventory Completion First ---
+
+    // 1. Calculate the 'Maintenance Cost' (Wine/Crystals) to process everything currently in inventory
+    const inventoryNeeds = prioritizedStrategies.map(p => {
+        const s = p.strategy;
+        const qSource = s.type === 'LODE' ? 2 : (s.type === 'RUNE' ? 10 : (s.type === 'COMMON' ? 250 : 50));
+        const qDust = s.type === 'LODE' ? 1 : (s.type === 'RUNE' ? 0 : 5);
+        const qWine = s.type === 'LODE' ? 1 : 0;
+
+        const pWine = 0.2560;
+
+        const ownedS = materials[s.sourceId]?.total || 0;
+        const ownedD = materials[IDS.DUST]?.total || 0;
+
+        // How many batches can we support with CURRENT inventory?
+        const freeBatches = Math.floor(Math.min(ownedS / qSource, qDust > 0 ? ownedD / qDust : Infinity));
+
+        // Cost to finish these batches (buying missing wine)
+        const costToFinish = freeBatches * (qWine * pWine);
+
+        return { strategy: s, freeBatches, costToFinish, score: p.score };
+    }).sort((a, b) => (b.freeBatches * b.strategy.profitPerCraft) - (a.freeBatches * a.strategy.profitPerCraft));
+
+    const totalMaintenanceGold = inventoryNeeds.reduce((acc, curr) => acc + curr.costToFinish, 0);
+    const remainingBudgetAfterMaintenance = Math.max(0, budgetGold - totalMaintenanceGold);
     const weightPerStrategy = 1 / Math.max(1, prioritizedStrategies.length);
 
-    const shoppingList = prioritizedStrategies.map(({ strategy: s, score }) => {
-        const allocatedGold = budgetGold * weightPerStrategy;
+    const shoppingList = inventoryNeeds.map((need) => {
+        const s = need.strategy;
+        const allocatedExtraGold = remainingBudgetAfterMaintenance * weightPerStrategy;
 
-        // Prices in gold for calculation - Use Sell price as fallback for Buy if missing (safer budgeting)
+        // Prices in gold for calculation
         const pSource = (prices[s.sourceId]?.buys?.unit_price || prices[s.sourceId]?.sells?.unit_price || 0) / 10000;
         const pDust = (prices[IDS.DUST]?.buys?.unit_price || prices[IDS.DUST]?.sells?.unit_price || 0) / 10000;
         const pTarget = (prices[s.targetId]?.buys?.unit_price || prices[s.targetId]?.sells?.unit_price || 0) / 10000;
-        const pWine = 0.2560; // 25s 60c
+        const pWine = 0.2560;
 
         // Requirements per craft
         const qSource = s.type === 'LODE' ? 2 : (s.type === 'RUNE' ? 10 : (s.type === 'COMMON' ? 250 : 50));
         const qDust = s.type === 'LODE' ? 1 : (s.type === 'RUNE' ? 0 : 5);
         const qWine = s.type === 'LODE' ? 1 : 0;
-        const qTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : 0.01; // Amortized seed cost
+        const qTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : 0.01;
 
-        // Inventory data
         const ownedSourceData = materials[s.sourceId] || { total: 0, storage: 0, bank: 0, character: 0 };
         const ownedDustData = materials[IDS.DUST] || { total: 0, storage: 0, bank: 0, character: 0 };
         const ownedTargetData = materials[s.targetId] || { total: 0, storage: 0, bank: 0, character: 0 };
@@ -447,56 +471,56 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
         const ownedDust = ownedDustData.total;
         const ownedTarget = ownedTargetData.total;
 
-        // TACTICAL CALCULATION: How many batches can we support with allocatedGold?
-        // Gold needed per craft beyond what we already have
-        // This is approximated because different materials run out at different times.
-        // We use a simplified linear "Spending Aware" approach.
-
+        // TACTICAL CALCULATION
         const costPerCraft = (qSource * pSource) + (qDust * pDust) + (qWine * pWine) + (qTarget * pTarget);
 
-        // 1. Minimum batches to use up existing materials (if we have a huge surplus of some item)
-        // But we cap it by what we can actually afford to buy to complete them.
-        const goldPerNewCraft =
-            (ownedSource > 0 ? 0 : qSource * pSource) +
-            (ownedDust > 0 ? 0 : qDust * pDust) +
-            (qWine * pWine); // Always pay for wine
+        // Phase 1: Free Batches (Bottleneck based)
+        let batchSize = need.freeBatches;
+        let localBudget = allocatedExtraGold;
 
-        // We estimate batchSize by seeing how many crafts we can "afford to complete"
-        // This logic handles "Zero-Cost Entry" by using surplus inventory.
+        // Phase 2: Unlock Surplus Inventory (if budget permits)
+        if (localBudget > 0) {
+            // Check if we have surplus of one but lack the other
+            const maxS = ownedSource / qSource;
+            const maxD = qDust > 0 ? ownedDust / qDust : Infinity;
 
-        let batchSize = 0;
-        if (costPerCraft > 0) {
-            // First: How many crafts can we do if we ONLY buy what's missing?
-            const possibleWithBudget = allocatedGold / Math.max(0.0001, goldPerNewCraft);
-            const possibleWithInventory = Math.max(
-                (ownedSource / qSource),
-                (qDust > 0 ? ownedDust / qDust : 0)
-            );
+            if (maxS > batchSize) { // Surplus Source, buy Dust
+                const costToUnlockOne = (qDust * pDust) + (qWine * pWine);
+                const canAfford = Math.floor(localBudget / Math.max(0.0001, costToUnlockOne));
+                const neededToExhaust = Math.floor(maxS - batchSize);
+                const unlockAmount = Math.min(canAfford, neededToExhaust);
+                batchSize += unlockAmount;
+                localBudget -= (unlockAmount * costToUnlockOne);
+            } else if (maxD > batchSize && maxD !== Infinity) { // Surplus Dust, buy Source
+                const costToUnlockOne = (qSource * pSource) + (qWine * pWine);
+                const canAfford = Math.floor(localBudget / Math.max(0.0001, costToUnlockOne));
+                const neededToExhaust = Math.floor(maxD - batchSize);
+                const unlockAmount = Math.min(canAfford, neededToExhaust);
+                batchSize += unlockAmount;
+                localBudget -= (unlockAmount * costToUnlockOne);
+            }
+        }
 
-            // Priority Logic: Use existing inventory as a BASE, then expand with budget.
-            // If we have 300 cores, we want to at least cover those.
-            batchSize = Math.floor(Math.max(possibleWithInventory, possibleWithBudget));
-
-            // Safety cap: even if inventory is huge, don't exceed budget by massive amounts 
-            // of bought materials. But here we prioritize UNLOCKING inventory.
-            // We'll let the user see the total required gold below.
+        // Phase 3: Fill remaining budget with new crafts
+        if (localBudget > 0 && costPerCraft > 0) {
+            batchSize += Math.floor(localBudget / costPerCraft);
         }
 
         const neededSource = qSource * batchSize;
         const neededDust = qDust * batchSize;
-        const neededTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : Math.min(batchSize, 5); // Seed logic
+        const neededTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : Math.min(batchSize, 5);
 
         return {
             strategy: s,
             batchSize,
-            allocatedGold,
+            allocatedGold: (batchSize * costPerCraft), // Actual allocation used
             neededSource, buySource: Math.max(0, neededSource - ownedSource), ownedSource, ownedSourceData,
             neededDust, buyDust: Math.max(0, neededDust - ownedDust), ownedDust, ownedDustData,
             neededTarget, buyTarget: Math.max(0, neededTarget - ownedTarget), ownedTarget, ownedTargetData,
             buyWine: qWine * batchSize, buyCrystals: s.type === 'LODE' ? batchSize : 0,
             profit: s.profitPerCraft * batchSize,
             priceSource: prices[s.sourceId]?.buys?.unit_price || 0,
-            inventoryScore: score, // Pass the score for UI display
+            inventoryScore: need.score,
         };
     });
 

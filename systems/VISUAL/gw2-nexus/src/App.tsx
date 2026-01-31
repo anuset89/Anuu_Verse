@@ -522,7 +522,7 @@ function App() {
           <div className="flex flex-wrap items-center gap-3 bg-black/40 p-2 rounded-2xl border border-white/5">
             {(['ALL', 'FINE', 'COMMON', 'LODE', 'RUNE'] as const).map(cat => (
               <button key={cat} onClick={() => setCategory(cat)} className={`px-5 py-2.5 rounded-xl text-[10px] font-black tracking-widest transition-all font-display ${category === cat ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-900/40' : 'text-zinc-600 hover:text-white hover:bg-white/5'}`}>
-                {cat === 'ALL' ? (isEng ? 'NEXUS' : 'NEXO') : cat === 'FINE' ? 'FINE' : cat === 'COMMON' ? (isEng ? 'LARGE' : 'LARGO') : cat === 'LODE' ? 'LODES' : 'RUNES'}
+                {cat === 'ALL' ? (isEng ? 'NEXUS' : 'NEXO') : cat === 'FINE' ? (isEng ? 'ESSENCES' : 'ESENCIAS') : cat === 'COMMON' ? (isEng ? 'CORE' : 'GRANDE') : cat === 'LODE' ? (isEng ? 'LODES' : 'LODAS') : (isEng ? 'RUNES' : 'RUNAS')}
               </button>
             ))}
           </div>

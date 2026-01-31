@@ -4,7 +4,7 @@ import type { AnuuStrategy, MarketItem } from './engine/calculator';
 import { gw2 } from './api/gw2';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DiversifiedOperation } from './components/DiversifiedOperation';
-import { Brain, RefreshCcw, Cpu, Settings, Package, FlaskConical, Database, Zap, Scale, Target, ArrowLeft, ShoppingCart, TrendingUp, Sparkles, MapPin, Gavel, Clock, Star } from 'lucide-react';
+import { Brain, RefreshCcw, Cpu, Settings, Package, FlaskConical, Database, Zap, Scale, Target, ArrowLeft, ShoppingCart, TrendingUp, Sparkles, MapPin, Gavel, Clock, Star, Crosshair, ArrowRight } from 'lucide-react';
 
 // --- HELPER: Gold Formatter ---
 const GoldDisplay = ({ amount, size = "md" }: { amount: number, size?: "sm" | "md" | "lg" | "xl" }) => {
@@ -66,94 +66,117 @@ const AnuuMediator = ({ thought, status, onReload }: { thought: string, status: 
   </motion.div>
 );
 
-// --- DIVERSIFICATION HUB ---
-const DiversificationHub = ({ strategies, onSelect, isEng }: { strategies: AnuuStrategy[], onSelect: (strats: AnuuStrategy[], profile: string) => void, isEng: boolean }) => {
-  const profitable = strategies.filter(s => s.roi > 0);
+// --- DIVERSIFICATION HUB (PROFILE SELECTOR & ORACLE) ---
+const DiversificationHub = ({ strategies, onSelect, isEng, walletGold }: { strategies: AnuuStrategy[], onSelect: (strats: AnuuStrategy[], profile: string) => void, isEng: boolean, walletGold: number }) => {
+  // Estimate cost per 10 batches (approximate minimal viable run)
+  const getEstCost = (s: AnuuStrategy) => (s.profitPerCraft * 10) / (Math.max(s.roi, 1) / 100);
 
-  // Relámpago: High liquidity
-  const hot = [...profitable].sort((a, b) => b.supplyQty - a.supplyQty).slice(0, 6);
-  const hotRoi = hot.reduce((acc, s) => acc + s.roi, 0) / (hot.length || 1);
+  const affordable = strategies.filter(s => getEstCost(s) <= (walletGold || 9999999));
+  const candidatePool = affordable.length > 0 ? affordable : strategies;
 
-  // Equilibrado: Best score
-  const balanced = [...profitable].sort((a, b) => b.score - a.score).slice(0, 6);
-  const balRoi = balanced.reduce((acc, s) => acc + s.roi, 0) / (balanced.length || 1);
-
-  // Sniper: Max ROI
-  const maxProfit = [...profitable].filter(s => s.supplyQty > 1000).sort((a, b) => b.roi - a.roi).slice(0, 6);
-  const snipRoi = maxProfit.reduce((acc, s) => acc + s.roi, 0) / (maxProfit.length || 1);
+  const bestStrategy = candidatePool.length > 0
+    ? candidatePool.reduce((prev, current) => (current.roi > prev.roi ? current : prev), candidatePool[0])
+    : strategies[0];
 
   const profiles = [
     {
       id: 'hot',
-      title: isEng ? 'Lightning Proc' : 'Relámpago',
+      title: isEng ? 'Lightning Proc' : 'Velocidad',
       icon: <Zap className="text-cyan-400" size={24} />,
-      items: hot,
-      desc: isEng ? 'High velocity trading. Prioritizes items with massive supply and demand for quick turnover.' : 'Comercio de alta velocidad. Prioriza ítems con oferta y demanda masiva para rotación rápida.',
-      stats: { roi: hotRoi, risk: 'LOW', speed: 'FAST' },
+      items: strategies.filter(s => s.type === 'COMMON' && s.roi > 15).slice(0, 3),
+      desc: isEng ? 'High velocity trading. Prioritizes turnover.' : 'Alta velocidad. Prioriza rotación rápida.',
+      stats: { roi: 'HIGH', risk: 'LOW', speed: 'FAST' },
       color: 'border-cyan-500/20 hover:border-cyan-500/40'
     },
     {
       id: 'balanced',
-      title: isEng ? 'Balanced Core' : 'Equilibrado',
-      icon: <Scale className="text-violet-400" size={24} />,
-      items: balanced,
-      desc: isEng ? 'Optimal stability. The perfect mix of profit margin, safety, and market depth.' : 'Estabilidad óptima. La mezcla perfecta de margen de beneficio, seguridad y profundidad de mercado.',
-      stats: { roi: balRoi, risk: 'MED', speed: 'MED' },
-      color: 'border-violet-500/20 hover:border-violet-500/40'
+      title: isEng ? 'Balanced Flow' : 'Equilibrado',
+      icon: <Scale className="text-emerald-400" size={24} />,
+      items: strategies.filter(s => s.roi > 20 && s.roi < 40).slice(0, 3),
+      desc: isEng ? 'Crecimiento estable con riesgo minimizado.' : 'Crecimiento estable con riesgo minimizado.',
+      stats: { roi: 'MED', risk: 'MIN', speed: 'MED' },
+      color: 'border-emerald-500/20 hover:border-emerald-500/40'
     },
     {
-      id: 'profit',
-      title: isEng ? 'Sniper Elite' : 'Sniper',
-      icon: <Target className="text-amber-400" size={24} />,
-      items: maxProfit,
-      desc: isEng ? 'Maximum yield. Focuses on highest ROI opportunities, ignoring volatility. Patience required.' : 'Máximo rendimiento. Se enfoca en el ROI más alto, ignorando la volatilidad. Requiere paciencia.',
-      stats: { roi: snipRoi, risk: 'HIGH', speed: 'SLOW' },
-      color: 'border-amber-500/20 hover:border-amber-500/40'
+      id: 'sniper',
+      title: isEng ? 'Sniper Elite' : 'Francotirador',
+      icon: <Crosshair className="text-rose-400" size={24} />,
+      items: strategies.filter(s => s.roi > 40).slice(0, 3),
+      desc: isEng ? 'Maximum profit for high-value targets.' : 'Máximo beneficio para objetivos de alto valor.',
+      stats: { roi: 'MAX', risk: 'MED', speed: 'SLOW' },
+      color: 'border-rose-500/20 hover:border-rose-500/40'
     }
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-      {profiles.map(p => (
-        <motion.div
-          key={p.id}
-          whileHover={{ y: -4 }}
-          onClick={() => onSelect(p.items, p.title)}
-          className={`matte-card p-6 cursor-pointer relative overflow-hidden group border ${p.color}`}
-        >
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-            {p.icon}
-          </div>
-
-          <div className="flex items-center gap-4 mb-4">
-            <div className={`p-3 bg-black/40 rounded-xl border border-white/5`}>{p.icon}</div>
-            <div>
-              <h3 className="font-black text-white uppercase tracking-[0.2em] text-[12px] font-display">{p.title}</h3>
-              <div className="text-[9px] font-gray-500 font-mono mt-1 text-zinc-500">AVG ROI: <span className="text-white">+{p.stats.roi.toFixed(1)}%</span></div>
+    <div className="space-y-8 mb-12">
+      {/* ORACLE RECOMMENDATION (BEST FLIP) */}
+      {bestStrategy && (
+        <div className="matte-card p-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl relative overflow-hidden shadow-[0_0_50px_rgba(99,102,241,0.3)]">
+          <div className="bg-black/90 p-8 rounded-[14px] flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+            <div className="flex items-center gap-6">
+              <div className="p-4 bg-indigo-500/20 rounded-2xl border border-indigo-500/30 text-indigo-400 animate-pulse">
+                <Sparkles size={32} />
+              </div>
+              <div>
+                <h3 className="text-2xl font-black text-white italic uppercase font-display tracking-tight mb-1">
+                  {isEng ? 'Oracle Recommendation' : 'Recomendación del Oráculo'}
+                </h3>
+                <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest mb-2">
+                  {isEng ? 'Optimized for your current wallet' : 'Optimizado para tu cartera actual'}
+                </p>
+                <div className="flex items-center gap-4 text-[10px] font-black uppercase text-indigo-300 bg-indigo-500/10 px-3 py-1.5 rounded-lg border border-indigo-500/20 w-fit">
+                  <span>{bestStrategy.name}</span>
+                  <span className="w-1 h-1 bg-indigo-500 rounded-full"></span>
+                  <span className="text-emerald-400">ROI: +{bestStrategy.roi.toFixed(1)}%</span>
+                </div>
+              </div>
             </div>
+            <button
+              onClick={() => onSelect([bestStrategy], `Oracle: ${bestStrategy.name}`)}
+              className="w-full md:w-auto px-8 py-4 bg-white text-black font-black uppercase tracking-widest hover:scale-105 transition-transform rounded-xl shadow-xl shadow-white/10 flex items-center justify-center gap-3 group"
+            >
+              {isEng ? 'Execute Operation' : 'Ejecutar Operación'} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            </button>
           </div>
+          {/* Background Glow */}
+          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-indigo-500/30 blur-[100px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
+        </div>
+      )}
 
-          <p className="text-[10px] font-medium text-zinc-500 mb-6 leading-relaxed border-b border-white/5 pb-4 min-h-[60px]">
-            {p.desc}
-          </p>
+      {/* STANDARD PROFILES */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {profiles.map(p => (
+          <button
+            key={p.id}
+            onClick={() => onSelect(p.items.length > 0 ? p.items : strategies.slice(0, 3), p.title)}
+            className={`matte-card p-6 text-left group transition-all duration-300 hover:-translate-y-1 border ${p.color} relative overflow-hidden`}
+          >
+            <div className="absolute top-0 right-0 p-3 opacity-10 blur-sm group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500">{p.icon}</div>
 
-          <div className="space-y-2">
-            {p.items.slice(0, 3).map(item => (
-              <div key={item.targetId} className="flex justify-between items-center text-[9px] group/item">
-                <span className="text-zinc-500 group-hover/item:text-zinc-300 transition-colors uppercase tracking-tight flex items-center gap-2">
-                  <span className="w-1 h-1 rounded-full bg-zinc-700"></span> {item.name}
-                </span>
-                <span className={item.roi > 10 ? 'text-emerald-400 font-bold' : 'text-zinc-500'}>{item.roi.toFixed(1)}%</span>
+            <div className="flex justify-between items-start mb-4 relative z-10">
+              <div className="p-3 bg-black/40 rounded-xl border border-white/5 group-hover:border-white/20 transition-colors">{p.icon}</div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-zinc-500 bg-black/40 px-2 py-1 rounded border border-white/5">
+                {p.stats.risk === 'LOW' ? (isEng ? 'Low Risk' : 'Riesgo Bajo') : p.stats.risk === 'MED' ? (isEng ? 'Med Risk' : 'Riesgo Medio') : (isEng ? 'High Yield' : 'Alto Rendimiento')}
               </div>
-            ))}
-            {p.items.length > 3 && (
-              <div className="text-[8px] text-zinc-700 uppercase tracking-widest text-center pt-2 italic">
-                + {p.items.length - 3} {isEng ? 'more routes' : 'rutas más'}
+            </div>
+
+            <h3 className="text-xl font-black text-white uppercase italic font-display mb-2 group-hover:text-indigo-400 transition-colors">{p.title}</h3>
+            <p className="text-[11px] text-zinc-500 font-bold mb-6 leading-relaxed h-12">{p.desc}</p>
+
+            <div className="space-y-2 border-t border-white/5 pt-4">
+              <div className="flex justify-between text-[9px] font-black uppercase tracking-widest">
+                <span className="text-zinc-600">Avg. ROI</span>
+                <span className="text-emerald-400">~{p.items.length > 0 ? (p.items.reduce((a, b) => a + b.roi, 0) / p.items.length).toFixed(1) : '0'}%</span>
               </div>
-            )}
-          </div>
-        </motion.div>
-      ))}
+              <div className="flex justify-between text-[9px] font-black uppercase tracking-widest">
+                <span className="text-zinc-600">{isEng ? 'Speed' : 'Velocidad'}</span>
+                <span className="text-indigo-400">{p.stats.speed}</span>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
@@ -628,7 +651,7 @@ function App() {
         <AnimatePresence mode="wait">
           {!activeStrategy && !multiStrategy ? (
             <motion.div key="dash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-              <DiversificationHub strategies={strategies} onSelect={handleMultiSelect} isEng={isEng} />
+              <DiversificationHub strategies={strategies} onSelect={handleMultiSelect} isEng={isEng} walletGold={wallet[1] || 0} />
               {/* Removed raw strategy grid as per user feedback - Focus on Profiles & Codex */}
               <NexusCodex isEng={isEng} />
             </motion.div>

@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Cpu, ShoppingCart, Hammer, Coins, MapPin, CheckCircle, Package } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Cpu, ShoppingCart, Hammer, Coins, CheckCircle, Package } from 'lucide-react';
 import type { AnuuStrategy, MarketItem } from '../engine/calculator';
 import { IDS } from '../engine/calculator';
 
@@ -36,8 +36,10 @@ interface ShoppingListItem {
     // ... add other properties if needed
 }
 
-// --- NEXUS TRACKER (MISSION CONTROL) ---
+// --- NEXUS TRACKER (TRADING WIZARD) ---
 const NexusTracker = ({ list, isEng }: { list: ShoppingListItem[], isEng: boolean }) => {
+    const [currentStep, setCurrentStep] = useState(1);
+
     // 1. Logistics: Consolidate Shopping List
     const logistics = list.reduce((acc, item) => {
         // Source
@@ -68,72 +70,133 @@ const NexusTracker = ({ list, isEng }: { list: ShoppingListItem[], isEng: boolea
         recipe: item.strategy.recipe || "Standard Conversion"
     }));
 
+    const steps = [
+        { id: 1, title: isEng ? 'Accumulation' : 'Acumulación', icon: <ShoppingCart size={18} /> },
+        { id: 2, title: isEng ? 'Processing' : 'Procesado', icon: <Hammer size={18} /> },
+        { id: 3, title: isEng ? 'Liquidation' : 'Liquidación', icon: <Coins size={18} /> }
+    ];
+
     return (
-        <div className="mt-12 border-t border-white/5 pt-8">
-            <h3 className="text-xl font-black text-white uppercase tracking-[0.3em] font-display flex items-center gap-3 mb-8">
-                <MapPin className="text-emerald-500" /> {isEng ? 'Mission Tracker' : 'Rastreador de Misión'}
-            </h3>
+        <div className="mt-8 border border-white/10 rounded-2xl bg-black/40 overflow-hidden shadow-2xl shadow-black/50">
+            {/* WIZARD HEADER */}
+            <div className="flex bg-black/40 border-b border-white/5">
+                {steps.map((s) => (
+                    <button
+                        key={s.id}
+                        onClick={() => setCurrentStep(s.id)}
+                        className={`flex-1 py-4 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${currentStep === s.id ? 'bg-indigo-500/10 text-indigo-400 border-b-2 border-indigo-500 scale-105' : 'text-zinc-600 hover:text-zinc-400'}`}
+                    >
+                        {s.icon} <span className="hidden md:inline">{s.title}</span>
+                    </button>
+                ))}
+            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* LOGISTICS */}
-                <div className="matte-card p-6 border-emerald-500/20 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-3 opacity-5 text-6xl rotate-12 group-hover:opacity-10 transition-opacity"><ShoppingCart /></div>
-                    <h4 className="flex items-center gap-3 text-emerald-400 font-black uppercase tracking-widest text-xs mb-6 border-b border-white/5 pb-4">
-                        <ShoppingCart size={14} /> {isEng ? 'Step 1: Logistics' : 'Paso 1: Logística'}
-                    </h4>
-                    <div className="space-y-3">
-                        {logistics.length === 0 ? <p className="text-zinc-500 text-[10px] italic">Inventory sufficient. No purchases needed.</p> : logistics.map((l: any, i: number) => (
-                            <div key={i} className="flex justify-between items-center text-[10px] group/item hover:bg-white/5 p-1 rounded">
-                                <span className={`font-bold uppercase tracking-tight flex items-center gap-2 ${l.type === 'dust' ? 'text-indigo-300' : 'text-zinc-400'}`}>
-                                    <span className="w-1 h-1 rounded-full bg-zinc-600"></span> {l.name}
-                                </span>
-                                <span className="text-white font-mono font-black border-b border-dashed border-zinc-700">{l.count}</span>
+            {/* STEP CONTENT */}
+            <div className="p-8 min-h-[300px] relative">
+                <AnimatePresence mode="wait">
+                    {currentStep === 1 && (
+                        <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
+                            <h4 className="flex items-center gap-3 text-emerald-400 font-black uppercase tracking-widest text-lg mb-2">
+                                <ShoppingCart /> {isEng ? 'Phase 1: Accumulation' : 'Fase 1: Acumulación'}
+                            </h4>
+                            <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-6 border-l-2 border-emerald-500 pl-3">
+                                {isEng ? 'Place Buy Orders to maximize flip margins. Do not instant buy.' : 'Coloca Órdenes de Compra para maximizar márgenes. No compres instantáneo.'}
+                            </p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {logistics.length === 0 ? (
+                                    <div className="p-4 rounded border border-emerald-500/20 bg-emerald-500/5 text-emerald-400 text-center text-xs font-bold uppercase">
+                                        {isEng ? 'Inventory Sufficient.' : 'Inventario Suficiente.'}
+                                    </div>
+                                ) : logistics.map((l, i) => (
+                                    <div key={i} className="flex justify-between items-center p-4 rounded-xl bg-white/5 border border-white/5 relative group hover:border-emerald-500/30 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-2 rounded-lg ${l.type === 'dust' ? 'bg-indigo-500/20 text-indigo-300' : 'bg-black/40 text-zinc-300'}`}>
+                                                {getItemIcon(l.name)}
+                                            </div>
+                                            <div>
+                                                <span className={`font-bold uppercase tracking-tight text-xs block ${l.type === 'dust' ? 'text-indigo-300' : 'text-zinc-300'}`}>{l.name}</span>
+                                                <span className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">Buy Order</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="text-white font-mono font-black text-xl block">{l.count}</span>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
-                </div>
+                        </motion.div>
+                    )}
 
-                {/* ASSEMBLY */}
-                <div className="matte-card p-6 border-amber-500/20 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-3 opacity-5 text-6xl rotate-12 group-hover:opacity-10 transition-opacity"><Hammer /></div>
-                    <h4 className="flex items-center gap-3 text-amber-400 font-black uppercase tracking-widest text-xs mb-6 border-b border-white/5 pb-4">
-                        <Hammer size={14} /> {isEng ? 'Step 2: Assembly' : 'Paso 2: Ensamblaje'}
-                    </h4>
-                    <div className="space-y-4">
-                        {assembly.map((task: any, i: number) => (
-                            <div key={i} className="text-[10px]">
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="text-white font-black uppercase tracking-tight">{task.name}</span>
-                                    <span className="text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded">{task.batches} {isEng ? 'batches' : 'lotes'}</span>
+                    {currentStep === 2 && (
+                        <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
+                            <h4 className="flex items-center gap-3 text-amber-400 font-black uppercase tracking-widest text-lg mb-6">
+                                <Hammer /> {isEng ? 'Phase 2: Processing' : 'Fase 2: Procesado'}
+                            </h4>
+                            <div className="space-y-4">
+                                {assembly.map((task, i) => (
+                                    <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-amber-500/30 transition-colors">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-white font-black uppercase tracking-tight text-lg">{task.name}</span>
+                                            <span className="text-amber-400 font-bold bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20 text-xs">{task.batches} {isEng ? 'BATCHES' : 'LOTES'}</span>
+                                        </div>
+                                        <div className="text-[10px] text-zinc-400 font-mono bg-black/40 p-3 rounded border border-white/5 flex gap-2 items-center">
+                                            <span className="text-amber-500 font-black">RECIPE:</span> {task.recipe}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {currentStep === 3 && (
+                        <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
+                            <h4 className="flex items-center gap-3 text-indigo-400 font-black uppercase tracking-widest text-lg mb-6">
+                                <Coins /> {isEng ? 'Phase 3: Liquidation' : 'Fase 3: Liquidación'}
+                            </h4>
+                            <div className="space-y-3">
+                                {assembly.map((task, i) => (
+                                    <div key={i} className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-colors">
+                                        <span className="text-zinc-300 uppercase tracking-tight flex items-center gap-3 text-xs font-bold">
+                                            <Package className="text-indigo-400" size={16} /> Sell {task.name}
+                                        </span>
+                                        <span className="text-emerald-400 font-mono font-black flex items-center gap-2 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20 text-xs">
+                                            <CheckCircle size={12} /> {isEng ? 'LIST ON TP' : 'LISTAR EN BAZAR'}
+                                        </span>
+                                    </div>
+                                ))}
+                                <div className="mt-8 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-center">
+                                    <p className="text-[10px] text-indigo-300 font-black uppercase tracking-widest">
+                                        {isEng ? 'Patience yields profit. Never instasell.' : 'La paciencia da beneficios. Nunca vendas instantáneo.'}
+                                    </p>
                                 </div>
-                                <div className="text-[8px] text-zinc-600 italic truncate">{task.recipe}</div>
                             </div>
-                        ))}
-                    </div>
-                </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
 
-                {/* LIQUIDATION */}
-                <div className="matte-card p-6 border-indigo-500/20 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-3 opacity-5 text-6xl rotate-12 group-hover:opacity-10 transition-opacity"><Coins /></div>
-                    <h4 className="flex items-center gap-3 text-indigo-400 font-black uppercase tracking-widest text-xs mb-6 border-b border-white/5 pb-4">
-                        <Coins size={14} /> {isEng ? 'Step 3: Liquidation' : 'Paso 3: Liquidación'}
-                    </h4>
-                    <div className="space-y-3">
-                        {assembly.map((task: any, i: number) => (
-                            <div key={i} className="flex justify-between items-center text-[10px] group/item hover:bg-white/5 p-1 rounded">
-                                <span className="text-zinc-400 uppercase tracking-tight flex items-center gap-2">
-                                    <Package size={10} /> Sell {task.name}
-                                </span>
-                                <span className="text-white font-mono font-black flex items-center gap-1">
-                                    <CheckCircle size={10} className="text-emerald-500" /> {isEng ? 'List on TP' : 'Listar en Bazar'}
-                                </span>
-                            </div>
-                        ))}
-                        <div className="mt-6 pt-4 border-t border-white/5 text-[9px] text-zinc-500 text-center italic">
-                            {isEng ? 'Patience is key. Do not instant sell.' : 'La paciencia es clave. No vendas instantáneo.'}
-                        </div>
-                    </div>
+            {/* NAVIGATION FOOTER */}
+            <div className="p-4 bg-black/40 border-t border-white/5 flex justify-between">
+                <button
+                    disabled={currentStep === 1}
+                    onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
+                    className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${currentStep === 1 ? 'opacity-0 cursor-default' : 'bg-zinc-800 hover:bg-zinc-700 text-white'}`}
+                >
+                    {isEng ? 'Previous Step' : 'Paso Anterior'}
+                </button>
+                <div className="flex gap-1 justify-center items-center">
+                    {[1, 2, 3].map(step => (
+                        <div key={step} className={`w-1.5 h-1.5 rounded-full transition-colors ${currentStep === step ? 'bg-indigo-500' : 'bg-zinc-800'}`} />
+                    ))}
                 </div>
+                <button
+                    disabled={currentStep === 3}
+                    onClick={() => setCurrentStep(prev => Math.min(3, prev + 1))}
+                    className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${currentStep === 3 ? 'opacity-0 cursor-default' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-900/40'}`}
+                >
+                    {isEng ? 'Next Step' : 'Siguiente Paso'} <ArrowLeft className="rotate-180" size={14} />
+                </button>
             </div>
         </div>
     );

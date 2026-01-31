@@ -108,10 +108,22 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
     }));
 
     const steps = [
-        { id: 1, title: isEng ? 'Accumulation' : 'Acumulación', icon: <ShoppingCart size={18} /> },
-        { id: 2, title: isEng ? 'Processing' : 'Procesado', icon: <Hammer size={18} /> },
+        { id: 1, title: isEng ? 'Logistics' : 'Logística', icon: <ShoppingCart size={18} /> },
+        { id: 2, title: isEng ? 'Synthesis' : 'Síntesis', icon: <Hammer size={18} /> },
         { id: 3, title: isEng ? 'Liquidation' : 'Liquidación', icon: <Coins size={18} /> }
     ];
+
+    // Check progress of current step for auto-guidance
+    const step1Done = logistics.every(l => isTaskDone(`buy-${l.id}`, l.id, l.count)) &&
+        list.every(i => !i.ownedSource || isTaskDone(`withdraw-${i.strategy.id}`, i.strategy.sourceId, i.neededSource));
+
+    // For step 2, we check if we have the RESULT items in inventory
+    const step2Done = assembly.every(a => isTaskDone(`craft-${a.id}`, a.id, a.batches)); // Simplified check: have we made the batches?
+    // Note: Checking precise yield (batches * 22 for common) might be tricky if user consumes them or has existing, 
+    // but checking if we have MORE than before or "Enough" is a good proxy. 
+    // For simplicity, let's assume if we have the *equivalent yield* in inventory, it's done.
+
+    const canAdvance = (currentStep === 1 && step1Done) || (currentStep === 2 && step2Done);
 
     return (
         <div className="relative overflow-hidden matte-card p-6 border-indigo-500/40 mb-8 transition-all duration-500">
@@ -407,21 +419,44 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {assembly.map((a, i) => (
-                                    <div key={i} className="flex justify-between items-center p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-indigo-500/40 transition-all relative group">
-                                        <div className="flex items-center gap-4">
-                                            <div className="text-3xl bg-black/40 p-3 rounded-xl border border-white/5 group-hover:scale-110 transition-transform">{getItemIcon(a.name)}</div>
-                                            <div>
-                                                <span className="text-white font-black uppercase text-xs block mb-1">{a.name}</span>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[8px] text-zinc-500 font-black uppercase tracking-widest bg-black/40 px-2 py-0.5 rounded border border-white/5">{a.batches} {isEng ? 'BATCHES' : 'OPS'}</span>
-                                                    <span className="text-[9px] text-indigo-400 font-bold italic">{a.recipe}</span>
+                                {assembly.map((a, i) => {
+                                    // Calculate expected yield for auto-check
+                                    // We need to know the Strategy Type to know yield. 
+                                    // Since 'assembly' is mapped from 'list', let's find the original strategy type.
+                                    // A simplified lookup or passing it in 'assembly' map is better.
+                                    // For now, let's use a rough heuristic or just manual toggle if precise count is hard.
+                                    // Actually, let's IMPROVE assembly map above (in a separate edit if needed, but here we can try to find it)
+                                    const sourceItem = list.find(l => l.strategy.targetId === a.id);
+                                    const strategyType = sourceItem?.strategy.type || 'COMMON';
+                                    const yieldPerBatch = strategyType === 'FINE' ? 7 : (strategyType === 'COMMON' ? (sourceItem?.strategy.name.includes('Ecto') ? 0.9 : 22) : 1);
+                                    const expectedCount = Math.floor(a.batches * yieldPerBatch);
+
+                                    const isDone = isTaskDone(`craft-${a.id}`, a.id, expectedCount);
+
+                                    return (
+                                        <div
+                                            key={i}
+                                            onClick={() => toggleTask(`craft-${a.id}`)}
+                                            className={`flex justify-between items-center p-6 rounded-2xl border transition-all relative group cursor-pointer ${isDone ? 'bg-emerald-500/10 border-emerald-500/40 opacity-50' : 'bg-white/5 border-white/5 hover:border-indigo-500/40'}`}
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                <div className={`text-3xl p-3 rounded-xl border flex items-center justify-center transition-transform ${isDone ? 'bg-emerald-500/20 border-emerald-500/20 text-emerald-400' : 'bg-black/40 border-white/5 group-hover:scale-110'}`}>
+                                                    {isDone ? <CheckCircle size={32} /> : getItemIcon(a.name)}
+                                                </div>
+                                                <div>
+                                                    <span className={`font-black uppercase text-xs block mb-1 ${isDone ? 'text-emerald-400 decoration-emerald-500/50' : 'text-white'}`}>{a.name}</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${isDone ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300' : 'bg-black/40 border-white/5 text-zinc-500'}`}>{a.batches} {isEng ? 'BATCHES' : 'OPS'}</span>
+                                                        <span className="text-[9px] text-indigo-400 font-bold italic">{a.recipe}</span>
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <div className={`p-2 transition-colors ${isDone ? 'text-emerald-500' : 'text-indigo-500/20 group-hover:text-indigo-500/40'}`}>
+                                                {isDone ? <CheckCircle size={32} /> : <Hammer size={32} />}
+                                            </div>
                                         </div>
-                                        <div className="p-2 text-indigo-500/20 group-hover:text-indigo-500/40 transition-colors"><Hammer size={32} /></div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </motion.div>
                     )}
@@ -464,7 +499,12 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                     </button>
                     <button
                         onClick={() => currentStep === 3 ? onClose() : setCurrentStep(prev => Math.min(3, prev + 1))}
-                        className="px-6 py-2 bg-white text-black rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-indigo-500 hover:text-white transition-colors"
+                        className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${currentStep === 3
+                                ? 'bg-white text-black hover:bg-emerald-500 hover:text-white'
+                                : canAdvance
+                                    ? 'bg-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.5)] animate-pulse hover:bg-indigo-400 scale-105'
+                                    : 'bg-white/10 text-zinc-500 hover:bg-white hover:text-black'
+                            }`}
                     >
                         {currentStep === 3 ? (isEng ? 'Finish' : 'Terminar') : (isEng ? 'Next' : 'Siguiente')}
                     </button>

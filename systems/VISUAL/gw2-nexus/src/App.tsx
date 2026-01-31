@@ -184,8 +184,15 @@ const OperationMode = ({ strategy, materials, wallet, prices, onBack }: { strate
             </div>
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 flex flex-col justify-center shadow-2xl relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><TrendingUp size={60} className="text-emerald-500" /></div>
-              <div className="text-[9px] text-zinc-600 font-black mb-1 uppercase tracking-widest">Inversión Necesaria</div>
-              <GoldDisplay amount={totalGoldCost} size="lg" />
+              <div className="text-[9px] text-zinc-600 font-black mb-1 uppercase tracking-widest text-center md:text-left">Inversión Necesaria</div>
+              <div className="flex flex-wrap items-center gap-3 justify-center md:justify-start">
+                <GoldDisplay amount={totalGoldCost} size="lg" />
+                <div className={`text-sm font-black flex items-center gap-2 px-3 py-1 rounded-lg bg-black/40 border ${ownedShards >= neededShards ? 'border-indigo-500/30 text-indigo-400' : 'border-red-500/30 text-red-400'}`}>
+                  <span className="text-[10px] opacity-60">&</span>
+                  <Database size={14} />
+                  <span>{neededShards} <span className="text-[10px] opacity-60">SHARDS</span></span>
+                </div>
+              </div>
               <div className="mt-4 pt-4 border-t border-zinc-800 flex justify-between items-center">
                 <span className="text-[9px] text-zinc-500 font-bold uppercase">Ahorro x Orden</span>
                 <span className="text-emerald-400 font-mono text-xs">+{Math.floor(savings / 10000)}g...</span>

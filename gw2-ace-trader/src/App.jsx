@@ -66,7 +66,16 @@ const LANG = {
         phandrelTitle: 'MÉTODO PHANDREL', phandrelSub: 'Oro Líquido (Verdes UnID)',
         identifying: 'Identificación Crítica', salvaging: 'Reciclaje Selectivo',
         lucentMotes: 'Mat. Lúcidos', stackProfit: 'Beneficio por 250',
-        phandrelTip: 'Nunca recicles el equipo verde sin identificarlo primero.'
+        phandrelTip: 'Nunca recicles el equipo verde sin identificarlo primero.',
+        // v21 Daily Action Panel
+        dailyAction: '🎯 ACCIÓN DEL DÍA', todayIs: 'Hoy es',
+        buyNow: '1. COMPRAR', craftNow: '2. CRAFTEAR', sellNow: '3. VENDER',
+        fridayTip: '🔥 VIERNES: Más jugadores online = más demanda. Sube precios de venta.',
+        saturdayTip: '📈 SÁBADO: Pico de actividad. Craftea y vende rápido.',
+        sundayTip: '⚠️ DOMINGO: Prepárate para reset semanal. Compra materiales baratos.',
+        weekdayTip: '💼 DÍA LABORAL: Menos competencia. Buenos precios de compra.',
+        shardsAvailable: 'Shards Disponibles', craftsWithShards: 'Crafteos Posibles',
+        watchlist: '⭐ WATCHLIST', addToWatch: 'Añadir a Favoritos'
     },
     en: {
         title: 'ACE ENGINE', subtitle: 'GW2 Trading Terminal', manual: 'MANUAL', link: 'Link API', linked: 'API Connected',
@@ -126,7 +135,16 @@ const LANG = {
         phandrelTitle: 'PHANDREL METHOD', phandrelSub: 'Liquid Gold (UnID Masterwork)',
         identifying: 'Critical Identification', salvaging: 'Selective Salvage',
         lucentMotes: 'Lucent Mats', stackProfit: 'Profit per 250',
-        phandrelTip: 'Never salvage masterwork gear without identifying it first.'
+        phandrelTip: 'Never salvage masterwork gear without identifying it first.',
+        // v21 Daily Action Panel
+        dailyAction: '🎯 DAILY ACTION', todayIs: 'Today is',
+        buyNow: '1. BUY', craftNow: '2. CRAFT', sellNow: '3. SELL',
+        fridayTip: '🔥 FRIDAY: More players online = more demand. Increase sell prices.',
+        saturdayTip: '📈 SATURDAY: Peak activity. Craft and sell fast.',
+        sundayTip: '⚠️ SUNDAY: Prepare for weekly reset. Buy cheap materials.',
+        weekdayTip: '💼 WEEKDAY: Less competition. Good buy prices.',
+        shardsAvailable: 'Shards Available', craftsWithShards: 'Possible Crafts',
+        watchlist: '⭐ WATCHLIST', addToWatch: 'Add to Favorites'
     }
 };
 
@@ -311,22 +329,22 @@ const InfoToolTip = ({ content }) => {
 const KilonovaScanner = ({ data, loading, onScan, lang }) => {
     const t = LANG[lang];
     if (!data && !loading) return (
-        <div className="bg-slate-900/40 backdrop-blur-xl p-8 rounded-3xl text-center border-2 border-amber-500/20 shadow-2xl">
-            <h2 className="text-2xl font-black italic text-amber-500 mb-4 tracking-tighter uppercase">{t.kilonovaTitle}</h2>
-            <button onClick={onScan} className="bg-amber-500 hover:bg-amber-400 text-black font-black px-8 py-4 rounded-2xl text-sm uppercase tracking-widest transition-all shadow-lg shadow-amber-900/40">{t.scanNow}</button>
+        <div className="bg-slate-900/40 backdrop-blur-xl p-8 rounded-3xl text-center border-2 border-violet-500/20 shadow-2xl">
+            <h2 className="text-2xl font-black italic text-violet-400 mb-4 tracking-tighter uppercase">{t.kilonovaTitle}</h2>
+            <button onClick={onScan} className="bg-violet-600 hover:bg-violet-500 text-white font-black px-8 py-4 rounded-2xl text-sm uppercase tracking-widest transition-all shadow-lg shadow-violet-900/40">{t.scanNow}</button>
         </div>
     );
 
     return (
-        <div className="bg-slate-950/80 backdrop-blur-2xl p-8 rounded-3xl border-2 border-amber-500/20 relative overflow-hidden shadow-2xl">
+        <div className="bg-slate-950/80 backdrop-blur-2xl p-8 rounded-3xl border-2 border-violet-500/20 relative overflow-hidden shadow-2xl">
             {loading && <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center gap-4">
-                <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-amber-500 font-black text-xs uppercase tracking-[0.3em] font-mono">{t.scanLoading}</span>
+                <div className="w-12 h-12 border-4 border-fuchsia-500 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-fuchsia-400 font-black text-xs uppercase tracking-[0.3em] font-mono">{t.scanLoading}</span>
             </div>}
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
                 <div>
-                    <h2 className="text-3xl font-black italic text-amber-500 tracking-tighter uppercase">{t.kilonovaTitle}</h2>
+                    <h2 className="text-3xl font-black italic text-violet-400 tracking-tighter uppercase">{t.kilonovaTitle}</h2>
                     <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] mt-1">{t.kilonovaSub}</p>
                 </div>
                 <div className="flex gap-4">
@@ -338,16 +356,16 @@ const KilonovaScanner = ({ data, loading, onScan, lang }) => {
                         <span className="text-[10px] text-zinc-500 font-black uppercase block mb-1 tracking-widest">{t.chars}</span>
                         <div className="text-sm text-zinc-300 font-bold">{data?.charCount || 0}</div>
                     </div>
-                    <button onClick={onScan} className="bg-zinc-800 hover:bg-zinc-700 p-4 rounded-2xl transition-all border border-zinc-700 text-amber-500 shadow-lg"><RefreshCcw size={20} /></button>
+                    <button onClick={onScan} className="bg-zinc-800 hover:bg-zinc-700 p-4 rounded-2xl transition-all border border-zinc-700 text-violet-400 shadow-lg"><RefreshCcw size={20} /></button>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <div className="lg:col-span-4 bg-amber-500/5 p-6 rounded-2xl border border-amber-500/10 shadow-inner">
-                    <h3 className="text-[10px] font-black uppercase text-amber-500 mb-6 tracking-[0.2em] flex items-center gap-2"><Database size={14} /> {t.myStock}</h3>
+                <div className="lg:col-span-4 bg-violet-500/5 p-6 rounded-2xl border border-violet-500/10 shadow-inner">
+                    <h3 className="text-[10px] font-black uppercase text-violet-400 mb-6 tracking-[0.2em] flex items-center gap-2"><Database size={14} /> {t.myStock}</h3>
                     <div className="space-y-3">
                         {data?.stock?.map((item, i) => (
-                            <div key={i} className="flex justify-between items-center text-xs p-3 bg-zinc-950/40 rounded-xl border border-zinc-800 hover:border-amber-500/30 transition-colors">
+                            <div key={i} className="flex justify-between items-center text-xs p-3 bg-zinc-950/40 rounded-xl border border-zinc-800 hover:border-violet-500/30 transition-colors">
                                 <span className="text-zinc-400 font-medium">{item.name}</span>
                                 <span className="font-bold text-white font-mono">{item.count}</span>
                             </div>
@@ -538,6 +556,77 @@ const PhandrelProtocol = ({ prices, lang }) => {
     );
 };
 
+// v21 Daily Action Panel
+const DailyActionPanel = ({ opportunities, shards, lang, watchlist, onToggleWatch }) => {
+    const t = LANG[lang];
+    const today = new Date().getDay();
+    const dayNames = { es: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'], en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] };
+
+    const getDayTip = () => {
+        if (today === 5) return t.fridayTip;
+        if (today === 6) return t.saturdayTip;
+        if (today === 0) return t.sundayTip;
+        return t.weekdayTip;
+    };
+
+    const top = opportunities[0];
+    if (!top) return null;
+
+    const craftsFromShards = Math.floor((shards || 0) * 2);
+
+    return (
+        <div className="bg-gradient-to-br from-violet-950/40 to-zinc-900 border-2 border-fuchsia-500/30 rounded-3xl p-6 mb-8 shadow-2xl">
+            <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
+                <div>
+                    <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-2">{t.dailyAction}</h2>
+                    <div className="bg-fuchsia-500/20 px-4 py-2 rounded-xl border border-fuchsia-500/30 inline-block">
+                        <span className="text-fuchsia-400 font-bold">{t.todayIs}: <span className="text-white">{dayNames[lang][today]}</span></span>
+                    </div>
+                    <p className="text-sm text-zinc-400 mt-3 max-w-md">{getDayTip()}</p>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-4 items-center">
+                    <div className="bg-zinc-950/60 p-4 rounded-xl border border-blue-500/30 text-center min-w-[140px]">
+                        <p className="text-[10px] text-blue-400 font-black uppercase mb-2">{t.buyNow}</p>
+                        <p className="text-sm text-white font-bold">{getItemName(top.t5Id, lang)}</p>
+                        <p className="text-xs text-zinc-500 mt-1">x{top.chosen * 50}</p>
+                    </div>
+                    <span className="text-fuchsia-500 text-2xl font-black">→</span>
+                    <div className="bg-zinc-950/60 p-4 rounded-xl border border-violet-500/30 text-center min-w-[140px]">
+                        <p className="text-[10px] text-violet-400 font-black uppercase mb-2">{t.craftNow}</p>
+                        <p className="text-sm text-white font-bold">{getItemName(top.id, lang)}</p>
+                        <p className="text-xs text-zinc-500 mt-1">x{top.chosen}</p>
+                    </div>
+                    <span className="text-fuchsia-500 text-2xl font-black">→</span>
+                    <div className="bg-zinc-950/60 p-4 rounded-xl border border-fuchsia-500/30 text-center min-w-[140px]">
+                        <p className="text-[10px] text-fuchsia-400 font-black uppercase mb-2">{t.sellNow}</p>
+                        <p className="text-lg text-fuchsia-400 font-mono font-black">{formatGold(top.potentialProfit)}</p>
+                    </div>
+                </div>
+
+                <div className="bg-indigo-950/40 p-4 rounded-xl border border-indigo-500/30 text-center">
+                    <p className="text-[10px] text-indigo-400 font-black uppercase mb-1">{t.shardsAvailable}</p>
+                    <p className="text-2xl text-indigo-300 font-mono font-black">{shards || '?'}</p>
+                    <p className="text-xs text-zinc-500 mt-2">{t.craftsWithShards}: <span className="text-white font-bold">{craftsFromShards}</span></p>
+                </div>
+            </div>
+
+            {watchlist && watchlist.length > 0 && (
+                <div className="mt-6 pt-4 border-t border-zinc-800">
+                    <p className="text-xs text-fuchsia-400 font-black uppercase mb-3">{t.watchlist}</p>
+                    <div className="flex flex-wrap gap-2">
+                        {watchlist.map(id => (
+                            <button key={id} onClick={() => onToggleWatch(id)} className="bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-400 text-xs font-bold px-3 py-1.5 rounded-full border border-fuchsia-500/30 transition-colors">
+                                ⭐ {getItemName(id, lang)}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 // --- APP ---
 const App = () => {
     const [lang, setLang] = useState(localStorage.getItem('ace_lang') || 'es');
@@ -550,6 +639,12 @@ const App = () => {
     const [showKeyInput, setShowKeyInput] = useState(false);
     const [showManual, setShowManual] = useState(false);
     const [expandedRoute, setExpandedRoute] = useState(null); // 'safe', 'balanced', 'aggro'
+    const [watchlist, setWatchlist] = useState(() => JSON.parse(localStorage.getItem('ace_watchlist') || '[]'));
+    const toggleWatch = (id) => {
+        const newList = watchlist.includes(id) ? watchlist.filter(x => x !== id) : [...watchlist, id];
+        setWatchlist(newList);
+        localStorage.setItem('ace_watchlist', JSON.stringify(newList));
+    };
     const [expandedId, setExpandedId] = useState(null);
     const [customIterations, setCustomIterations] = useState({});
     const [auditLog, setAuditLog] = useState([{ agent: "ACE", msg: "v15 Train Init", type: "info" }]);
@@ -820,8 +915,8 @@ const App = () => {
 
             <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-10 gap-6 border-b border-zinc-800 pb-8 bg-zinc-900/40 p-8 rounded-3xl backdrop-blur-sm">
                 <div className="flex items-center gap-6">
-                    <div className="bg-gradient-to-br from-amber-500 to-amber-700 p-4 rounded-2xl shadow-lg shadow-amber-950/50"><Cpu className="w-10 h-10 text-white" /></div>
-                    <div><h1 className="text-4xl font-black tracking-tighter text-white mb-2">{t.title} <span className="text-amber-500">161914</span></h1><p className="text-sm uppercase tracking-widest text-zinc-400 font-bold bg-zinc-800/50 inline-block px-3 py-1 rounded hidden md:inline-block">{t.subtitle} <span className="text-amber-500">v17 ORACLE</span></p></div>
+                    <div className="bg-gradient-to-br from-violet-600 to-fuchsia-700 p-4 rounded-2xl shadow-lg shadow-violet-950/50"><Cpu className="w-10 h-10 text-white" /></div>
+                    <div><h1 className="text-4xl font-black tracking-tighter text-white mb-2">{t.title} <span className="text-fuchsia-400">161914</span></h1><p className="text-sm uppercase tracking-widest text-zinc-400 font-bold bg-zinc-800/50 inline-block px-3 py-1 rounded hidden md:inline-block">{t.subtitle} <span className="text-violet-400">v21 FLUX</span></p></div>
                 </div>
                 <div className="flex flex-wrap gap-4 items-center w-full xl:w-auto">
                     <button onClick={toggleLang} className="flex items-center gap-2 px-5 py-3 bg-zinc-800 text-zinc-300 rounded-xl text-sm font-bold hover:bg-zinc-700 border border-zinc-700"><Globe size={18} /> {lang.toUpperCase()}</button>
@@ -829,11 +924,12 @@ const App = () => {
                     <div className="flex-1 xl:flex-none">
                         <button onClick={() => setShowKeyInput(true)} className={`w-full xl:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold border transition-all ${apiKey ? 'bg-emerald-900/20 text-emerald-400 border-emerald-800 hover:bg-emerald-900/40' : 'bg-zinc-800 text-zinc-400 border-zinc-700 hover:bg-zinc-700'}`}><Key size={18} /> {apiKey ? t.linked : t.link}</button>
                     </div>
-                    <button onClick={() => { fetchMarketData(); fetchUserData(); }} disabled={loading} className="bg-amber-600 hover:bg-amber-500 text-zinc-900 p-3 rounded-xl shadow-lg transition-all hover:scale-105"><RefreshCcw className={`w-6 h-6 ${loading ? 'animate-spin' : ''}`} /></button>
+                    <button onClick={() => { fetchMarketData(); fetchUserData(); }} disabled={loading} className="bg-violet-600 hover:bg-violet-500 text-white p-3 rounded-xl shadow-lg transition-all hover:scale-105"><RefreshCcw className={`w-6 h-6 ${loading ? 'animate-spin' : ''}`} /></button>
                 </div>
             </header>
 
             <OracleBar alpha={globalAlpha} route={bestRoute} lang={lang} />
+            <DailyActionPanel opportunities={opportunities} shards={userData.wallet[23]} lang={lang} watchlist={watchlist} onToggleWatch={toggleWatch} />
             <div className="mb-12">
                 <KilonovaScanner data={kilonovaData} loading={kiloLoading} onScan={runKilonovaScan} lang={lang} />
             </div>
@@ -900,7 +996,10 @@ const App = () => {
                                             <p className="text-xs text-zinc-500 font-medium italic max-w-xs truncate">{getItemDesc(opp.id, lang)}</p>
                                         </div>
                                     </div>
-                                    <div className="text-right z-10"><div className="flex items-center gap-2 justify-end text-emerald-400 font-black text-2xl tracking-tight">{formatGold(opp.potentialProfit)}</div><p className="text-xs text-zinc-500 font-mono mt-1 text-right">{opp.roi.toFixed(1)}% ROI</p></div>
+                                    <div className="flex items-center gap-4 z-10">
+                                        <button onClick={(e) => { e.stopPropagation(); toggleWatch(opp.id); }} className={`p-2 rounded-lg transition-all ${watchlist.includes(opp.id) ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-zinc-600 hover:text-amber-400'}`}>⭐</button>
+                                        <div className="text-right"><div className="flex items-center gap-2 justify-end text-emerald-400 font-black text-2xl tracking-tight">{formatGold(opp.potentialProfit)}</div><p className="text-xs text-zinc-500 font-mono mt-1 text-right">{opp.roi.toFixed(1)}% ROI</p></div>
+                                    </div>
                                 </div>
                                 {expandedId === opp.id && (
                                     <div className="px-6 pb-6 pt-0 animate-in slide-in-from-top-2 fade-in">

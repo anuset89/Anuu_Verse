@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Cpu, ShoppingCart, Hammer, Coins, CheckCircle, Package, Sparkles, RefreshCw, Zap, Repeat } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Cpu, ShoppingCart, Hammer, Coins, CheckCircle, Package, Sparkles, RefreshCw, Zap, Repeat } from 'lucide-react';
 import type { AnuuStrategy, MarketItem } from '../engine/calculator';
 import { IDS, getTranslatedName } from '../engine/calculator';
 
@@ -588,7 +588,66 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                                     </span>
                                                     <div className="flex items-center gap-2">
                                                         <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${isDone ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300' : 'bg-black/40 border-white/5 text-zinc-500'}`}>{a.batches} {isEng ? 'BATCHES' : 'OPS'}</span>
-                                                        <span className="text-[9px] text-indigo-400 font-bold italic">{a.recipe}</span>
+                                                        <div className="flex flex-wrap items-center gap-2 mt-2">
+                                                            {/* VISUAL RECIPE: LODE */}
+                                                            {strategyType === 'LODE' && (
+                                                                <div className="flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
+                                                                    <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded border border-white/5" title="Source">
+                                                                        <span className="text-[10px] font-bold text-white">2</span>
+                                                                        <img src={icons[sourceItem?.strategy.sourceId || 0]} className="w-4 h-4" alt="Source" />
+                                                                    </div>
+                                                                    <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded border border-white/5" title="Dust">
+                                                                        <span className="text-[10px] font-bold text-white">1</span>
+                                                                        <img src={icons[24277]} className="w-4 h-4" alt="Dust" />
+                                                                    </div>
+                                                                    <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded border border-white/5" title="Wine">
+                                                                        <span className="text-[10px] font-bold text-white">1</span>
+                                                                        <img src={icons[19632]} className="w-4 h-4" alt="Wine" />
+                                                                    </div>
+                                                                    <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded border border-white/5" title="Crystal">
+                                                                        <span className="text-[10px] font-bold text-white">1</span>
+                                                                        <img src={icons[19925]} className="w-4 h-4" alt="Crystal" />
+                                                                    </div>
+                                                                    <div className="text-zinc-600 px-1"><ArrowRight size={12} /></div>
+                                                                    <div className="flex items-center gap-1.5 bg-indigo-500/20 px-2 py-1 rounded border border-indigo-500/30">
+                                                                        <span className="text-[10px] font-bold text-indigo-300">1</span>
+                                                                        <img src={icons[sourceItem?.strategy.targetId || 0]} className="w-4 h-4" alt="Result" />
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* VISUAL RECIPE: PROMOTION (FINE/COMMON) */}
+                                                            {(strategyType === 'FINE' || strategyType === 'COMMON') && (
+                                                                <div className="flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
+                                                                    <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded border border-white/5">
+                                                                        <span className="text-[10px] font-bold text-white">{strategyType === 'COMMON' ? 250 : 50}</span>
+                                                                        <img src={icons[sourceItem?.strategy.sourceId || 0]} className="w-4 h-4" alt="Source" />
+                                                                    </div>
+                                                                    <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded border border-white/5">
+                                                                        <span className="text-[10px] font-bold text-white">1</span>
+                                                                        <img src={icons[sourceItem?.strategy.targetId || 0]} className="w-4 h-4" alt="Target" />
+                                                                    </div>
+                                                                    <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded border border-white/5">
+                                                                        <span className="text-[10px] font-bold text-white">5</span>
+                                                                        <img src={icons[24277]} className="w-4 h-4" alt="Dust" />
+                                                                    </div>
+                                                                    <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded border border-white/5">
+                                                                        <span className="text-[10px] font-bold text-white">5</span>
+                                                                        <img src={icons[19673]} className="w-4 h-4" alt="Stone" />
+                                                                    </div>
+                                                                    <div className="text-zinc-600 px-1"><ArrowRight size={12} /></div>
+                                                                    <div className="flex items-center gap-1.5 bg-indigo-500/20 px-2 py-1 rounded border border-indigo-500/30">
+                                                                        <span className="text-[10px] font-bold text-indigo-300">~{strategyType === 'COMMON' ? 22 : 7}</span>
+                                                                        <img src={icons[sourceItem?.strategy.targetId || 0]} className="w-4 h-4" alt="Result" />
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* FALLBACK TEXT */}
+                                                            {(!['LODE', 'FINE', 'COMMON'].includes(strategyType)) && (
+                                                                <span className="text-[9px] text-indigo-400 font-bold italic">{a.recipe}</span>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                     {missingReagents && !isDone && (
                                                         <div onClick={(e) => { e.stopPropagation(); setCurrentStep(1); }} className="mt-2 flex items-center gap-1 text-[8px] font-black uppercase text-red-400 bg-red-500/10 px-2 py-1 rounded border border-red-500/20 hover:bg-red-500 hover:text-white transition-colors">

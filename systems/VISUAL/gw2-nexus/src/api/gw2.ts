@@ -87,7 +87,21 @@ export const gw2 = {
             return res.data;
         } catch {
             console.warn("[GW2 API] Token Info failed, using fallback...");
-            return { permissions: ['account', 'wallet', 'inventories'] }; // Optimistic fallback
+            return { permissions: ['account', 'wallet', 'inventories', 'characters'] }; // Optimistic fallback
+        }
+    },
+
+    async getCharacters(apiKey: string) {
+        try {
+            const url = isDev
+                ? `${API_BASE}/characters?ids=all`
+                : `${API_BASE}/characters?ids=all&access_token=${apiKey.trim()}`;
+            const config = isDev ? authConfig(apiKey) : {};
+            const res = await axios.get(url, config);
+            return res.data;
+        } catch (e) {
+            console.error("[GW2 API] Characters Error", e);
+            return [];
         }
     }
 };

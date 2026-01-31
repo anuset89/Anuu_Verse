@@ -11,9 +11,9 @@ import { getItemIcon } from '../utils/icons';
 interface ShoppingListItem {
     strategy: AnuuStrategy;
     allocatedGold: number;
-    neededSource: number; buySource: number; ownedSource: number; ownedSourceData: { storage: number, bank: number };
-    neededDust: number; buyDust: number; ownedDust: number; ownedDustData: { storage: number, bank: number };
-    neededTarget: number; buyTarget: number; ownedTarget: number; ownedTargetData: { storage: number, bank: number };
+    neededSource: number; buySource: number; ownedSource: number; ownedSourceData: { storage: number, bank: number, character: number };
+    neededDust: number; buyDust: number; ownedDust: number; ownedDustData: { storage: number, bank: number, character: number };
+    neededTarget: number; buyTarget: number; ownedTarget: number; ownedTargetData: { storage: number, bank: number, character: number };
     buyWine: number;
     buyCrystals: number;
     batchSize: number;
@@ -29,7 +29,7 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
     budget: number,
     setBudget: (n: number) => void,
     wallet: number,
-    materials: Record<number, { total: number, storage: number, bank: number }>,
+    materials: Record<number, { total: number, storage: number, bank: number, character: number }>,
     totalGrossSales: number
 }) => {
     const [currentStep, setCurrentStep] = useState(1);
@@ -192,7 +192,14 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                                             <div className="flex items-center justify-between">
                                                                 <div className="flex items-center gap-3">
                                                                     <span className="text-2xl">{getItemIcon(item.strategy.sourceName)}</span>
-                                                                    <span className="text-[10px] font-black text-white uppercase truncate max-w-[140px] leading-tight">{getTranslatedName(item.strategy.sourceId, item.strategy.sourceName, isEng)}</span>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-[10px] font-black text-white uppercase truncate max-w-[140px] leading-tight">{getTranslatedName(item.strategy.sourceId, item.strategy.sourceName, isEng)}</span>
+                                                                        <div className="flex gap-1.5 opacity-60">
+                                                                            {item.ownedSourceData.bank > 0 && <span className="text-[7px] text-indigo-400 font-bold uppercase">{isEng ? 'Bank' : 'Banco'}: {item.ownedSourceData.bank}</span>}
+                                                                            {item.ownedSourceData.character > 0 && <span className="text-[7px] text-amber-400 font-bold uppercase">{isEng ? 'Bag' : 'Bolsa'}: {item.ownedSourceData.character}</span>}
+                                                                            {item.ownedSourceData.storage > 0 && <span className="text-[7px] text-zinc-500 font-bold uppercase">{isEng ? 'Storage' : 'Almacén'}: {item.ownedSourceData.storage}</span>}
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                                 <div className="text-xl font-black text-amber-400">x{Math.min(item.ownedSource, item.neededSource)}</div>
                                                             </div>
@@ -201,7 +208,13 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                                             <div className="flex items-center justify-between">
                                                                 <div className="flex items-center gap-3">
                                                                     <span className="text-2xl">✨</span>
-                                                                    <span className="text-[10px] font-black text-white uppercase">{isEng ? 'Crystalline Dust' : 'Polvo Cristalino'}</span>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-[10px] font-black text-white uppercase">{isEng ? 'Crystalline Dust' : 'Polvo Cristalino'}</span>
+                                                                        <div className="flex gap-1.5 opacity-60">
+                                                                            {item.ownedDustData.bank > 0 && <span className="text-[7px] text-indigo-400 font-bold uppercase">{isEng ? 'Bank' : 'Banco'}: {item.ownedDustData.bank}</span>}
+                                                                            {item.ownedDustData.character > 0 && <span className="text-[7px] text-amber-400 font-bold uppercase">{isEng ? 'Bag' : 'Bolsa'}: {item.ownedDustData.character}</span>}
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                                 <div className="text-xl font-black text-amber-400">x{Math.min(item.ownedDust, item.neededDust)}</div>
                                                             </div>
@@ -269,7 +282,8 @@ const NexusTracker = ({ list, isEng, onClose, budget, setBudget, wallet, materia
                                                     {materials[l.id] && materials[l.id].total > 0 && (
                                                         <div className="text-[7px] text-zinc-600 font-black uppercase flex flex-col items-end opacity-60 mt-1">
                                                             {materials[l.id].storage > 0 && <span>{isEng ? 'In Storage' : 'En Almacén'}: {materials[l.id].storage}</span>}
-                                                            {materials[l.id].bank > 0 && <span className="text-indigo-500">{isEng ? 'In Bank' : 'En Banco'}: {materials[l.id].bank}</span>}
+                                                            {materials[l.id].bank > 0 && <span className="text-indigo-400">{isEng ? 'In Bank' : 'En Banco'}: {materials[l.id].bank}</span>}
+                                                            {materials[l.id].character > 0 && <span className="text-amber-500">{isEng ? 'In Bag' : 'En Bolsa'}: {materials[l.id].character}</span>}
                                                         </div>
                                                     )}
                                                 </div>
@@ -386,7 +400,7 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
     strategies: AnuuStrategy[];
     wallet: Record<number, number>;
     prices: Record<number, MarketItem>;
-    materials: Record<number, { total: number, storage: number, bank: number }>; // Inventory
+    materials: Record<number, { total: number, storage: number, bank: number, character: number }>; // Inventory
     onBack: () => void;
     isEng: boolean;
 }) => {
@@ -402,10 +416,10 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
     const shoppingList = activeStrategies.map((s) => {
         const allocatedGold = budgetGold * weightPerStrategy;
 
-        // Prices in gold for calculation
-        const pSource = (prices[s.sourceId]?.buys?.unit_price || 0) / 10000;
-        const pDust = (prices[IDS.DUST]?.buys?.unit_price || 0) / 10000;
-        const pTarget = (prices[s.targetId]?.buys?.unit_price || 0) / 10000;
+        // Prices in gold for calculation - Use Sell price as fallback for Buy if missing (safer budgeting)
+        const pSource = (prices[s.sourceId]?.buys?.unit_price || prices[s.sourceId]?.sells?.unit_price || 0) / 10000;
+        const pDust = (prices[IDS.DUST]?.buys?.unit_price || prices[IDS.DUST]?.sells?.unit_price || 0) / 10000;
+        const pTarget = (prices[s.targetId]?.buys?.unit_price || prices[s.targetId]?.sells?.unit_price || 0) / 10000;
         const pWine = 0.2560; // 25s 60c
 
         // Requirements per craft
@@ -423,9 +437,9 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
         const batchSize = costPerCraft > 0 ? Math.max(1, Math.floor(allocatedGold / costPerCraft)) : 1;
 
         // Auto-Tracker: Check inventory
-        const ownedSourceData = materials[s.sourceId] || { total: 0, storage: 0, bank: 0 };
-        const ownedDustData = materials[IDS.DUST] || { total: 0, storage: 0, bank: 0 };
-        const ownedTargetData = materials[s.targetId] || { total: 0, storage: 0, bank: 0 };
+        const ownedSourceData = materials[s.sourceId] || { total: 0, storage: 0, bank: 0, character: 0 };
+        const ownedDustData = materials[IDS.DUST] || { total: 0, storage: 0, bank: 0, character: 0 };
+        const ownedTargetData = materials[s.targetId] || { total: 0, storage: 0, bank: 0, character: 0 };
 
         const ownedSource = ownedSourceData.total;
         const ownedDust = ownedDustData.total;
@@ -456,7 +470,15 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
     });
 
     // Financial calculations using Actual Buy Amounts (Auto-Tracker applied)
-    const totalInvested = shoppingList.reduce((acc, item) => acc + (item.buySource * (prices[item.strategy.sourceId]?.buys?.unit_price || 0)) + (item.buyDust * (prices[IDS.DUST]?.buys?.unit_price || 0)) + (item.buyTarget * (prices[item.strategy.targetId]?.buys?.unit_price || 0)), 0);
+    const totalInvested = shoppingList.reduce((acc, item) => {
+        const itemP = (prices[item.strategy.sourceId]?.buys?.unit_price || prices[item.strategy.sourceId]?.sells?.unit_price || 0);
+        const dustP = (prices[IDS.DUST]?.buys?.unit_price || prices[IDS.DUST]?.sells?.unit_price || 0);
+        const targetP = (prices[item.strategy.targetId]?.buys?.unit_price || prices[item.strategy.targetId]?.sells?.unit_price || 0);
+        const npcCosts = (item.buyWine * 2560); // Adding wine cost (silver/copper)
+
+        return acc + (item.buySource * itemP) + (item.buyDust * dustP) + (item.buyTarget * targetP) + npcCosts;
+    }, 0);
+
     const totalGrossSales = shoppingList.reduce((acc, item) => acc + (item.batchSize * (prices[item.strategy.targetId]?.sells?.unit_price || 0) * (item.strategy.type === 'COMMON' ? (item.strategy.name.includes('Ecto') ? 0.9 : 22) : (item.strategy.type === 'FINE' ? 7 : 1))), 0);
     const tpFees = totalGrossSales * 0.15;
     const netProfit = totalGrossSales - tpFees - totalInvested;

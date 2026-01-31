@@ -23,7 +23,7 @@ function App() {
   const [strategies, setStrategies] = useState<AnuuStrategy[]>([]);
   const [activeStrategy, setActiveStrategy] = useState<AnuuStrategy | null>(null);
   const [multiStrategy, setMultiStrategy] = useState<AnuuStrategy[] | null>(null);
-  const [materials, setMaterials] = useState<Record<number, { total: number, storage: number, bank: number }>>({});
+  const [materials, setMaterials] = useState<Record<number, { total: number, storage: number, bank: number, character: number }>>({});
   const [wallet, setWallet] = useState<Record<number, number>>({});
   const [prices, setPrices] = useState<Record<number, MarketItem>>({});
   const [lang, setLang] = useState<'es' | 'en'>((localStorage.getItem('gw2_lang') as 'es' | 'en') || 'es');
@@ -58,16 +58,17 @@ function App() {
 
         if (hasInventoriesPerm) {
           try {
-            const [mats, bank] = await Promise.all([
+            const [mats, bank, chars] = await Promise.all([
               gw2.getMaterials(apiKey),
-              gw2.getBank(apiKey)
+              gw2.getBank(apiKey),
+              gw2.getCharacters(apiKey)
             ]);
 
-            const matMap: Record<number, { total: number, storage: number, bank: number }> = {};
+            const matMap: Record<number, { total: number, storage: number, bank: number, character: number }> = {};
 
             if (Array.isArray(mats)) {
               mats.forEach((m: { id: number, count: number }) => {
-                if (!matMap[m.id]) matMap[m.id] = { total: 0, storage: 0, bank: 0 };
+                if (!matMap[m.id]) matMap[m.id] = { total: 0, storage: 0, bank: 0, character: 0 };
                 matMap[m.id].storage = m.count;
                 matMap[m.id].total += m.count;
               });
@@ -76,12 +77,30 @@ function App() {
             if (Array.isArray(bank)) {
               bank.forEach((slot: { id: number, count: number } | null) => {
                 if (slot) {
-                  if (!matMap[slot.id]) matMap[slot.id] = { total: 0, storage: 0, bank: 0 };
+                  if (!matMap[slot.id]) matMap[slot.id] = { total: 0, storage: 0, bank: 0, character: 0 };
                   matMap[slot.id].bank += slot.count;
                   matMap[slot.id].total += slot.count;
                 }
               });
             }
+            if (Array.isArray(chars)) {
+              chars.forEach((c: { bags?: { inventory: ({ id: number, count: number } | null)[] }[] }) => {
+                if (c.bags) {
+                  c.bags.forEach((bag) => {
+                    if (bag && bag.inventory) {
+                      bag.inventory.forEach((slot) => {
+                        if (slot) {
+                          if (!matMap[slot.id]) matMap[slot.id] = { total: 0, storage: 0, bank: 0, character: 0 };
+                          matMap[slot.id].character += slot.count;
+                          matMap[slot.id].total += slot.count;
+                        }
+                      });
+                    }
+                  });
+                }
+              });
+            }
+
             setMaterials(matMap);
             matMapLocal = matMap;
           } catch (e) {

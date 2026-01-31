@@ -603,24 +603,14 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
             batchSize: 0
         }));
 
-        // --- PRE-CALCULATION: Estimate Gross Sales to determine Listing Fee Reserve ---
-        // We need to know roughly how much we'll sell to reserve 5% for listing fees
-        // Use a conservative estimate: assume we process all freeBatches ONLY
-        let estimatedGrossSales = 0;
-        inventoryNeeds.forEach(need => {
-            const s = need.strategy;
-            const sellPrice = (prices[s.targetId]?.sells?.unit_price || 0) / 10000;
-            const yieldPerBatch = s.type === 'FINE' ? 7 : (s.type === 'COMMON' ? 22 : 1);
-            estimatedGrossSales += need.freeBatches * yieldPerBatch * sellPrice;
-        });
-
-        // Reserve 5% of estimated gross sales for listing fees (minimum 0.1g buffer)
-        const listingFeeReserve = Math.max(0.1, estimatedGrossSales * 0.05);
+        // Simple Budget Reserve: 15% for listing fees (scales with budget, not potential sales)
+        // This prevents the issue where massive potential inventory creates an impossible reserve
+        const listingFeeReserve = budgetGold * 0.15;
         let flexibleBudget = budgetGold - listingFeeReserve;
 
-        // If budget is already negative after reserve, we can't do anything
-        if (flexibleBudget <= 0) {
-            return []; // No operations possible
+        // Minimum viable budget check (at least 10 silver to operate)
+        if (flexibleBudget < 0.1) {
+            return []; // Not enough capital to operate
         }
 
         // PASS 1: Inventory Maintenance (Process what we HAVE first)

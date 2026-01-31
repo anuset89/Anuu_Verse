@@ -157,6 +157,11 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, onBack, isEng
                                 <div>
                                     <h3 className="font-bold text-white uppercase text-xs font-display">{item.strategy.name}</h3>
                                     <div className="text-[9px] text-zinc-500 uppercase tracking-wide">{isEng ? 'Route' : 'Ruta'}: {item.strategy.type}</div>
+                                    {item.strategy.recipe && (
+                                        <div className="mt-2 text-[7px] text-zinc-600 leading-tight border-t border-white/5 pt-1">
+                                            {item.strategy.recipe}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

@@ -91,6 +91,7 @@ export interface AnuuStrategy {
     verdict: string;
     supplyQty: number;
     type: 'FINE' | 'COMMON' | 'RUNE' | 'LODE';
+    recipe?: string;
 }
 
 export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[] => {
@@ -118,7 +119,8 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
             costPerUnit: cost, sellPrice: prices[t].sells.unit_price, profitPerCraft: profit,
             roi, volatility, score,
             verdict: roi > 15 ? "HIGH PROFIT" : roi > 5 ? "STABLE" : "BREAKEVEN",
-            supplyQty: prices[t].sells.quantity, type: 'FINE'
+            supplyQty: prices[t].sells.quantity, type: 'FINE',
+            recipe: "50x T5 Material + 1x T6 Material + 5x Crystalline Dust + 5x Philosopher's Stones"
         });
     });
 
@@ -140,7 +142,8 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
             costPerUnit: cost, sellPrice: prices[t].sells.unit_price, profitPerCraft: profit,
             roi, volatility, score,
             verdict: roi > 10 ? "MASS PRODUCTION" : roi > 3 ? "VIABLE" : "LOW MARGIN",
-            supplyQty: prices[t].sells.quantity, type: 'COMMON'
+            supplyQty: prices[t].sells.quantity, type: 'COMMON',
+            recipe: "250x T5 Material + 1x T6 Material + 5x Crystalline Dust + 5x Philosopher's Stones"
         });
     });
 
@@ -165,7 +168,8 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
             costPerUnit: cost, sellPrice: prices[t].sells.unit_price, profitPerCraft: profit,
             roi, volatility, score,
             verdict: roi > 20 ? "RARE UPGRADE" : roi > 10 ? "PROFITABLE" : "RISKY",
-            supplyQty: prices[t].sells.quantity, type: 'LODE'
+            supplyQty: prices[t].sells.quantity, type: 'LODE',
+            recipe: "2x Cores + 1x Bottle of Elonian Wine + 1x Pile of Crystalline Dust + 1x Mystic Crystal"
         });
     });
 
@@ -186,7 +190,8 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
             costPerUnit: cost, sellPrice: prices[t].sells.unit_price, profitPerCraft: profit,
             roi, volatility, score,
             verdict: roi > 25 ? "SPECULATIVE" : roi > 10 ? "RISKY" : "VOLATILE",
-            supplyQty: prices[t].sells.quantity, type: 'RUNE'
+            supplyQty: prices[t].sells.quantity, type: 'RUNE',
+            recipe: "10x Lucent Motes + 1x Charm/Symbol + 1x Ectoplasm + 50x Lucent Crystals"
         });
     }
 
@@ -207,7 +212,8 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
             costPerUnit: cost / output, sellPrice: prices[IDS.PHILO_STONE].sells.unit_price, profitPerCraft: profit,
             roi, volatility, score,
             verdict: roi > 15 ? "CRAFT VIABLE" : roi > 5 ? "MODERATE" : "LOW PROFIT",
-            supplyQty: prices[IDS.PHILO_STONE].sells.quantity, type: 'FINE'
+            supplyQty: prices[IDS.PHILO_STONE].sells.quantity, type: 'FINE',
+            recipe: "5x T2 Blood + 5x T2 Scales + 1x Mystic Coin"
         });
     }
 
@@ -226,7 +232,8 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
             costPerUnit: cost, sellPrice: prices[IDS.CRYSTAL].sells.unit_price, profitPerCraft: profit,
             roi, volatility, score,
             verdict: roi > 10 ? "CRYSTAL PROFIT" : roi > 3 ? "SMALL GAIN" : "MARGINAL",
-            supplyQty: prices[IDS.CRYSTAL].sells.quantity, type: 'COMMON'
+            supplyQty: prices[IDS.CRYSTAL].sells.quantity, type: 'COMMON',
+            recipe: "1x Philo Stone + 5x Glob of Ectoplasm + 1x Mystic Coin"
         });
     }
 
@@ -249,7 +256,8 @@ export const analyzeMarket = (prices: Record<number, MarketItem>): AnuuStrategy[
             costPerUnit: cost, sellPrice: prices[IDS.GLOB_ECTO].sells.unit_price, profitPerCraft: profit,
             roi, volatility, score,
             verdict: roi > 5 ? "SALVAGE VIABLE" : roi > 0 ? "BREAK EVEN" : "LOSS",
-            supplyQty: prices[IDS.GLOB_ECTO].sells.quantity, type: 'COMMON'
+            supplyQty: prices[IDS.GLOB_ECTO].sells.quantity, type: 'COMMON',
+            recipe: "Use Mystic Salvage Kit on Level 68+ Rare Gear"
         });
     }
 

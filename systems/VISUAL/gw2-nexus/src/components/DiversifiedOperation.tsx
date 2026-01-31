@@ -48,10 +48,11 @@ const GoldDisplay = ({ amount, size = "md" }: { amount: number, size?: "sm" | "m
     );
 };
 
-export const DiversifiedOperation = ({ strategies, wallet, prices, onBack, isEng }: {
+export const DiversifiedOperation = ({ strategies, wallet, prices, materials, onBack, isEng }: {
     strategies: AnuuStrategy[];
     wallet: Record<number, number>;
     prices: Record<number, MarketItem>;
+    materials: Record<number, number>; // Inventory
     onBack: () => void;
     isEng: boolean;
 }) => {
@@ -80,22 +81,35 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, onBack, isEng
         const dustPerCraft = s.type === 'LODE' ? 1 : 5;
         const usesDust = s.type !== 'RUNE';
 
-        // Seed logic for promotions
+        // Auto-Tracker: Check inventory
+        const ownedSource = materials[s.sourceId] || 0;
+        const ownedDust = materials[IDS.DUST] || 0;
+        const ownedTarget = materials[s.targetId] || 0;
+
+        const neededSource = sourcePerCraft * batchSize;
+        const neededDust = (usesDust ? dustPerCraft : 0) * batchSize;
+        // Seed logic for promotions: min(batchSize, 5)
         const neededTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : Math.min(batchSize, 5);
+
+        // Calculate purchase mandates (Buy = Need - Have)
+        const buySource = Math.max(0, neededSource - ownedSource);
+        const buyDust = Math.max(0, neededDust - ownedDust); // Note: Dust is shared, simple check per strategy for now
+        const buyTarget = Math.max(0, neededTarget - ownedTarget);
 
         return {
             strategy: s,
             batchSize,
             allocatedGold,
-            neededSource: sourcePerCraft * batchSize,
-            neededDust: (usesDust ? dustPerCraft : 0) * batchSize,
-            neededTarget,
+            neededSource, buySource, ownedSource,
+            neededDust, buyDust, ownedDust,
+            neededTarget, buyTarget, ownedTarget,
             profit: s.profitPerCraft * batchSize,
             priceSource: prices[s.sourceId]?.buys?.unit_price || 0,
         };
     });
 
-    const totalInvested = shoppingList.reduce((acc, item) => acc + (item.neededSource * (prices[item.strategy.sourceId]?.buys?.unit_price || 0)) + (item.neededDust * (prices[IDS.DUST]?.buys?.unit_price || 0)) + (item.neededTarget * (prices[item.strategy.targetId]?.buys?.unit_price || 0)), 0);
+    // Financial calculations using Actual Buy Amounts (Auto-Tracker applied)
+    const totalInvested = shoppingList.reduce((acc, item) => acc + (item.buySource * (prices[item.strategy.sourceId]?.buys?.unit_price || 0)) + (item.buyDust * (prices[IDS.DUST]?.buys?.unit_price || 0)) + (item.buyTarget * (prices[item.strategy.targetId]?.buys?.unit_price || 0)), 0);
     const totalGrossSales = shoppingList.reduce((acc, item) => acc + (item.batchSize * (prices[item.strategy.targetId]?.sells?.unit_price || 0) * (item.strategy.type === 'COMMON' ? (item.strategy.name.includes('Ecto') ? 0.9 : 22) : (item.strategy.type === 'FINE' ? 7 : 1))), 0);
     const tpFees = totalGrossSales * 0.15;
     const netProfit = totalGrossSales - tpFees - totalInvested;
@@ -198,12 +212,18 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, onBack, isEng
                             <div className="bg-black/40 rounded-xl p-4 space-y-3 border border-white/5">
                                 <div className="flex justify-between items-center text-[10px]">
                                     <span className="text-zinc-500 font-bold uppercase">{isEng ? 'Buy Source' : 'Comprar Fuente'}</span>
-                                    <span className="text-white font-black">{item.neededSource} u.</span>
+                                    <div className="text-right">
+                                        <span className={`font-black ${item.buySource < item.neededSource ? 'text-emerald-400' : 'text-white'}`}>{item.buySource} u.</span>
+                                        {item.ownedSource > 0 && <div className="text-[7px] text-zinc-500 uppercase tracking-tight">{isEng ? 'Have' : 'Tienes'}: {item.ownedSource}</div>}
+                                    </div>
                                 </div>
                                 {item.neededDust > 0 && (
                                     <div className="flex justify-between items-center text-[10px]">
                                         <span className="text-zinc-500 font-bold uppercase">{isEng ? 'Buy Dust' : 'Comprar Polvo'}</span>
-                                        <span className="text-indigo-300 font-black">{item.neededDust} u.</span>
+                                        <div className="text-right">
+                                            <span className={`font-black ${item.buyDust < item.neededDust ? 'text-emerald-400' : 'text-indigo-300'}`}>{item.buyDust} u.</span>
+                                            {item.ownedDust > 0 && <div className="text-[7px] text-zinc-500 uppercase tracking-tight">{isEng ? 'Have' : 'Tienes'}: {item.ownedDust}</div>}
+                                        </div>
                                     </div>
                                 )}
                                 <div className="flex justify-between items-center text-[10px] border-t border-white/5 pt-2 mt-2">
@@ -211,8 +231,12 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, onBack, isEng
                                     <span className="text-white font-black">{item.batchSize} x</span>
                                 </div>
                                 {item.neededTarget > 0 && (
-                                    <div className="text-[7px] text-emerald-400 font-black uppercase tracking-[0.2em] text-center pt-2">
-                                        ✦ SEED: {item.neededTarget} u.
+                                    <div className="pt-2 text-center">
+                                        <div className="text-[7px] text-zinc-600 font-black uppercase tracking-[0.2em] mb-1">SEED TARGET</div>
+                                        <div className="flex justify-between items-center text-[9px]">
+                                            <span className="text-zinc-500">Buy: <span className={item.buyTarget < item.neededTarget ? 'text-emerald-400' : 'text-white'}>{item.buyTarget}</span></span>
+                                            {item.ownedTarget > 0 && <span className="text-zinc-600">Have: {item.ownedTarget}</span>}
+                                        </div>
                                     </div>
                                 )}
                             </div>

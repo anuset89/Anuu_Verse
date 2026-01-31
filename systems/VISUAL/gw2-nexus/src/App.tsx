@@ -687,6 +687,7 @@ function App() {
               strategies={multiStrategy}
               wallet={wallet}
               prices={prices}
+              materials={materials}
               onBack={() => setMultiStrategy(null)}
               isEng={isEng}
             />

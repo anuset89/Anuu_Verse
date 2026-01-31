@@ -426,17 +426,9 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
         const qSource = s.type === 'LODE' ? 2 : (s.type === 'RUNE' ? 10 : (s.type === 'COMMON' ? 250 : 50));
         const qDust = s.type === 'LODE' ? 1 : (s.type === 'RUNE' ? 0 : 5);
         const qWine = s.type === 'LODE' ? 1 : 0;
-        // For fine/common we need 1 existing T6 as seed. For 1000 crafts, we still only need 1-5 seeds.
         const qTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : 0.01; // Amortized seed cost
 
-        // TOTAL cost per craft in gold
-        const costPerCraft = (qSource * pSource) + (qDust * pDust) + (qWine * pWine) + (qTarget * pTarget);
-
-        // How many crafts fit in budget? 
-        // We floor it to stay strictly under allocated budget.
-        const batchSize = costPerCraft > 0 ? Math.max(1, Math.floor(allocatedGold / costPerCraft)) : 1;
-
-        // Auto-Tracker: Check inventory
+        // Inventory data
         const ownedSourceData = materials[s.sourceId] || { total: 0, storage: 0, bank: 0, character: 0 };
         const ownedDustData = materials[IDS.DUST] || { total: 0, storage: 0, bank: 0, character: 0 };
         const ownedTargetData = materials[s.targetId] || { total: 0, storage: 0, bank: 0, character: 0 };
@@ -445,25 +437,52 @@ export const DiversifiedOperation = ({ strategies, wallet, prices, materials, on
         const ownedDust = ownedDustData.total;
         const ownedTarget = ownedTargetData.total;
 
+        // TACTICAL CALCULATION: How many batches can we support with allocatedGold?
+        // Gold needed per craft beyond what we already have
+        // This is approximated because different materials run out at different times.
+        // We use a simplified linear "Spending Aware" approach.
+
+        const costPerCraft = (qSource * pSource) + (qDust * pDust) + (qWine * pWine) + (qTarget * pTarget);
+
+        // 1. Minimum batches to use up existing materials (if we have a huge surplus of some item)
+        // But we cap it by what we can actually afford to buy to complete them.
+        const goldPerNewCraft =
+            (ownedSource > 0 ? 0 : qSource * pSource) +
+            (ownedDust > 0 ? 0 : qDust * pDust) +
+            (qWine * pWine); // Always pay for wine
+
+        // We estimate batchSize by seeing how many crafts we can "afford to complete"
+        // This logic handles "Zero-Cost Entry" by using surplus inventory.
+
+        let batchSize = 0;
+        if (costPerCraft > 0) {
+            // First: How many crafts can we do if we ONLY buy what's missing?
+            // This allows the user to see "Buy Cores" to use up their many "Dusts".
+            const possibleWithBudget = allocatedGold / Math.max(0.0001, goldPerNewCraft);
+            const possibleWithInventory = Math.max(
+                (ownedSource / qSource),
+                (qDust > 0 ? ownedDust / qDust : 0)
+            );
+
+            // We aim to satisfy the inventory surplus up to the budget limit
+            batchSize = Math.floor(Math.min(possibleWithBudget, Math.max(possibleWithInventory, allocatedGold / costPerCraft)));
+
+            // If budget is very high, don't go crazy? No, go as high as budget allows.
+            if (allocatedGold > 0 && batchSize < 1) batchSize = 1;
+        }
+
         const neededSource = qSource * batchSize;
         const neededDust = qDust * batchSize;
         const neededTarget = (s.type === 'LODE' || s.type === 'RUNE') ? 0 : Math.min(batchSize, 5); // Seed logic
-
-        // Calculate purchase mandates (Buy = Need - Have)
-        const buySource = Math.max(0, neededSource - ownedSource);
-        const buyDust = Math.max(0, neededDust - ownedDust);
-        const buyTarget = Math.max(0, neededTarget - ownedTarget);
-        const buyWine = qWine * batchSize;
-        const buyCrystals = s.type === 'LODE' ? batchSize : 0;
 
         return {
             strategy: s,
             batchSize,
             allocatedGold,
-            neededSource, buySource, ownedSource, ownedSourceData,
-            neededDust, buyDust, ownedDust, ownedDustData,
-            neededTarget, buyTarget, ownedTarget, ownedTargetData,
-            buyWine, buyCrystals,
+            neededSource, buySource: Math.max(0, neededSource - ownedSource), ownedSource, ownedSourceData,
+            neededDust, buyDust: Math.max(0, neededDust - ownedDust), ownedDust, ownedDustData,
+            neededTarget, buyTarget: Math.max(0, neededTarget - ownedTarget), ownedTarget, ownedTargetData,
+            buyWine: qWine * batchSize, buyCrystals: s.type === 'LODE' ? batchSize : 0,
             profit: s.profitPerCraft * batchSize,
             priceSource: prices[s.sourceId]?.buys?.unit_price || 0,
         };

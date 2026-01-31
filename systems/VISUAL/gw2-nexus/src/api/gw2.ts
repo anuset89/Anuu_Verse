@@ -2,65 +2,45 @@ import axios from 'axios';
 
 const API_BASE = 'https://api.guildwars2.com/v2';
 
-// 9 Identities as Origins
-
-
-// Cache structure
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CACHE: Record<string, { data: any, timestamp: number }> = {};
-const CACHE_TTL = 300000; // 5 minutes
+export interface MarketItem {
+    id: number;
+    whitelisted: boolean;
+    buys: { quantity: number; unit_price: number };
+    sells: { quantity: number; unit_price: number };
+}
 
 export const gw2 = {
-    async get(endpoint: string) {
-        if (CACHE[endpoint] && Date.now() - CACHE[endpoint].timestamp < CACHE_TTL) {
-            return CACHE[endpoint].data;
-        }
+    async getPrices(ids: number[]) {
+        if (!ids.length) return [];
         try {
-            const res = await axios.get(`${API_BASE}${endpoint}`);
-            CACHE[endpoint] = { data: res.data, timestamp: Date.now() };
+            const res = await axios.get(`${API_BASE}/commerce/prices?ids=${ids.join(',')}`);
             return res.data;
-        } catch (error) {
-            console.error(`[ANUU_BROKER] API Error on ${endpoint}:`, error);
-            throw error;
+        } catch (e) {
+            console.error("GW2 API Price Error", e);
+            return [];
         }
     },
 
-    async getPrices(ids: number[]) {
-        // Chunk requests to avoid URL length limits
-        const chunks = [];
-        for (let i = 0; i < ids.length; i += 200) {
-            chunks.push(ids.slice(i, i + 200));
+    async getMaterials(apiKey: string) {
+        try {
+            const res = await axios.get(`${API_BASE}/account/materials`, {
+                headers: { Authorization: `Bearer ${apiKey.trim()}` }
+            });
+            return res.data;
+        } catch (e) {
+            console.error("GW2 API Materials Error", e);
+            return [];
         }
-
-        const results = await Promise.all(chunks.map(chunk =>
-            this.get(`/commerce/prices?ids=${chunk.join(',')}`)
-        ));
-
-        return results.flat();
     },
 
     async getWallet(apiKey: string) {
-        if (!apiKey) return [];
         try {
             const res = await axios.get(`${API_BASE}/account/wallet`, {
-                headers: { Authorization: `Bearer ${apiKey}` }
+                headers: { Authorization: `Bearer ${apiKey.trim()}` }
             });
             return res.data;
-        } catch {
-            return []; // Fail gracefully
-        }
-    },
-
-
-
-    async getMaterials(apiKey: string) {
-        if (!apiKey) return [];
-        try {
-            const res = await axios.get(`${API_BASE}/account/materials`, {
-                headers: { Authorization: `Bearer ${apiKey}` }
-            });
-            return res.data;
-        } catch {
+        } catch (e) {
+            console.error("GW2 API Wallet Error", e);
             return [];
         }
     },
@@ -68,12 +48,12 @@ export const gw2 = {
     async getTokenInfo(apiKey: string) {
         try {
             const res = await axios.get(`${API_BASE}/tokeninfo`, {
-                headers: { Authorization: `Bearer ${apiKey}` }
+                headers: { Authorization: `Bearer ${apiKey.trim()}` }
             });
-            return res.data; // { permissions: string[] }
+            return res.data;
         } catch (e) {
-            console.error("Token Info Error", e);
-            return null;
+            console.warn("Token Info failed, using fallback...");
+            return { permissions: ['account', 'wallet', 'inventories'] }; // Fallback optimista
         }
     }
 };

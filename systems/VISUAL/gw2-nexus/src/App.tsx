@@ -4,20 +4,21 @@ import { analyzeMarket, IDS } from './engine/calculator';
 import type { AnuuStrategy, MarketItem } from './engine/calculator';
 import { gw2 } from './api/gw2';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Brain, RefreshCcw, AlertTriangle, ShieldCheck, Cpu, Settings } from 'lucide-react';
+import { Brain, RefreshCcw, AlertTriangle, ShieldCheck, Cpu, Settings, ArrowLeft, Copy, CheckCircle, Package, FlaskConical, ArrowRight, Layers } from 'lucide-react';
 
 // --- COMPONENTS ---
 
-const AnuuMediator = ({ thought, status }: { thought: string, status: 'IDLE' | 'THINKING' | 'ALERT' }) => {
+const AnuuMediator = ({ thought, status }: { thought: string, status: 'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE' }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       className={`
-                relative overflow-hidden rounded-2xl p-6 border transition-all duration-500
+                relative overflow-hidden rounded-2xl p-6 border transition-all duration-500 mb-8
                 ${status === 'THINKING' ? 'bg-zinc-900 border-fuchsia-500/50 shadow-lg shadow-fuchsia-900/20' :
           status === 'ALERT' ? 'bg-zinc-900 border-emerald-500/50 shadow-lg shadow-emerald-900/20' :
-            'bg-zinc-950 border-zinc-800'}
+            status === 'GUIDE' ? 'bg-zinc-900 border-indigo-500/50 shadow-lg shadow-indigo-900/20' :
+              'bg-zinc-950 border-zinc-800'}
             `}
     >
       <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -29,16 +30,17 @@ const AnuuMediator = ({ thought, status }: { thought: string, status: 'IDLE' | '
                     p-3 rounded-full border-2 
                     ${status === 'THINKING' ? 'border-fuchsia-500 bg-fuchsia-500/10 animate-pulse' :
             status === 'ALERT' ? 'border-emerald-500 bg-emerald-500/10' :
-              'border-zinc-700 bg-zinc-800'}
+              status === 'GUIDE' ? 'border-indigo-500 bg-indigo-500/10' :
+                'border-zinc-700 bg-zinc-800'}
                 `}>
-          <Cpu size={32} className={status === 'THINKING' ? 'text-fuchsia-400' : status === 'ALERT' ? 'text-emerald-400' : 'text-zinc-500'} />
+          <Cpu size={32} className={status === 'THINKING' ? 'text-fuchsia-400' : status === 'ALERT' ? 'text-emerald-400' : status === 'GUIDE' ? 'text-indigo-400' : 'text-zinc-500'} />
         </div>
 
         <div className="flex-1">
           <div className="flex justify-between items-center mb-1">
             <h2 className="text-sm font-bold tracking-widest text-zinc-500 uppercase">Anuu Nexus Core</h2>
             <span className={`text-xs px-2 py-0.5 rounded-full font-mono ${status === 'THINKING' ? 'bg-fuchsia-900 text-fuchsia-300' : 'bg-zinc-800 text-zinc-500'}`}>
-              {status === 'THINKING' ? 'PROCESSING' : 'ONLINE'}
+              {status === 'THINKING' ? 'PROCESSING' : status === 'GUIDE' ? 'GUIDANCE' : 'ONLINE'}
             </span>
           </div>
           <p className={`text-lg font-medium leading-relaxed ${status === 'THINKING' ? 'text-fuchsia-200' : 'text-zinc-300'}`}>
@@ -50,16 +52,18 @@ const AnuuMediator = ({ thought, status }: { thought: string, status: 'IDLE' | '
   );
 };
 
-const StrategyCard = ({ strategy }: { strategy: AnuuStrategy }) => {
+const StrategyCard = ({ strategy, onClick }: { strategy: AnuuStrategy, onClick: () => void }) => {
   const isGood = strategy.verdict.includes("RECOMMENDED") || strategy.verdict.includes("VIABLE");
   const bg = isGood ? 'bg-emerald-950/20 border-emerald-500/30' : 'bg-red-950/10 border-red-500/20';
 
   return (
     <motion.div
       layout
+      onClick={onClick}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`p-4 rounded-xl border ${bg} hover:bg-zinc-900/80 transition-all group`}
+      whileHover={{ scale: 1.02 }}
+      className={`p-4 rounded-xl border ${bg} hover:bg-zinc-900/80 transition-all group cursor-pointer relative overflow-hidden`}
     >
       <div className="flex justify-between items-start mb-3">
         <div className="flex items-center gap-3">
@@ -100,6 +104,210 @@ const StrategyCard = ({ strategy }: { strategy: AnuuStrategy }) => {
           </span>
         </div>
       </div>
+
+      {/* Hint for interaction */}
+      <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="bg-zinc-900 border border-zinc-700 px-4 py-2 rounded-full flex items-center gap-2 text-sm font-bold text-white shadow-xl">
+          <Layers size={16} className="text-indigo-400" />
+          ACTIVAR PROTOCOLO
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+const OperationMode = ({ strategy, onBack }: { strategy: AnuuStrategy, onBack: () => void }) => {
+  const [step, setStep] = useState(1);
+  const [batchSize, setBatchSize] = useState(10); // Default 10 crafts
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    // Could show toast here
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="space-y-6"
+    >
+      <div className="flex items-center justify-between">
+        <button onClick={onBack} className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors bg-zinc-900 px-4 py-2 rounded-lg border border-zinc-800">
+          <ArrowLeft size={18} /> Volver al Escáner
+        </button>
+        <div className="text-right">
+          <h2 className="text-2xl font-bold text-white">{strategy.name}</h2>
+          <p className="text-xs text-emerald-400 font-mono">PROTOCOLO ACTIVO // ROI PREVISTO: {strategy.roi.toFixed(1)}%</p>
+        </div>
+      </div>
+
+      {/* Stepper */}
+      <div className="flex justify-between items-center bg-zinc-900 p-2 rounded-xl border border-zinc-800">
+        <button onClick={() => setStep(1)} className={`flex-1 py-3 rounded-lg text-sm font-bold transition-all ${step === 1 ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}>
+          1. ADQUISICIÓN
+        </button>
+        <div className="w-px h-8 bg-zinc-800 mx-2"></div>
+        <button onClick={() => setStep(2)} className={`flex-1 py-3 rounded-lg text-sm font-bold transition-all ${step === 2 ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}>
+          2. TRANSMUTACIÓN
+        </button>
+        <div className="w-px h-8 bg-zinc-800 mx-2"></div>
+        <button onClick={() => setStep(3)} className={`flex-1 py-3 rounded-lg text-sm font-bold transition-all ${step === 3 ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}>
+          3. LIQUIDACIÓN
+        </button>
+      </div>
+
+      {/* STEP 1: ACQUISITION */}
+      {step === 1 && (
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8 space-y-8">
+          <div className="flex items-center gap-4 bg-zinc-950 p-4 rounded-xl border border-indigo-500/20">
+            <Package className="text-indigo-400" size={32} />
+            <div>
+              <h3 className="text-lg font-bold text-white">Configurar Lote</h3>
+              <p className="text-sm text-zinc-400">¿Cuántas transmutaciones vas a realizar?</p>
+            </div>
+            <div className="ml-auto flex items-center gap-2">
+              <input
+                type="number"
+                value={batchSize}
+                onChange={(e) => setBatchSize(Math.max(1, parseInt(e.target.value) || 0))}
+                className="bg-black border border-zinc-700 rounded-lg px-4 py-2 text-white font-mono w-24 text-right focus:border-indigo-500 outline-none"
+              />
+              <span className="text-zinc-500 text-sm font-bold">intentos</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Source Material */}
+            <div className="bg-zinc-950 p-6 rounded-xl border border-zinc-800 relative group">
+              <h4 className="text-zinc-500 text-xs font-bold uppercase mb-2">Material Base (T5)</h4>
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-xl font-bold text-white">{strategy.sourceName}</span>
+                <span className="text-2xl font-mono text-indigo-400">x{50 * batchSize}</span>
+              </div>
+              <button
+                onClick={() => copyToClipboard(strategy.sourceName)}
+                className="w-full flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-800 py-3 rounded-lg text-sm font-bold border border-zinc-700 transition-colors"
+              >
+                <Copy size={16} /> Copiar Nombre
+              </button>
+            </div>
+
+            {/* Dust */}
+            <div className="bg-zinc-950 p-6 rounded-xl border border-zinc-800 relative group">
+              <h4 className="text-zinc-500 text-xs font-bold uppercase mb-2">Catalizador 1</h4>
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-xl font-bold text-white">Crystalline Dust</span>
+                <span className="text-2xl font-mono text-cyan-400">x{5 * batchSize}</span>
+              </div>
+              <button
+                onClick={() => copyToClipboard("Crystalline Dust")}
+                className="w-full flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-800 py-3 rounded-lg text-sm font-bold border border-zinc-700 transition-colors"
+              >
+                <Copy size={16} /> Copiar Nombre
+              </button>
+            </div>
+
+            {/* T6 (Catalyst) */}
+            <div className="bg-zinc-950 p-6 rounded-xl border border-zinc-800 relative group">
+              <h4 className="text-zinc-500 text-xs font-bold uppercase mb-2">Catalizador 2 (T6)</h4>
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-xl font-bold text-white">{strategy.name}</span>
+                <span className="text-2xl font-mono text-purple-400">x{1 * batchSize}</span>
+              </div>
+              <p className="text-xs text-zinc-500 italic">Necesitas 1 unidad para iniciar la reacción.</p>
+            </div>
+
+            {/* Spirit Shards */}
+            <div className="bg-zinc-950 p-6 rounded-xl border border-zinc-800 relative group">
+              <h4 className="text-zinc-500 text-xs font-bold uppercase mb-2">Catalizador Espiritual</h4>
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-xl font-bold text-white">Philosopher's Stone</span>
+                <span className="text-2xl font-mono text-pink-400">x{5 * batchSize}</span>
+              </div>
+              <p className="text-xs text-zinc-400">Cómpralas a <span className="text-white font-bold">Miyani</span> junto a la Forja Mística.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 2: FORGE */}
+      {step === 2 && (
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8 space-y-8 flex flex-col items-center justify-center min-h-[400px]">
+          <h3 className="text-xl font-bold text-white mb-8">Introduce en la Forja Mística</h3>
+
+          <div className="flex gap-4 items-center mb-12">
+            {/* Slots */}
+            <div className="w-24 h-24 bg-zinc-950 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center p-2 text-center">
+              <span className="text-indigo-400 font-bold text-xl">50</span>
+              <span className="text-[10px] text-zinc-500 mt-1">{strategy.sourceName}</span>
+            </div>
+            <div className="text-zinc-600">+</div>
+            <div className="w-24 h-24 bg-zinc-950 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center p-2 text-center">
+              <span className="text-purple-400 font-bold text-xl">1</span>
+              <span className="text-[10px] text-zinc-500 mt-1">{strategy.name}</span>
+            </div>
+            <div className="text-zinc-600">+</div>
+            <div className="w-24 h-24 bg-zinc-950 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center p-2 text-center">
+              <span className="text-cyan-400 font-bold text-xl">5</span>
+              <span className="text-[10px] text-zinc-500 mt-1">Crystalline Dust</span>
+            </div>
+            <div className="text-zinc-600">+</div>
+            <div className="w-24 h-24 bg-zinc-950 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center p-2 text-center">
+              <span className="text-pink-400 font-bold text-xl">5</span>
+              <span className="text-[10px] text-zinc-500 mt-1">Philosopher's Stone</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 text-emerald-400 bg-emerald-950/20 px-6 py-3 rounded-full border border-emerald-500/20 animate-pulse">
+            <FlaskConical />
+            <span className="font-bold">¡Ejecuta la transmutación {batchSize} veces!</span>
+          </div>
+
+          <p className="text-zinc-500 text-sm max-w-md text-center">
+            La Forja Mística consumirá los materiales y te devolverá una cantidad variable de <span className="text-white">{strategy.name}</span> (5-12 unidades).
+          </p>
+        </div>
+      )}
+
+      {/* STEP 3: LIQUIDATION */}
+      {step === 3 && (
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8 space-y-8">
+          <div className="text-center">
+            <CheckCircle size={64} className="mx-auto text-emerald-500 mb-4" />
+            <h3 className="text-2xl font-bold text-white">Misión Cumplida</h3>
+            <p className="text-zinc-400">Ahora vende el resultado en el Trading Post.</p>
+          </div>
+
+          <div className="bg-zinc-950 p-6 rounded-xl border border-zinc-700 flex flex-col items-center">
+            <span className="text-zinc-500 text-xs font-bold uppercase mb-2">Precio de Venta Recomendado</span>
+            <div className="flex items-end gap-2">
+              <span className="text-4xl font-bold text-white">{Math.floor(strategy.sellPrice / 10000)}g {Math.floor((strategy.sellPrice % 10000) / 100)}s</span>
+              <span className="text-sm text-zinc-500 mb-2 font-mono">(Undercut 1c)</span>
+            </div>
+            <p className="text-xs text-zinc-500 mt-2">Vende todo tu stock de {strategy.name}.</p>
+          </div>
+
+          <button
+            onClick={onBack}
+            className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-2"
+          >
+            <RefreshCcw size={20} />
+            FINALIZAR OPERACIÓN Y RE-ESCANEAR
+          </button>
+        </div>
+      )}
+
+      {/* Actions Footer */}
+      <div className="flex justify-end pt-4 mt-6 border-t border-zinc-800">
+        {step < 3 && (
+          <button
+            onClick={() => setStep(s => s + 1)}
+            className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-xl font-bold hover:bg-zinc-200 transition-colors"
+          >
+            Siguiente Paso <ArrowRight size={18} />
+          </button>
+        )}
+      </div>
     </motion.div>
   );
 };
@@ -109,14 +317,18 @@ const StrategyCard = ({ strategy }: { strategy: AnuuStrategy }) => {
 function App() {
   const [apiKey, setApiKey] = useState(localStorage.getItem('gw2_api_key') || '');
   const [strategies, setStrategies] = useState<AnuuStrategy[]>([]);
+  const [activeStrategy, setActiveStrategy] = useState<AnuuStrategy | null>(null);
 
   // Anuu Logic State
   const [thought, setThought] = useState("Sistema en espera. Inicia conexión.");
-  const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'ALERT'>('IDLE');
+  // Add 'GUIDE' to allowed types in useState declaration or infer automatically.
+  // The type in AnuuMediator is strict, so we should match it or cast.
+  const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'ALERT' | 'GUIDE'>('IDLE');
 
   const fetchData = async () => {
     setStatus('THINKING');
     setThought("Conectando a la Red de Comercio del León Negro...");
+    setActiveStrategy(null); // Reset active view
 
     try {
       const allIds = Object.values(IDS).filter(x => typeof x === 'number');
@@ -130,9 +342,7 @@ function App() {
         priceMap[p.id] = p;
       });
 
-      // ANALISIS
       setThought("Procesando vectores de beneficio...");
-
       const strats = analyzeMarket(priceMap);
       setStrategies(strats);
 
@@ -157,6 +367,13 @@ function App() {
       setThought("Error crítico en la conexión API. Reintentando...");
       setStatus('ALERT');
     }
+  };
+
+  const handleStrategySelect = (strategy: AnuuStrategy) => {
+    setActiveStrategy(strategy);
+    setStatus('GUIDE');
+    setThought(`Protocolo ${strategy.name} iniciado. Sigue los pasos para asegurar el beneficio.`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -193,29 +410,59 @@ function App() {
         {/* ANUU MEDIATOR ZONE */}
         <AnuuMediator thought={thought} status={status} />
 
-        {/* ACTION BAR */}
-        <div className="flex gap-4">
-          <button
-            onClick={fetchData}
-            className="flex-1 bg-zinc-100 hover:bg-white text-black font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all active:scale-95"
-          >
-            <RefreshCcw size={20} className={status === 'THINKING' ? 'animate-spin' : ''} />
-            {strategies.length > 0 ? "RE-ESCANEAR MERCADO" : "INICIAR ESCANEO"}
-          </button>
-        </div>
+        {/* MAIN CONTENT SWAP */}
+        <AnimatePresence mode="wait">
+          {!activeStrategy ? (
+            <motion.div
+              key="dashboard"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              {/* ACTION BAR */}
+              <div className="flex gap-4 mb-8">
+                <button
+                  onClick={fetchData}
+                  className="flex-1 bg-zinc-100 hover:bg-white text-black font-bold py-4 rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all active:scale-95"
+                >
+                  <RefreshCcw size={20} className={status === 'THINKING' ? 'animate-spin' : ''} />
+                  {strategies.length > 0 ? "RE-ESCANEAR MERCADO" : "INICIAR ESCANEO"}
+                </button>
+              </div>
 
-        {/* STRATEGIES GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <AnimatePresence>
-            {strategies.map(s => (
-              <StrategyCard key={s.targetId} strategy={s} />
-            ))}
-          </AnimatePresence>
-        </div>
+              {/* STRATEGIES GRID */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {strategies.map(s => (
+                  <StrategyCard
+                    key={s.targetId}
+                    strategy={s}
+                    onClick={() => handleStrategySelect(s)}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="operation"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <OperationMode
+                strategy={activeStrategy}
+                onBack={() => {
+                  setActiveStrategy(null);
+                  setStatus('IDLE');
+                  setThought("Protocolo finalizado. Esperando nueva orden.");
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* FOOTER - SYSTEM LOG */}
         <div className="border-t border-zinc-800 pt-6 mt-12 text-center text-xs text-zinc-600 font-mono">
-          <p>SYSTEM: ANUU_VERSE // MODULE: GW2_NEXUS // V25.10</p>
+          <p>SYSTEM: ANUU_VERSE // MODULE: GW2_NEXUS // V25.10.2</p>
           <p>POWERED BY: THOTH SCHOLAR ENGINE & KALI RISK ASSESSOR</p>
         </div>
       </div>

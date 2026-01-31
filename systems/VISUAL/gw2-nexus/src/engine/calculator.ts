@@ -48,7 +48,17 @@ export const NAMES: Record<number, { en: string, es: string }> = {
     [IDS.TOTEM]: { en: "Elaborate Totem", es: "Tótem Elaborado" },
     [IDS.VENOM]: { en: "Powerful Venom", es: "Veneno Poderoso" },
     [IDS.ECTO]: { en: "Glob of Ectoplasm", es: "Pegote de Ectoplasma" },
-    [IDS.DUST]: { en: "Crystalline Dust", es: "Polvo Cristalino" }
+    [IDS.DUST]: { en: "Crystalline Dust", es: "Polvo Cristalino" },
+
+    // T5 Names
+    [IDS.BLOOD_T5]: { en: "Potent Blood", es: "Sangre Potente" },
+    [IDS.BONE_T5]: { en: "Large Bone", es: "Hueso Grande" },
+    [IDS.CLAW_T5]: { en: "Sharp Claw", es: "Garra Afilada" },
+    [IDS.FANG_T5]: { en: "Large Fang", es: "Colmillo Grande" },
+    [IDS.SCALE_T5]: { en: "Large Scale", es: "Escama Grande" },
+    [IDS.TOTEM_T5]: { en: "Intricate Totem", es: "Tótem Intrincado" },
+    [IDS.VENOM_T5]: { en: "Potent Venom", es: "Veneno Potente" },
+    [IDS.DUST_T5]: { en: "Incandescent Dust", es: "Polvo Incandescente" }
 };
 
 // --- LOGIC ---
@@ -63,6 +73,7 @@ export interface AnuuStrategy {
     targetId: number;
     sourceId: number;
     name: string;
+    sourceName: string;
 
     // Costs
     costPerUnit: number; // 50 T5 + 1 T6 + 5 Dust + Others
@@ -154,6 +165,7 @@ export const analyzeMarket = (prices: Record<number, MarketItem>, ectoPrice?: nu
             targetId: t6Id,
             sourceId: t5Id,
             name: NAMES[t6Id]?.en || "Unknown",
+            sourceName: NAMES[t5Id]?.en || "Unknown T5",
             costPerUnit: costInput,
             sellPrice: outputValue,
             profitPerCraft: profit,

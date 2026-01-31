@@ -4,6 +4,7 @@ import { analyzeMarket, IDS } from './engine/calculator';
 import type { AnuuStrategy, MarketItem } from './engine/calculator';
 import { gw2 } from './api/gw2';
 import { AnimatePresence, motion } from 'framer-motion';
+import { DiversifiedOperation } from './components/DiversifiedOperation';
 import { Brain, RefreshCcw, Cpu, Settings, Package, FlaskConical, Database, Zap, Scale, Target, ArrowLeft, ShoppingCart, TrendingUp, Sparkles, MapPin, Gavel, Clock, Star } from 'lucide-react';
 
 // --- HELPER: Gold Formatter ---
@@ -446,7 +447,6 @@ function App() {
   const [strategies, setStrategies] = useState<AnuuStrategy[]>([]);
   const [activeStrategy, setActiveStrategy] = useState<AnuuStrategy | null>(null);
   const [multiStrategy, setMultiStrategy] = useState<AnuuStrategy[] | null>(null);
-  const [multiTitle, setMultiTitle] = useState("");
   const [materials, setMaterials] = useState<Record<number, number>>({});
   const [wallet, setWallet] = useState<Record<number, number>>({});
   const [prices, setPrices] = useState<Record<number, MarketItem>>({});
@@ -507,7 +507,6 @@ function App() {
 
   const handleMultiSelect = (strats: AnuuStrategy[], title: string) => {
     setMultiStrategy(strats);
-    setMultiTitle(title);
     setStatus('GUIDE');
     setThought(`Perfil estratégico: ${title}.`);
   };
@@ -565,24 +564,13 @@ function App() {
               </div>
             </motion.div>
           ) : multiStrategy ? (
-            <motion.div key="multi" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="space-y-8">
-              <div className="flex justify-between items-center"><button onClick={() => setMultiStrategy(null)} className="flex items-center gap-3 text-zinc-600 font-black uppercase text-[10px] tracking-[0.3em] hover:text-white transition-all group"><ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> {isEng ? 'Back to Dashboard' : 'Volver al Tablero'}</button><h2 className="text-3xl font-black italic">{multiTitle}</h2></div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {multiStrategy.map(s => (
-                  <motion.div whileHover={{ y: -8, scale: 1.02 }} key={s.targetId} className="matte-card p-6 border-white/5 hover:border-indigo-500/50 transition-all cursor-pointer group shadow-2xl relative" onClick={() => handleStrategySelect(s)}>
-                    <div className="text-4xl mb-6 bg-black/40 w-16 h-16 flex items-center justify-center rounded-2xl border border-white/5 group-hover:bg-indigo-500/10 transition-colors">
-                      {getItemIcon(s.name)}
-                    </div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-black text-white uppercase tracking-tight text-sm font-display">{s.name}</h3>
-                      <span className="text-[7px] px-1 bg-white/5 rounded text-zinc-500 font-black">{s.type}</span>
-                    </div>
-                    <div className="flex justify-between items-center border-t border-white/5 pt-4 mt-4"><span className="text-[9px] text-zinc-600 font-black uppercase font-display">ROI:</span><span className={s.roi > 0 ? 'text-indigo-400 font-black text-lg font-display' : 'text-zinc-600 font-black text-lg font-display'}>{s.roi > 0 ? '+' : ''}{s.roi.toFixed(1)}%</span></div>
-                    <div className="mt-8"><button className="w-full bg-indigo-600 text-white py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-900/20 active:scale-95 transition-all font-display">{isEng ? 'Start Analysis' : 'Iniciar Análisis'}</button></div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+            <DiversifiedOperation
+              strategies={multiStrategy}
+              wallet={wallet}
+              prices={prices}
+              onBack={() => setMultiStrategy(null)}
+              isEng={isEng}
+            />
           ) : (
             <motion.div key="op" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
               <OperationMode strategy={activeStrategy!} materials={materials} wallet={wallet} prices={prices} isEng={isEng} onBack={() => { setActiveStrategy(null); }} />

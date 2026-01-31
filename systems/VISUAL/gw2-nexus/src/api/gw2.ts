@@ -105,6 +105,20 @@ export const gw2 = {
         }
     },
 
+    async getSharedInventory(apiKey: string) {
+        try {
+            const url = isDev
+                ? `${API_BASE}/account/inventory`
+                : `${API_BASE}/account/inventory?access_token=${apiKey.trim()}`;
+            const config = isDev ? authConfig(apiKey) : {};
+            const res = await axios.get(url, config);
+            return res.data;
+        } catch (e) {
+            console.error("[GW2 API] Shared Inventory Error", e);
+            return [];
+        }
+    },
+
     async getItems(ids: number[]) {
         if (!ids.length) return [];
         try {

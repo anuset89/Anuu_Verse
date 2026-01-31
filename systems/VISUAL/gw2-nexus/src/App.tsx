@@ -59,10 +59,11 @@ function App() {
 
         if (hasInventoriesPerm) {
           try {
-            const [mats, bank, chars] = await Promise.all([
+            const [mats, bank, chars, shared] = await Promise.all([
               gw2.getMaterials(apiKey),
               gw2.getBank(apiKey),
-              gw2.getCharacters(apiKey)
+              gw2.getCharacters(apiKey),
+              gw2.getSharedInventory(apiKey)
             ]);
 
             const matMap: Record<number, { total: number, storage: number, bank: number, character: number }> = {};
@@ -98,6 +99,16 @@ function App() {
                       });
                     }
                   });
+                }
+              });
+            }
+
+            if (Array.isArray(shared)) {
+              shared.forEach((slot: { id: number, count: number } | null) => {
+                if (slot) {
+                  if (!matMap[slot.id]) matMap[slot.id] = { total: 0, storage: 0, bank: 0, character: 0 };
+                  matMap[slot.id].character += slot.count; // Add to character/bag total for simplicity
+                  matMap[slot.id].total += slot.count;
                 }
               });
             }

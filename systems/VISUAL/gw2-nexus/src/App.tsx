@@ -4,7 +4,7 @@ import type { AnuuStrategy, MarketItem } from './engine/calculator';
 import { gw2 } from './api/gw2';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DiversifiedOperation } from './components/DiversifiedOperation';
-import { Brain, RefreshCcw, Cpu, Settings, Package, FlaskConical, Database, Zap, Scale, Target, ArrowLeft, ShoppingCart, TrendingUp, Sparkles, MapPin, Gavel, Clock, Star, Crosshair, ArrowRight } from 'lucide-react';
+import { Brain, RefreshCcw, Cpu, Settings, Package, FlaskConical, Database, Zap, Scale, ArrowLeft, ShoppingCart, TrendingUp, Sparkles, MapPin, Gavel, Clock, Star, Crosshair, ArrowRight } from 'lucide-react';
 
 // --- HELPER: Gold Formatter ---
 const GoldDisplay = ({ amount, size = "md" }: { amount: number, size?: "sm" | "md" | "lg" | "xl" }) => {
